@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5 分钟配好 Fushi — 官方上手教程</title>
+<meta name="description" content="连平泽唯都能五分钟配好的 Fushi 教程：下载安装、一键导入推荐词典与发音音频、两步接上 Anki，立即开始沉浸式语言学习。">
+<meta property="og:title" content="5 分钟配好 Fushi — 官方上手教程">
+<meta property="og:description" content="下载安装 → 一键导入推荐词典 → 两步接上 Anki，五分钟开始沉浸式学习。">
+<meta property="og:url" content="https://fushi.moe/guide/">
+<link rel="icon" type="image/png" href="../assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+/* ============ 教程页专属 ============ */
+
+.g-hero { padding: 72px 0 26px; }
+.g-hero h1 {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.3;
+  max-width: 800px;
+}
+.g-hero h1 em { font-style: normal; color: var(--vermilion); }
+.g-hero p { margin-top: 16px; color: var(--ink-soft); max-width: 640px; }
+
+/* 时间轴总览 */
+.timeline {
+  margin: 38px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: var(--maxw);
+}
+.tl-item {
+  border: 1.5px solid var(--hair);
+  border-radius: 10px;
+  background: rgba(255, 253, 247, 0.65);
+  padding: 16px 18px;
+}
+.tl-item .t {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--vermilion);
+}
+.tl-item h3 { font-size: 15.5px; margin-top: 4px; }
+.tl-item p { font-size: 13px; color: var(--ink-soft); line-height: 1.7; margin-top: 2px; }
+@media (max-width: 760px) { .timeline { grid-template-columns: 1fr; } }
+
+/* 步骤 */
+.step { padding: 66px 0 0; }
+.step-head { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+.step-no {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 64px;
+  line-height: 1;
+  color: var(--vermilion);
+  opacity: 0.85;
+}
+.step-head h2 {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(24px, 3.5vw, 34px);
+}
+.step-time {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--indigo);
+  border: 1px solid var(--indigo);
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+.step-body { margin-top: 18px; max-width: 780px; }
+.step-body > p { margin-top: 12px; }
+.step-body .muted { color: var(--ink-soft); }
+
+.olist { margin: 16px 0 0; counter-reset: s; list-style: none; }
+.olist li {
+  position: relative;
+  padding: 10px 0 10px 46px;
+  border-bottom: 1px dashed var(--hair);
+}
+.olist li::before {
+  counter-increment: s;
+  content: counter(s);
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--vermilion);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+}
+.olist b { font-weight: 700; }
+
+.callout {
+  margin-top: 20px;
+  border: 1.5px solid var(--vermilion);
+  border-radius: 10px;
+  background: rgba(188, 58, 32, 0.06);
+  padding: 14px 18px;
+  font-size: 14.5px;
+}
+.callout b { color: var(--vermilion); }
+.callout.blue { border-color: var(--indigo); background: rgba(46, 74, 102, 0.06); }
+.callout.blue b { color: var(--indigo); }
+
+.dl-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+
+.shot {
+  margin-top: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(34, 28, 21, 0.12);
+  max-width: 720px;
+}
+.shot.small { max-width: 420px; }
+
+code.inline {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--paper-2);
+  border: 1px solid var(--hair);
+  border-radius: 6px;
+  padding: 2px 10px;
+  color: var(--vermilion-deep);
+}
+
+/* 平台分栏 */
+.plat { margin-top: 26px; border: 1.5px solid var(--hair); border-radius: 12px; overflow: hidden; }
+.plat summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 22px;
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 19px;
+  background: rgba(255, 253, 247, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.plat summary::-webkit-details-marker { display: none; }
+.plat summary::after { content: "＋"; margin-left: auto; color: var(--vermilion); font-weight: 400; }
+.plat[open] summary::after { content: "－"; }
+.plat summary .tag {
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--indigo);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+.plat-body { padding: 6px 22px 24px; border-top: 1px dashed var(--hair); }
+
+/* 完成 */
+.done-band {
+  margin-top: 100px;
+  background: var(--ink);
+  color: var(--paper);
+}
+.done-inner { max-width: var(--maxw); margin: 0 auto; padding: 60px 24px; }
+.done-inner h2 { font-family: var(--serif); font-weight: 900; font-size: clamp(26px, 4vw, 38px); }
+.done-inner h2 em { font-style: normal; color: #e8b04b; }
+.done-inner p { margin-top: 12px; color: rgba(245, 239, 226, 0.75); max-width: 620px; }
+.done-inner .btn-primary { margin-top: 26px; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="../"><img src="../assets/img/logo.png" alt="Fushi logo">Fushi</a>
+    <div class="nav-links">
+      <a href="../#features">功能</a>
+      <a href="../#download">下载</a>
+      <a href="https://github.com/hajisensai/Fushi" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://discord.gg/WhjwyGmm7f" target="_blank" rel="noopener">Discord</a>
+      <a class="nav-cta" href="https://github.com/hajisensai/Fushi/releases/latest" target="_blank" rel="noopener">下载</a>
+    </div>
+  </div>
+</nav>
+
+<header class="g-hero">
+  <div class="wrap">
+    <span class="sec-kicker">官方上手教程</span>
+    <h1 class="rise">连平泽唯都能<em>五分钟</em>配好的 Fushi 教程</h1>
+    <p class="rise d1">三步走：装上 → 一键导入推荐词典和发音音频 → 接上 Anki。词典是一整个打包好的备份，不用一本一本挑；Anki 那步照着图点两个按钮就完事。</p>
+    <div class="timeline rise d2">
+      <div class="tl-item"><span class="t">第 1 分钟</span><h3>下载安装</h3><p>Android 选 arm64，Windows 选 .exe。</p></div>
+      <div class="tl-item"><span class="t">第 2 分钟</span><h3>导入推荐词典包</h3><p>设置 → 同步与备份 → 导入备份，一步到位。</p></div>
+      <div class="tl-item"><span class="t">第 3–5 分钟</span><h3>接上 Anki</h3><p>刷新牌组 → 一键创建 Lapis 牌组，完成。</p></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= 第一步 ================= -->
+<section class="step">
+  <div class="wrap">
+    <div class="step-head">
+      <span class="step-no">壱</span>
+      <h2>下载并安装 Fushi</h2>
+      <span class="step-time">≈ 1 分钟</span>
+    </div>
+    <div class="step-body">
+      <p>去 <a href="https://github.com/hajisensai/Fushi/releases/latest" target="_blank" rel="noopener">GitHub Releases</a> 下最新版：</p>
+      <ol class="olist">
+        <li><b>Android</b>：选 <code class="inline">arm64</code> 的 .apk（需 Android 7.0 及以上）。</li>
+        <li><b>Windows</b>：选 <code class="inline">.exe</code> 安装包。</li>
+        <li><b>macOS / iOS</b>：按 Release 页说明选择对应文件。</li>
+      </ol>
+      <div class="dl-links">
+        <a class="btn btn-primary" href="https://github.com/hajisensai/Fushi/releases/latest" target="_blank" rel="noopener">⬇ 前往下载</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第二步 ================= -->
+<section class="step">
+  <div class="wrap">
+    <div class="step-head">
+      <span class="step-no">弐</span>
+      <h2>一键导入推荐词典 + 发音音频</h2>
+      <span class="step-time">≈ 1 分钟操作</span>
+    </div>
+    <div class="step-body">
+      <p>这是一个打包好的备份文件，含<b>推荐单词词典、音调词典、词频词典</b>，以及<b>日语 / 英语本地发音音频库</b>。新手强烈推荐——省去逐本找词典的所有麻烦（也可以跳过，之后自己导入词典）。</p>
+      <div class="dl-links">
+        <a class="btn btn-primary" href="https://dl.wrds.xyz/fushi-recommended-2026-08-14.fushi.zip">⬇ Cloudflare 直链（9.5 GB）</a>
+        <a class="btn btn-ghost" href="https://drive.google.com/file/d/1W0Civ-b9NAyCu6LpXYMcNI_wZJWB9xjp/view?usp=sharing" target="_blank" rel="noopener">Google Drive</a>
+      </div>
+      <p class="muted" style="margin-top:14px">文件较大，下载可以挂在后台——教程说的五分钟不含这段下载时间。</p>
+      <p style="margin-top:16px">下载完成后，打开 Fushi：<b>设置 → 同步与备份 → 点「导入备份」</b>，选中刚下好的文件。</p>
+      <div class="callout"><b>注意：</b>导入备份会清空本地已有数据。请在刚装好、还没导入自己内容时做这一步（该流程会在后续版本改进）。</div>
+      <img class="shot small" src="../assets/img/guide/import-backup.png" alt="导入备份界面" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第三步 ================= -->
+<section class="step">
+  <div class="wrap">
+    <div class="step-head">
+      <span class="step-no">参</span>
+      <h2>接上 Anki</h2>
+      <span class="step-time">≈ 2–3 分钟</span>
+    </div>
+    <div class="step-body">
+      <p>Anki——名字来自「暗記（あんき）」——是世界上使用最广的<a href="https://zh.wikipedia.org/wiki/%E9%97%B4%E9%9A%94%E9%87%8D%E5%A4%8D" target="_blank" rel="noopener">间隔重复（SRS）</a>软件。你在 Fushi 里查到的词，一键送进 Anki，用最少的复习时间达到最好的记忆效果。先从 <a href="https://apps.ankiweb.net/" target="_blank" rel="noopener">Anki 官网</a> 装好它。</p>
+      <div class="callout blue"><b>务必做一件事：</b>Anki 默认算法是 30 多年前的 SM2，效果很差。请在牌组选项里把算法切换成内置的 <b>FSRS</b>——世界上最好的间隔重复算法之一。</div>
+
+      <details class="plat" open>
+        <summary>Android<span class="tag">AnkiDroid</span></summary>
+        <div class="plat-body">
+          <ol class="olist">
+            <li>安装并打开 Anki（AnkiDroid）。</li>
+            <li>回到 Fushi，进入 <b>设置 → 制卡</b>。</li>
+            <li>点 <b>「刷新牌组与笔记模板」</b>（图中 ①）；Fushi 会请求权限，点允许。</li>
+            <li>点 <b>「创建 Lapis 牌组」</b>（图中 ②）。</li>
+            <li>没有红色警告或报错，就配置成功了。</li>
+          </ol>
+          <img class="shot small" src="../assets/img/guide/anki-android-setup.png" alt="Android 端 Anki 配置" loading="lazy">
+        </div>
+      </details>
+
+      <details class="plat">
+        <summary>Windows<span class="tag">AnkiConnect</span></summary>
+        <div class="plat-body">
+          <ol class="olist">
+            <li>安装并打开 Anki。</li>
+            <li>点左上角 <b>「工具」</b>菜单 → 附加组件 → 获取插件。</li>
+            <li>粘贴插件代码安装 AnkiConnect：<code class="inline">2055492159</code>，然后重启 Anki。</li>
+            <li>回到 Fushi，进入 <b>设置 → 制卡</b>。</li>
+            <li>点 <b>「刷新牌组与笔记模板」</b>（图中 ①）。</li>
+            <li>点 <b>「创建 Lapis 牌组」</b>（图中 ②）。</li>
+            <li>没有红色警告或报错，就配置成功了。</li>
+          </ol>
+          <img class="shot small" src="../assets/img/guide/anki-windows-tools-menu.png" alt="Anki Windows 工具菜单" loading="lazy">
+          <img class="shot small" src="../assets/img/guide/anki-windows-setup.png" alt="Windows 端 Anki 配置" loading="lazy">
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 第四步（可选） ================= -->
+<section class="step">
+  <div class="wrap">
+    <div class="step-head">
+      <span class="step-no">結</span>
+      <h2>（可选）过一遍设置</h2>
+      <span class="step-time">随意</span>
+    </div>
+    <div class="step-body">
+      <p class="muted">阅读主题、字体、注音假名、界面缩放、同步后端……设置页里逛一圈，看看有没有想按自己习惯调整的。不调也完全能用。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 完成 ================= -->
+<section class="done-band">
+  <div class="done-inner">
+    <h2>配好了。<em>剩下的就是看你想看的。</em></h2>
+    <p>导入一本 EPUB、拖进一集番、或者直接在应用里搜索下载——遇到不认识的词，点一下查，再点一下记住它。有问题来 Discord 问，反馈会被很快处理。</p>
+    <a class="btn btn-primary" href="https://discord.gg/WhjwyGmm7f" target="_blank" rel="noopener">加入 Discord 社区 →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div>
+      <div class="foot-brand"><img src="../assets/img/logo.png" alt="">Fushi</div>
+      <p style="margin-top:10px">自由软件，GPLv3 许可发布。</p>
+    </div>
+    <div class="foot-links">
+      <a href="../">首页</a>
+      <a href="https://github.com/hajisensai/Fushi" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://ncnies6wfjok.feishu.cn/wiki/OZbww3T3IiEAx5kBhHkcF07vncb" target="_blank" rel="noopener">简体中文完整指南（飞书）</a>
+      <a href="https://github.com/hajisensai/Fushi/blob/main/docs/user-guide.md" target="_blank" rel="noopener">English Guide</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
