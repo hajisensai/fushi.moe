@@ -1,0 +1,81 @@
+baseURL = "https://fushi.moe/"
+languageCode = "zh-cn"
+defaultContentLanguage = "zh-cn"
+hasCJKLanguage = true
+title = "Fushi"
+theme = "PaperMod"
+enableRobotsTXT = true
+timeZone = "Asia/Shanghai"
+
+[pagination]
+pagerSize = 10
+
+[params]
+description = "Fushi：免费开源的沉浸式语言学习应用。读小说、听有声书、看视频、读漫画，点一下查词，再点一下做成带原文语境的 Anki 卡。"
+keywords = ["Fushi", "语言学习", "沉浸式学习", "Anki", "查词", "EPUB", "有声书"]
+defaultTheme = "auto"
+ShowReadingTime = true
+ShowShareButtons = false
+ShowCodeCopyButtons = true
+ShowToc = true
+ShowBreadCrumbs = true
+ShowPostNavLinks = true
+
+[params.homeInfoParams]
+Title = "看你想看的，顺便把语言学了。"
+Content = """
+**Fushi** 是免费开源的多平台沉浸式语言学习应用：把你读的小说、追的番剧、听的有声书变成语言输入——**点一下查词，再点一下做成带原文语境的 Anki 卡**。它不给你塞背词清单，只帮你抓住你真正读到、听到的词。
+
+- 📖 EPUB 阅读 · 🎧 有声书逐句同步 · 🎬 视频字幕查词 · 📚 漫画 OCR · 🃏 一键 Anki 制卡
+- Android / Windows / macOS / iOS（Linux 可从源码构建），GPLv3，17 种界面语言
+- 👉 [立即下载](/download/) · [5 分钟配好](/posts/5min-setup/)
+"""
+
+[[params.socialIcons]]
+name = "github"
+title = "GitHub"
+url = "https://github.com/hajisensai/Fushi"
+
+[[params.socialIcons]]
+name = "discord"
+title = "Discord"
+url = "https://discord.gg/WhjwyGmm7f"
+
+[params.assets]
+favicon = "/icon-placeholder.png"
+favicon16x16 = "/icon-placeholder.png"
+favicon32x32 = "/icon-placeholder.png"
+apple_touch_icon = "/icon-placeholder.png"
+
+[params.label]
+text = "Fushi"
+icon = "/icon-placeholder.png"
+iconHeight = 24
+
+[menu]
+[[menu.main]]
+identifier = "guide"
+name = "5 分钟上手"
+url = "/posts/5min-setup/"
+weight = 10
+
+[[menu.main]]
+identifier = "download"
+name = "下载"
+url = "/download/"
+weight = 20
+
+[[menu.main]]
+identifier = "github"
+name = "GitHub"
+url = "https://github.com/hajisensai/Fushi"
+weight = 30
+
+[[menu.main]]
+identifier = "discord"
+name = "Discord"
+url = "https://discord.gg/WhjwyGmm7f"
+weight = 40
+
+[markup.goldmark.renderer]
+unsafe = true
