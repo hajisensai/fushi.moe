@@ -276,6 +276,8 @@
     cursor: pointer; -webkit-user-select: none; user-select: none;
   }
   .vplayer .vsub .ch.demo-hl { background: var(--app-hl); }
+  /* 收藏句星标：对齐 app 字幕列表的实心星，跟在当前字幕句前 */
+  .vplayer .vsub .vsub-star { color: #ffd60a; margin-right: 0.4em; text-shadow: none; }
   .vplayer .vctrl {
     display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #101011;
   }
@@ -354,6 +356,8 @@
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.4) transparent;
   }
   .bookpage .bcue.now { background: rgba(70, 130, 180, 0.35); }
+  /* 收藏句整句高亮：对齐 app HighlightBridge 黄色（暗底 α=.45），压过播放中句的蓝 */
+  .bookpage .bcue.fav-hl { background: rgba(255, 220, 0, 0.45); }
   .bookpage .ch.demo-hl { background: rgb(75, 62, 43); }  /* rgba(180,145,90,.35) ⊕ #121212 */
 
   /* —— 歌词模式 = app LyricsModeHtml 原版文档（iframe） —— */
@@ -6473,9 +6477,27 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (e.target === mineOverlay) { mineOverlay.classList.remove('show'); document.body.style.overflow = ''; }
     });
 
-    // 演示页收藏态：仅本页会话内存，刷新即清（App 里落库）
-    const demoFavs = new Set();
-    const favKey = (a) => ((a && a.expression) || '') + '|' + ((a && a.reading) || '');
+    // 演示页收藏态，对齐 App 语义：弹窗星标收藏的是**当前句**（BUG-123 后 App 弹窗已无
+    // 单词☆，星标与书内/视频的句子收藏同源）。书正文=整句黄高亮，视频=字幕句加星。
+    // 仅本页会话内存，刷新即清（App 里落 FavoriteSentences 表）。
+    const demoFavs = new Set();   // 已收藏的句子文本
+    function setVsubStar(on) {
+      const cur = vsub.querySelector('.vsub-star');
+      if (on && !cur) {
+        const s = document.createElement('span');
+        s.className = 'vsub-star';
+        s.textContent = '★';
+        vsub.insertBefore(s, vsub.firstChild);
+      }
+      if (!on && cur) cur.remove();
+    }
+    function applyFavMarks(sentence, on) {
+      const bi = MEDIA.abook.findIndex((c) => c.text === sentence);
+      if (bi >= 0 && bookCueEls[bi]) bookCueEls[bi].classList.toggle('fav-hl', on);
+      if (vCueIdx >= 0 && MEDIA.video[vCueIdx] && MEDIA.video[vCueIdx].text === sentence) {
+        setVsubStar(on);
+      }
+    }
     window.audioSources = ['demo'];
     window.needsAudio = true;
     window.flutter_inappwebview = {
@@ -6484,11 +6506,15 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
           case 'duplicateCheck':
             return Promise.resolve(false);
           case 'favoriteCheck':
-            return Promise.resolve(demoFavs.has(favKey(a)));
+            return Promise.resolve(demoFavs.has(mineSentence));
           case 'favoriteEntry': {
-            const k = favKey(a);
-            if (demoFavs.has(k)) demoFavs.delete(k); else demoFavs.add(k);
-            return Promise.resolve(demoFavs.has(k));
+            const k = mineSentence;
+            if (!k) return Promise.resolve(false);
+            const on = !demoFavs.has(k);
+            if (on) demoFavs.add(k); else demoFavs.delete(k);
+            applyFavMarks(k, on);
+            toast(on ? '已收藏当前句——书内整句高亮、视频字幕加星' : '已取消收藏');
+            return Promise.resolve(on);
           }
           case 'resolveWordAudio': {
             const k = (a && a.expression || '') + '|' + (a && a.reading || a && a.expression || '');
@@ -6777,6 +6803,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       const cue = MEDIA.video[idx];
       buildCharText(vsub, [[cue.text, null]], termResolve(cue.pos, () => pauseForLookup(video)),
         cue.text, () => toast('演示词库没带上这个词——App 里都能查'), SENT_PIC[cue.text] || '');
+      if (demoFavs.has(cue.text)) setVsubStar(true);
     }
     function vSync() {
       const t = video.currentTime;
