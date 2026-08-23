@@ -6449,9 +6449,10 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       };
       mineFlip.reset(fields);
       mineOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
     }
     mineOverlay.addEventListener('mousedown', (e) => {
-      if (e.target === mineOverlay) mineOverlay.classList.remove('show');
+      if (e.target === mineOverlay) { mineOverlay.classList.remove('show'); document.body.style.overflow = ''; }
     });
 
     window.audioSources = ['demo'];
@@ -6585,6 +6586,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     }
     function closePopup() {
       if (host) host.style.display = 'none';
+      document.body.style.overflow = '';
       nestDepth = 0;
       curAnchor = null;
       clearHl();
@@ -6654,6 +6656,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       curAnchor = anchorEl;
       curMaxH = Math.min(parseInt(THEME['--fushi-popup-max-height']) || 541, Math.round(window.innerHeight * 0.72));
       host.style.display = 'block';
+      document.body.style.overflow = 'hidden';
       host.style.visibility = 'hidden';
       host.style.left = '0px'; host.style.top = '0px';
       host.style.maxHeight = curMaxH + 'px';
@@ -6924,7 +6927,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       closePopup();
     });
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { closePopup(); mineOverlay.classList.remove('show'); }
+      if (e.key === 'Escape') { closePopup(); mineOverlay.classList.remove('show'); document.body.style.overflow = ''; }
     });
 
     // Anki 黑带示例卡：真 Lapis 模板 + けいおん!! S02E01「大好き」
