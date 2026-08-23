@@ -16,7 +16,7 @@
     --hairline: #d2d2d7;
     --link: #0071e3;
     --link-ink: #ffffff;
-    --green: #00873c;
+    --accent: #5856d6;
     --card: #ffffff;
     --card-shadow: 0 20px 44px rgba(0, 0, 0, 0.08);
     --band: #000000;
@@ -24,7 +24,7 @@
     --band-line: #2d2d2f;
     --band-ink: #f5f5f7;
     --band-ink-2: #86868b;
-    --band-green: #00d959;
+    --band-accent: #7d7aff;
     --band-link: #2997ff;
     /* app 实拍面（捕获自真实 app 深色主题） */
     --app-bg: rgb(18, 19, 20);
@@ -65,7 +65,7 @@
   }
   .eyebrow {
     font-size: clamp(17px, 2vw, 21px); font-weight: 600; line-height: 1.19;
-    letter-spacing: 0.011em; color: var(--green);
+    letter-spacing: 0.011em; color: var(--accent);
   }
   .copy { font-size: clamp(17px, 2vw, 21px); line-height: 1.4762; color: var(--ink); font-weight: 400; }
   .copy-2 { color: var(--ink-2); }
@@ -136,7 +136,7 @@
     font-size: 12px; color: #fff;
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
   }
-  .pcell .tag b { color: var(--band-green); font-size: 15px; font-weight: 600; margin-right: 7px; }
+  .pcell .tag b { color: var(--band-accent); font-size: 15px; font-weight: 600; margin-right: 7px; }
   .panel-hint { margin-top: 14px; font-size: 12px; color: var(--ink-2); }
   @media (max-width: 980px) {
     .hero-grid { grid-template-columns: 1fr; }
@@ -201,18 +201,18 @@
   .mine-card .dict { font-size: 10.5px; color: var(--band-ink-2); opacity: 0.8; margin-top: 6px; letter-spacing: 0.04em; }
   .mine-card hr { border: 0; border-top: 1px solid var(--band-line); margin: 16px 0; }
   .mine-card .sent { font-family: var(--jp); font-size: 15.5px; line-height: 2; }
-  .mine-card .sent b { color: var(--band-green); font-weight: 700; }
+  .mine-card .sent b { color: var(--band-accent); font-weight: 700; }
   .mine-card .aud-btn {
     display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; cursor: pointer;
     border: 1px solid var(--band-line); border-radius: 980px; padding: 6px 16px;
     font-size: 12px; color: var(--band-ink-2); background: none;
   }
-  .mine-card .aud-btn i { width: 0; height: 0; border-left: 7px solid var(--band-green); border-block: 5px solid transparent; }
+  .mine-card .aud-btn i { width: 0; height: 0; border-left: 7px solid var(--band-accent); border-block: 5px solid transparent; }
   .mine-card .foot {
     display: flex; justify-content: space-between; gap: 10px; margin-top: 16px;
     font-size: 10.5px; color: var(--band-ink-2); letter-spacing: 0.05em;
   }
-  .mine-card .foot .ok { color: var(--band-green); }
+  .mine-card .foot .ok { color: var(--band-accent); }
 
   /* ---------- 宣言 + ACGN ---------- */
   .acgn-row {
@@ -233,7 +233,7 @@
   }
   .method .tip b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 6px; }
   .acgn-row .cell:hover .letter { text-decoration: underline; }
-  .acgn-row .letter { font-size: clamp(34px, 5vw, 56px); font-weight: 600; color: var(--green); line-height: 1; }
+  .acgn-row .letter { font-size: clamp(34px, 5vw, 56px); font-weight: 600; color: var(--accent); line-height: 1; }
   .acgn-row .label { margin-top: 6px; font-size: 14px; color: var(--ink-2); }
 
   /* ---------- 功能节 ---------- */
@@ -284,7 +284,7 @@
     background: #2d2d2f; color: #f5f5f7; display: grid; place-items: center; font-size: 11px;
   }
   .vctrl .track { flex: 1; height: 4px; border-radius: 2px; background: #2d2d2f; position: relative; cursor: pointer; }
-  .vctrl .track i { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background: var(--band-green); border-radius: 2px; }
+  .vctrl .track i { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background: var(--band-accent); border-radius: 2px; }
   .vctrl .vtime { font-size: 11px; color: #86868b; font-variant-numeric: tabular-nums; }
 
   /* —— C：真漫画页 + OCR 框选 —— */
@@ -306,7 +306,7 @@
     padding: 8px 13px; font-size: 11px; color: #a2a5ae; line-height: 1.8;
   }
   .gal-stage .hookchip b { color: #eceae4; font-weight: 500; }
-  .gal-stage .hookchip .on { color: #00d959; font-size: 10px; }
+  .gal-stage .hookchip .on { color: var(--band-accent); font-size: 10px; }
   /* 台词浮窗：复刻 app GalHookTextOverlay 外观（深色半透明圆角 + 台词 + 语音钮） */
   .gal-stage .luna {
     position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%);
@@ -327,7 +327,7 @@
     border: 1px solid rgba(70, 71, 71, 0.55); border-radius: 980px; padding: 3px 12px;
     font-size: 11px; color: #a2a5ae; background: none;
   }
-  .gal-stage .luna .voice i { width: 0; height: 0; border-left: 6px solid #00d959; border-block: 4px solid transparent; }
+  .gal-stage .luna .voice i { width: 0; height: 0; border-left: 6px solid var(--band-accent); border-block: 4px solid transparent; }
   .gal-stage .luna .src { font-size: 10px; color: #6e7280; letter-spacing: 0.05em; }
 
   /* —— N：正文视图（阅读器 dark 主题真值：#121212 / rgba(255,255,255,.87)，
@@ -444,7 +444,7 @@
 
   /* ---------- 黑色带 ---------- */
   .black-band { background: var(--band); color: var(--band-ink); }
-  .black-band .eyebrow { color: var(--band-green); }
+  .black-band .eyebrow { color: var(--band-accent); }
   .black-band .copy { color: var(--band-ink); }
   .black-band .copy-2 { color: var(--band-ink-2); }
   .anki-card {
@@ -464,14 +464,14 @@
   .anki-card .gloss i { font-style: normal; font-size: 10px; opacity: 0.7; }
   .anki-card hr { border: 0; border-top: 1px solid var(--band-line); margin: 18px 0; }
   .anki-card .sent { font-family: var(--jp); font-size: 16px; line-height: 2; }
-  .anki-card .sent b { color: var(--band-green); font-weight: 700; }
+  .anki-card .sent b { color: var(--band-accent); font-weight: 700; }
   .anki-card .media { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
   .anki-card .aud {
     display: flex; align-items: center; gap: 7px; cursor: pointer;
     border: 1px solid var(--band-line); border-radius: 980px; padding: 6px 15px;
     font-size: 11.5px; color: var(--band-ink-2); background: none;
   }
-  .anki-card .aud i { width: 0; height: 0; border-left: 7px solid var(--band-green); border-block: 5px solid transparent; }
+  .anki-card .aud i { width: 0; height: 0; border-left: 7px solid var(--band-accent); border-block: 5px solid transparent; }
   .anki-card .thumb {
     width: 72px; height: 44px; border-radius: 8px;
     background: radial-gradient(100% 120% at 30% 20%, #3a4a6b 0%, #1a2233 70%);
@@ -481,9 +481,9 @@
     display: flex; justify-content: space-between; margin-top: 18px;
     font-size: 10.5px; color: var(--band-ink-2); letter-spacing: 0.05em;
   }
-  .anki-card .foot .ok { color: var(--band-green); }
+  .anki-card .foot .ok { color: var(--band-accent); }
   .black-band .try { margin-top: 28px; font-size: 14px; color: var(--band-ink-2); }
-  .black-band .try b { color: var(--band-green); font-weight: 500; }
+  .black-band .try b { color: var(--band-accent); font-weight: 500; }
 
   .chips { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 36px; }
   .chips i {
@@ -491,7 +491,7 @@
     border: 1px solid color-mix(in srgb, var(--hairline) 80%, transparent);
     border-radius: 980px; padding: 8px 20px; background: var(--card);
   }
-  .chips i.star { border-color: var(--green); color: var(--green); font-weight: 500; }
+  .chips i.star { border-color: var(--accent); color: var(--accent); font-weight: 500; }
 
   .stats .grid {
     max-width: 640px; margin: 48px auto 0;
@@ -500,7 +500,7 @@
   }
   .stats .n {
     font-size: clamp(52px, 6vw, 76px); font-weight: 600; line-height: 1;
-    color: var(--band-green); letter-spacing: -0.01em; font-variant-numeric: tabular-nums;
+    color: var(--band-accent); letter-spacing: -0.01em; font-variant-numeric: tabular-nums;
   }
   .stats .n small { font-size: 24px; color: var(--band-ink-2); margin-left: 3px; font-weight: 500; }
   .stats .cap { margin-top: 12px; font-size: 15px; color: var(--band-ink-2); }
@@ -535,7 +535,7 @@
 <nav class="nav" id="top">
   <span class="name"><span class="logo" aria-hidden="true">F</span>Fushi</span>
   <span class="links">
-    <a class="plain" href="#top">回到开头</a><a class="plain" href="/guide">怎么开始</a><a class="plain nav-ico" href="https://qm.qq.com/q/Sx2nWTvJCw" aria-label="QQ 群" title="QQ 群"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"/></svg></a><a class="plain nav-ico" href="https://discord.gg/WhjwyGmm7f" aria-label="Discord" title="Discord"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg></a><a class="plain" href="https://github.com/hajisensai/Fushi">GitHub</a>
+    <a class="plain" href="#top">回到开头</a><a class="plain" href="#method">怎么开始</a><a class="plain nav-ico" href="https://qm.qq.com/q/Sx2nWTvJCw" aria-label="QQ 群" title="QQ 群"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"/></svg></a><a class="plain nav-ico" href="https://discord.gg/WhjwyGmm7f" aria-label="Discord" title="Discord"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg></a><a class="plain" href="https://github.com/hajisensai/Fushi">GitHub</a>
     <a class="btn" href="/download">下载</a>
   </span>
 </nav>
@@ -543,9 +543,9 @@
 <header class="hero">
   <div class="hero-grid">
     <div class="hero-copy">
-      <p class="eyebrow">沉浸 · 查词 · 制卡，一个 App</p>
+      <p class="eyebrow">一站式 · 开箱即用</p>
       <h1 class="h-hero">语言习得<br>本该如此快乐</h1>
-      <p class="copy copy-2">把你每天看的番、读的书、玩的游戏变成语言输入——遇到生词点一下查释义，想记住就再点一下——原句、动图、原声、释义自动填进 Anki。</p>
+      <p class="copy copy-2"><b>最少的配置，干最多的事。</b>播放器、词典、查词、制卡、下载追更，过去要拼一堆工具，现在装一个 App 就够。看番、读书、玩游戏时遇到生词，点一下查释义，点加号——原句、画面、原声、释义自动填进 Anki。</p>
       <div class="btns"><a class="btn" href="/download">立即下载</a></div>
       <p class="plats">WINDOWS · MACOS · ANDROID · IOS</p>
     </div>
