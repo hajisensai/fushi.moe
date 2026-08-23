@@ -6314,6 +6314,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     const mineCard = document.getElementById('mine-card');
     let mineSentence = '';
     let minePic = '';   // 当前查词上下文的制卡配图（视频帧 / 封面 / 页面截图）
+    let mineSrc = '';   // 当前查词来源域：video / book / gal / manga（收藏语义按域分）
     function stripHtml(html) {
       const t = document.createElement('div');
       t.innerHTML = html || '';
@@ -6480,7 +6481,9 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     // 演示页收藏态，对齐 App 语义：弹窗星标收藏的是**当前句**（BUG-123 后 App 弹窗已无
     // 单词☆，星标与书内/视频的句子收藏同源）。书正文=整句黄高亮，视频=字幕句加星。
     // 仅本页会话内存，刷新即清（App 里落 FavoriteSentences 表）。
-    const demoFavs = new Set();   // 已收藏的句子文本
+    const demoFavs = new Set();      // 已收藏的句子文本（书/视频）
+    const demoFavWords = new Set();  // 已收藏的单词（gal 浮窗 popup.js 语义 = FavoriteWords）
+    const favWordKey = (a) => ((a && a.expression) || '') + '|' + ((a && a.reading) || '');
     function setVsubStar(on) {
       const cur = vsub.querySelector('.vsub-star');
       if (on && !cur) {
@@ -6506,8 +6509,18 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
           case 'duplicateCheck':
             return Promise.resolve(false);
           case 'favoriteCheck':
-            return Promise.resolve(demoFavs.has(mineSentence));
+            // 对齐 App：gal 浮窗（popup.js）☆=收藏单词；书/视频弹窗星标=收藏当前句
+            return Promise.resolve(mineSrc === 'gal'
+              ? demoFavWords.has(favWordKey(a))
+              : demoFavs.has(mineSentence));
           case 'favoriteEntry': {
+            if (mineSrc === 'gal') {
+              const wk = favWordKey(a);
+              const wOn = !demoFavWords.has(wk);
+              if (wOn) demoFavWords.add(wk); else demoFavWords.delete(wk);
+              toast(wOn ? '已收藏单词——App 里可在收藏夹回顾' : '已取消收藏');
+              return Promise.resolve(wOn);
+            }
             const k = mineSentence;
             if (!k) return Promise.resolve(false);
             const on = !demoFavs.has(k);
@@ -6698,12 +6711,21 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     window.addEventListener('scroll', onViewportChange, { passive: true });
     window.addEventListener('resize', onViewportChange);
 
-    function openEntries(entries, anchorEl, spans, sentence, pic) {
+    function openEntries(entries, anchorEl, spans, sentence, pic, src) {
       ensureHost();
       clearHl();
       nestDepth = 0;
       mineSentence = sentence || '';
       minePic = (typeof pic === 'function' ? pic() : pic) || '';
+      mineSrc = src || '';
+      // 对齐 App：漫画弹窗没有收藏钮（BaseSourcePage 默认无星标 header，漫画未覆写）
+      if (!window.__demoFavCss) {
+        const st = document.createElement('style');
+        st.textContent = '.demo-no-fav .favorite-button{display:none!important}';
+        window.__fushiRoot.appendChild(st);
+        window.__demoFavCss = true;
+      }
+      container.classList.toggle('demo-no-fav', mineSrc === 'manga');
       (spans || []).forEach(s => { s.classList.add('demo-hl'); hlSpans.push(s); });
       window.lookupEntries = entries;
       window._noResultsMessage = 'No results';
@@ -6724,7 +6746,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     }
 
     // 通用：文本 -> 字符 span + 查词；posResolve(i) -> {entries, len} | null
-    function buildCharText(el, segs, posResolve, sentence, onMiss, pic) {
+    function buildCharText(el, segs, posResolve, sentence, onMiss, pic, src) {
       const charSpan = [];
       let gi = 0;
       for (const [text, ruby] of segs) {
@@ -6757,7 +6779,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         const r = posResolve(i);
         if (!r) { if (onMiss) onMiss(i); return; }
         e.stopPropagation();
-        openEntries(r.entries, charSpan[i], charSpan.slice(i, i + r.len), sentence, pic);
+        openEntries(r.entries, charSpan[i], charSpan.slice(i, i + r.len), sentence, pic, src);
       });
       return charSpan;
     }
@@ -6802,7 +6824,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (idx < 0) return;
       const cue = MEDIA.video[idx];
       buildCharText(vsub, [[cue.text, null]], termResolve(cue.pos, () => pauseForLookup(video)),
-        cue.text, () => toast('演示词库没带上这个词——App 里都能查'), SENT_PIC[cue.text] || '');
+        cue.text, () => toast('演示词库没带上这个词——App 里都能查'), SENT_PIC[cue.text] || '', 'video');
       if (demoFavs.has(cue.text)) setVsubStar(true);
     }
     function vSync() {
@@ -6831,7 +6853,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     // ============ 3) 漫画 = app mangaWindowDocument 原版文档（真 OCR 块 + 真选区引擎） ============
     const mangaFrame = document.getElementById('manga-frame');
     window.__fushiMangaBridge = makeFrameBridge(mangaFrame, null,
-      () => { try { const im = mangaFrame.contentDocument.querySelector('img'); return im ? im.src : ''; } catch (_) { return ''; } });
+      () => { try { const im = mangaFrame.contentDocument.querySelector('img'); return im ? im.src : ''; } catch (_) { return ''; } }, 'manga');
     (function () {
       const doc = mangaFrame.contentDocument;
       doc.open();
@@ -6843,7 +6865,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     const galLine = document.getElementById('gal-line');
     buildCharText(galLine, [[EXTRA.gal.text, null]], termResolve(EXTRA.gal.pos, null),
       EXTRA.gal.text, () => toast('演示词库没带上这个词——App 里都能查'),
-      () => { const im = document.querySelector('.gal-stage > img'); return im ? im.src : ''; });
+      () => { const im = document.querySelector('.gal-stage > img'); return im ? im.src : ''; }, 'gal');
     document.getElementById('gal-voice').addEventListener('click', () => {
       toast('演示页没带这句的原声——真机上 Hook 会同步捕获角色语音，点这里即重播');
     });
@@ -6858,7 +6880,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     let lyricsWin = null;
     // 通用 frame 桥：app 文档（歌词 / 漫画）里的选区引擎 callHandler('onTextSelected', json)
     // 原样触发——这里只做「查词典 + 回调真高亮」，其余宿主事件 no-op。
-    function makeFrameBridge(frameEl, onLookupPause, pic) {
+    function makeFrameBridge(frameEl, onLookupPause, pic, src) {
       return function (name, payload) {
         if (name !== 'onTextSelected') return Promise.resolve(null);
         try {
@@ -6890,14 +6912,14 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
                        right: fr.x + rel.x + (rel.width || 10), bottom: fr.y + rel.y + (rel.height || 20) };
             }
           };
-          openEntries(hit.entries, anchor, [], p.sentence || '', pic);
+          openEntries(hit.entries, anchor, [], p.sentence || '', pic, src);
         } catch (e) { console.error(e); }
         return Promise.resolve(null);
       };
     }
     window.__fushiLyricsBridge = null;  // 下方 iframe 建好后再绑定
     // 写入 app 生成的原版文档
-    window.__fushiLyricsBridge = makeFrameBridge(lyricsFrame, () => pauseForLookup(audioEl), BOOK_COVER);
+    window.__fushiLyricsBridge = makeFrameBridge(lyricsFrame, () => pauseForLookup(audioEl), BOOK_COVER, 'book');
     (function () {
       const doc = lyricsFrame.contentDocument;
       doc.open();
@@ -6911,7 +6933,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     MEDIA.abook.forEach((cue) => {
       const span = document.createElement('span');
       span.className = 'bcue';
-      buildCharText(span, [[cue.text, null]], termResolve(cue.pos, () => pauseForLookup(audioEl)), cue.text, null, BOOK_COVER);
+      buildCharText(span, [[cue.text, null]], termResolve(cue.pos, () => pauseForLookup(audioEl)), cue.text, null, BOOK_COVER, 'book');
       bookpage.appendChild(span);
       bookCueEls.push(span);
     });
