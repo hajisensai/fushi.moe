@@ -53,6 +53,33 @@ fushi.moe/releases/*  同一 Worker ┬→ 主  R2 桶 fushi-releases
 
 ---
 
+## 推荐包分发（`/pack`）
+
+新手引导的推荐包约 **9.5 GB**，切片放 `hajisensai/fushi-pack` 的 release。
+对外只有两条路径：
+
+| 路径 | 上游 | 缓存 |
+|---|---|---|
+| `/pack/manifest.json` | `github.com/<pack repo>/releases/latest/download/manifest.json` | 300s + must-revalidate |
+| `/pack/<tag>/<name>` | `github.com/<pack repo>/releases/download/<tag>/<name>` | immutable 一年 |
+
+三条设计约束，改之前先读懂：
+
+1. **不碰 GitHub API**。`releases/latest/download/<name>` 是 GitHub 自带的、
+   会 302 到最新 release 的稳定端点，所以不需要 API、不需要限流熔断、不需要清单缓存。
+2. **不碰 R2**。R2 免费额度 10 GB，塞进 9.5 GB 的包就没地方放 app 的发布镜像了。
+3. **滚动路径绝不能 immutable**。只有 `/pack/manifest.json` 是滚动的，切片路径带 tag。
+   滚动 URL 配长缓存会让同一次下载拿到新旧混合的分片，逐片 sha256 会红、9.5 GB 白下。
+
+客户端只硬编码 `/pack/manifest.json` 一个地址，清单里的切片 URL 自带 tag。
+**换包 = 在 `fushi-pack` 发一个新 release**，app 一个字都不用改，也不用发版。
+
+清单的 `part_base_urls` 同时写 GitHub 直链和 `https://fushi.moe/pack/<tag>/`：
+两者逐字节相同（后者就是前者的边缘代理），下载器把它们挂到同一个分片上并发拉，
+拼完的 sha256 一定对得上。分片按片号轮换来源（Fushi 仓库 #984）。
+
+---
+
 ## 激活步骤
 
 前四步做完之前，站点保持现状（GitHub Pages 直接服务 `fushi.moe`），什么都不会坏。

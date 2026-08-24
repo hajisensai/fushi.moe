@@ -3,6 +3,7 @@ import { settingsFrom, type Env } from './config';
 import { handleDownload } from './downloads';
 import { handleHealth } from './health';
 import { handleSite } from './site';
+import { handlePack } from './pack';
 import { originUrl } from './origins';
 
 /**
@@ -60,6 +61,21 @@ export default {
           health,
           fetcher: fetch,
           hasMirror: env.MIRROR !== undefined,
+        });
+      }
+
+      // 推荐包：不碰 GitHub API、不碰 R2，纯粹是 fushi-pack release 的边缘代理。
+      // 与下载路由前缀不同、彼此独立，谁先判都一样，这里就近放在它前面。
+      if (
+        url.hostname === settings.canonicalHost &&
+        (url.pathname === settings.packPrefix ||
+          url.pathname.startsWith(settings.packPrefix + '/'))
+      ) {
+        const packUrl = new URL(url.toString());
+        packUrl.pathname = url.pathname.slice(settings.packPrefix.length) || '/';
+        return await handlePack(new Request(packUrl.toString(), request), {
+          settings,
+          fetcher: fetch,
         });
       }
 
