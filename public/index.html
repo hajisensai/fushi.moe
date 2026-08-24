@@ -189,8 +189,11 @@
   .mine-overlay.show { display: flex; }
   .nav .nav-ico { display: inline-flex; align-items: center; }
   .nav .nav-ico svg { width: 17px; height: 17px; fill: currentColor; display: block; }
+  /* 制卡预览：长宽一次定死。按内容量高（sizeCardFrame）会让每个词弹出的卡尺寸
+     都不一样，且量完那一刻还会跳一次高度——固定框 + 卡内滚动才是稳的。 */
   .mine-card {
-    width: min(540px, 94vw); max-height: 92vh; overflow-y: auto;
+    width: min(540px, 94vw); height: min(860px, 92vh);
+    display: flex; flex-direction: column;
     background: var(--band-2); border: 1px solid var(--band-line); border-radius: 22px;
     padding: 30px 30px 22px; color: var(--band-ink);
     box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.8);
@@ -241,6 +244,34 @@
   .feature .head .eyebrow { margin-bottom: 12px; }
   .feature .head .copy { max-width: 640px; margin: 20px auto 0; }
   .feature .stage { max-width: 980px; margin: 0 auto; }
+  /* 交互 demo 与实机录屏并排：网页演示证明「能点」，录屏证明「真 app 长这样」。
+     窄屏塌成一列，录屏在下。 */
+  .feature .stage.duo {
+    max-width: min(1280px, 94vw); display: grid; gap: 28px; align-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .duo-pane { min-width: 0; }
+  .duo-cap { margin-top: 12px; text-align: center; font-size: 11.5px; letter-spacing: 0.06em; color: var(--ink-2); }
+  .shotbox {
+    position: relative; aspect-ratio: 16 / 9; border-radius: 28px; overflow: hidden;
+    background: #000; box-shadow: var(--card-shadow);
+  }
+  .shotbox video { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .shotbox .sndbtn {
+    position: absolute; right: 12px; bottom: 12px; width: 34px; height: 34px; padding: 0;
+    border: 0; border-radius: 50%; cursor: pointer; background: rgba(0, 0, 0, 0.55);
+    color: #fff; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  }
+  .shotbox.ph {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    background: rgba(127, 127, 127, 0.08); border: 1px dashed var(--hairline);
+    box-shadow: none; color: var(--ink-2);
+  }
+  .shotbox.ph .ph-t { font-size: 14px; }
+  .shotbox.ph .ph-s { font-size: 12px; opacity: 0.75; }
+  @media (max-width: 1080px) {
+    .feature .stage.duo { grid-template-columns: minmax(0, 1fr); max-width: 980px; }
+  }
   .fig-cap { margin-top: 14px; text-align: center; }
 
   /* —— A：真视频（字幕按 ass Style: Adachi-JP 实测值渲染，JS 按视频高度缩放） —— */
@@ -431,9 +462,10 @@
   /* —— 真 Lapis 卡（正反面翻转） —— */
   .lapis-demo { max-width: 460px; margin: 52px auto 0; text-align: center; }
   .mine-card iframe {
-    display: block; width: 100%; height: 560px; border: 0; border-radius: 16px;
+    display: block; width: 100%; flex: 1 1 auto; min-height: 0; height: auto; border: 0; border-radius: 16px;
     background: #2c2c2e; box-shadow: 0 30px 70px -35px rgba(0, 0, 0, 0.8);
   }
+  .mine-card .flipbtn { flex: 0 0 auto; align-self: center; }
   /* 黑带示例卡：不套框，高度一次定为正反面内容较大者（见 sizeCardFrame） */
   .lapis-demo iframe { display: block; width: 100%; height: 460px; border: 0; border-radius: 16px; background: transparent; }
   .flipbtn {
@@ -567,7 +599,8 @@
     <p class="eyebrow">视频</p>
     <p class="copy copy-2">播放时点击字幕上的词即可查词，点加号制卡。</p>
   </div>
-  <div class="stage rev">
+  <div class="stage rev duo">
+    <div class="duo-pane">
     <div class="vplayer" id="vplayer">
       <div class="vwrap">
         <video id="demo-video" playsinline preload="metadata" poster="/demo/media/bb2d8ab44d033aa2.jpg" src="/demo/media/6bfcee4444667cec.mp4"></video>
@@ -580,6 +613,16 @@
         <span class="vtime" id="vtime">0:00 / 0:31</span>
       </div>
     </div>
+      <p class="duo-cap">网页交互演示 · 可点字幕查词</p>
+    </div>
+    <div class="duo-pane">
+      <div class="shotbox">
+        <video id="shot-a" src="/preview/video.mp4" poster="/preview/video-poster.jpg"
+               muted loop playsinline autoplay preload="metadata"></video>
+        <button class="sndbtn" id="snd-a" type="button" aria-label="开启声音">&#128263;</button>
+      </div>
+      <p class="duo-cap">实机录屏 · Windows</p>
+    </div>
   </div>
 </section>
 
@@ -588,9 +631,16 @@
     <p class="eyebrow">漫画</p>
     <p class="copy copy-2">点击对话框中的文字查词，点加号制卡。</p>
   </div>
-  <div class="stage rev">
+  <div class="stage rev duo">
+    <div class="duo-pane">
     <div class="manga-stage" id="manga-stage">
       <iframe id="manga-frame" title="漫画阅读器（app 实机代码渲染）" style="display:block;width:100%;height:100%;border:0;background:#000"></iframe>
+    </div>
+      <p class="duo-cap">网页交互演示 · 可点气泡文字</p>
+    </div>
+    <div class="duo-pane">
+      <div class="shotbox ph"><span class="ph-t">实机录屏</span><span class="ph-s">占位 · 待补</span></div>
+      <p class="duo-cap">实机录屏 · 占位</p>
     </div>
   </div>
 </section>
@@ -600,7 +650,8 @@
     <p class="eyebrow">游戏</p>
     <p class="copy copy-2">浮窗上点词查释义，点加号制卡。</p>
   </div>
-  <div class="stage rev">
+  <div class="stage rev duo">
+    <div class="duo-pane">
     <div class="gal-stage">
       <img src="/demo/media/d16a0e425925be24.jpg" alt="游戏窗口" draggable="false">
       <div class="hookchip"><b>捕获状态</b><br><span class="on">TEXT ✓ · VOICE ✓ · 已配对</span></div>
@@ -612,6 +663,12 @@
         </div>
       </div>
     </div>
+      <p class="duo-cap">网页交互演示 · 可点浮窗台词</p>
+    </div>
+    <div class="duo-pane">
+      <div class="shotbox ph"><span class="ph-t">实机录屏</span><span class="ph-s">占位 · 待补</span></div>
+      <p class="duo-cap">实机录屏 · 占位</p>
+    </div>
   </div>
 </section>
 
@@ -620,7 +677,8 @@
     <p class="eyebrow">阅读</p>
     <p class="copy copy-2">点击正文中的词即可查词，点加号制卡。</p>
   </div>
-  <div class="stage rev">
+  <div class="stage rev duo">
+    <div class="duo-pane">
     <div class="abook" id="abook">
       <div class="abook-tabs"><button class="on" id="tab-book" type="button">正文</button><button id="tab-lyrics" type="button">歌词模式</button></div>
       <div class="bookview" id="bookview"><div class="bookpage" id="bookpage" lang="ja"></div></div>
@@ -631,6 +689,12 @@
         <span class="vtime" id="atime">0:00 / 0:32</span>
         <audio id="demo-audio" preload="metadata" src="/demo/media/11b864252bf49442.m4a"></audio>
       </div>
+    </div>
+      <p class="duo-cap">网页交互演示 · 可点正文词</p>
+    </div>
+    <div class="duo-pane">
+      <div class="shotbox ph"><span class="ph-t">实机录屏</span><span class="ph-s">占位 · 待补</span></div>
+      <p class="duo-cap">实机录屏 · 占位</p>
     </div>
   </div>
 </section>
@@ -6342,6 +6406,17 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       return String(furi || '').replace(/\s+/g, '')
         .replace(/([^\[\]]+?)\[([^\]]+)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
     }
+    // Anki 原版 replay 按钮（圆形 SVG）。Lapis 的音频槽是按 SVG 排版的
+    // （.audio-buttons-alt 干脆 font-size:0），往里塞文本 ▶ 会被压成 0×0 —— 之前
+    // 「卡上没有句子音频」就是这么来的。真机卡上是「单词发音 + 句子原声」两颗
+    // 并排在词头下方，这里照搬同一份结构。
+    function replayBtn(cls, label) {
+      return '<a class="replay-button ' + cls + '" href="#" title="' + label + '" aria-label="' + label + '">' +
+        '<svg class="playImage" viewBox="0 0 64 64" version="1.1">' +
+        '<circle cx="32" cy="32" r="29"></circle>' +
+        '<path d="M56.502,32.301l-37.502,20.101l0.329,-40.804l37.173,20.703Z"></path>' +
+        '</svg></a>';
+    }
     function boldOnce(sentence, m) {
       const t = String(sentence || '');
       return m && t.includes(m) ? t.replace(m, '<b>' + m + '</b>') : t;
@@ -6353,7 +6428,8 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         FUSHIFURIB: f.expression || '',
         FUSHIFURIR: f.reading || f.expression || '',
         FUSHIXREAD: f.reading || '',
-        FUSHIXAUDIO: f.audio ? '<a class="replay-button" href="#">▶</a>' : '',
+        FUSHIXAUDIO: (f.audio ? replayBtn('word-replay', '单词发音') : '') +
+                     (f.sentenceAudio ? replayBtn('sent-replay', '句子原声') : ''),
         FUSHIXMAINDEF: f.glossaryFirst || '',
         FUSHIXGLOSS: f.glossary || '',
         FUSHIXSENT: f.sentence || '',
@@ -6366,14 +6442,6 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         FUSHIXMISC: f.miscInfo || '',
       };
       for (const k in rep) html = html.split(k).join(rep[k]);
-      // 句子音频：Lapis 反面 .sentence 的 audio-buttons-alt 槽位。模板自带的
-      // addAudioButtons() 会把词音频按钮覆盖写进 alt 槽——先把它的选择器缩回
-      // .audio-buttons，alt 槽专放句子重播钮。
-      html = html.split('.audio-buttons, .audio-buttons-alt').join('.audio-buttons');
-      html = html.split('<div class="audio-buttons-alt"></div>').join(
-        '<div class="audio-buttons-alt">' +
-        (f.sentenceAudio ? '<a class="replay-button sent-replay" href="#">▶</a>' : '') +
-        '</div>');
       // 制卡动画：卡片各块（词头/释义/例句/音频…）依次升入，正反面各播一遍
       const animCss = animate
         ? '@keyframes demoRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}' +
@@ -6389,11 +6457,22 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
           'body.demo-animate #lapis main>:nth-child(8){animation-delay:.99s}' +
           'body.demo-animate #lapis>footer{animation-delay:1.1s}'
         : '';
+      // Anki 的 replay 图标配色来自 reviewer 内置样式表（不在 note type 里），
+      // 这里补齐；顺带把被 .card 藏掉的滚动条放回来——制卡预览是定高框，内容
+      // 超出时必须能滚。
+      const shellCss =
+        '#lapis .audio-buttons{display:flex;gap:12px;justify-content:center;align-items:center;}' +
+        '#lapis .replay-button{display:inline-flex;text-decoration:none;cursor:pointer;}' +
+        '#lapis .replay-button svg{width:32px;height:32px;}' +
+        '#lapis .replay-button svg circle{fill:var(--fg-color);stroke:none;}' +
+        '#lapis .replay-button svg path{fill:var(--bg-color);stroke:none;}' +
+        '#lapis>main{margin-block:auto;}' +
+        'body.card{scrollbar-width:thin;-ms-overflow-style:auto;}' +
+        'body.card::-webkit-scrollbar{display:block;width:8px;}' +
+        'body.card::-webkit-scrollbar-thumb{background:rgba(128,128,128,.45);border-radius:4px;}';
       return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
         '<script>window.pycmd = window.pycmd || function () {};<\/script>' +
-        // Lapis 默认把 .audio-buttons-alt 藏起来（只有 #lapis[data-audio-buttons="alt"]
-        // 才显示）——demo 的句子重播钮就放在这个槽，必须显式解除隐藏。
-        '<style>' + LAPIS.css + animCss + '#lapis .sentence .audio-buttons-alt{display:block;}<\/style></head>' +
+        '<style>' + LAPIS.css + animCss + shellCss + '<\/style></head>' +
         '<body class="card' + (animate ? ' demo-animate' : '') + '">' + html +
         '<script>document.addEventListener("click", function (e) {' +
         'var b = e.target.closest(".replay-button");' +
@@ -6487,12 +6566,16 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       };
       mineOverlay.classList.add('show');
       document.body.style.overflow = 'hidden';
+      // 预览卡是 CSS 定高的固定框（.mine-card），卡内滚动 —— 不再按内容量高：
+      // 逐词量高会让每次弹出的卡长宽都不一样，量完那一刻还会跳一次。
       mineFlip.reset(fields);
-      // 与黑带示例卡同一套量高：正反面取较大者一次定死，答案面不会被固定框吃掉
-      sizeCardFrame(document.getElementById('mine-frame'), fields);
+    }
+    function closeMineCard() {
+      mineOverlay.classList.remove('show');
+      releaseLookupSession();
     }
     mineOverlay.addEventListener('mousedown', (e) => {
-      if (e.target === mineOverlay) { mineOverlay.classList.remove('show'); document.body.style.overflow = ''; }
+      if (e.target === mineOverlay) closeMineCard();
     });
 
     window.audioSources = ['demo'];
@@ -6732,7 +6815,6 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (!popupStack.length) onStackEmpty();
     }
     function onStackEmpty() {
-      document.body.style.overflow = '';
       clearHl();
       // 歌词 iframe 里的真选区高亮一并清（与 Dart 宿主 clearInvocation 同款）
       try {
@@ -6756,11 +6838,20 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         resumeOnClose = () => { try { media.play(); } catch (_) {} };
       }
     }
+    // 查词会话 = 弹窗栈 + 制卡预览，两者都收干净了才算结束。背景滚动锁和「查词前
+    // 暂停的媒体」都归它管：制卡预览是查词会话的延续，而弹窗栈随时可能被遮罩点击、
+    // 滚动或锚点退化收掉——把恢复播放挂在「栈空」上，视频就会在预览卡背后自己续播。
+    function releaseLookupSession() {
+      if (popupStack.length) return;
+      if (mineOverlay.classList.contains('show')) return;
+      document.body.style.overflow = '';
+      if (resumeOnClose) { const r = resumeOnClose; resumeOnClose = null; r(); }
+    }
     // 整栈关闭（点卡外/Esc/根锚点失效/切 tab）。openEntries 换词重开走 truncateStack(0)
     // 不经此处：重开弹窗不该把查词前暂停的媒体放出来。
     function closePopup() {
       truncateStack(0);
-      if (resumeOnClose) { const r = resumeOnClose; resumeOnClose = null; r(); }
+      releaseLookupSession();
     }
     function placeCard(card) {
       const idx = popupStack.indexOf(card);
@@ -7072,6 +7163,26 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (audioEl.duration) audioEl.currentTime = (e.clientX - r.x) / r.width * audioEl.duration;
     });
 
+    // ============ 实机录屏：静音自动循环，按钮开声（同时只响一个）============
+    (function () {
+      const btns = [...document.querySelectorAll('.shotbox .sndbtn')];
+      btns.forEach((btn) => {
+        const v = btn.parentElement.querySelector('video');
+        if (!v) return;
+        btn.addEventListener('click', () => {
+          const on = v.muted;
+          btns.forEach((b) => {
+            const ov = b.parentElement.querySelector('video');
+            if (ov && ov !== v) { ov.muted = true; b.innerHTML = '&#128263;'; }
+          });
+          v.muted = !on;
+          btn.innerHTML = on ? '&#128266;' : '&#128263;';
+          btn.setAttribute('aria-label', on ? '关闭声音' : '开启声音');
+          if (on) v.play().catch(() => {});
+        });
+      });
+    })();
+
     // ============ 关闭：点全部卡片之外任何非取词处即整栈关（卡内语义由 onCardClick 处理）============
     document.addEventListener('mousedown', (e) => {
       if (!popupStack.length) return;
@@ -7080,13 +7191,17 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       closePopup();
     });
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { closePopup(); mineOverlay.classList.remove('show'); document.body.style.overflow = ''; }
+      if (e.key === 'Escape') { mineOverlay.classList.remove('show'); closePopup(); }
     });
 
     // Anki 黑带示例卡：真 Lapis 模板 + けいおん!! S02E01「大好き」
-    ANKI_DEMO.audio = '/demo/word.mp3';
+    // 音频取页面内真相源——和制卡预览卡吃的是同一份 AUDIO / SENT_AUDIO。
+    // 原先两个手切文件已删：/demo/word.mp3 是从视频里切的 1.30s 片段（不是词典
+    // 发音），/demo/sentence.mp3 是 3.50s，比 cue 真实区间（8.32–11.28 = 2.96s）
+    // 多含了 0.54s 别的话。
+    ANKI_DEMO.audio = AUDIO[ANKI_DEMO.audioKey] || null;
+    ANKI_DEMO.sentenceAudio = SENT_AUDIO[stripHtml(ANKI_DEMO.sentence)] || null;
     ANKI_DEMO.picture = '<img src="/demo/sentence.gif" style="width:100%;height:auto;border-radius:8px;" alt="">';
-    ANKI_DEMO.sentenceAudio = '/demo/sentence.mp3';
     const ankiFlip = bindFlip('anki-demo-frame', 'anki-demo-flip', { animate: true });
     ankiFlip.reset(ANKI_DEMO);
     const ankiFrameEl = document.getElementById('anki-demo-frame');
