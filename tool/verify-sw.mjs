@@ -55,7 +55,10 @@ function prepareRoot() {
   const root = mkdtempSync(join(tmpdir(), 'fushi-sw-')); // NOSONAR: randomized private dir
   cpSync(DIST, root, { recursive: true });
 
-  const sw = readFileSync(SW_SRC, 'utf8');
+  // 按 LF 归一再比对：JS 规范会把模板字面量里的 CRLF 归一成 LF，而 Windows
+  // checkout 下磁盘上的 sw.js 是 CRLF，直接比对会让下面的形状守卫永远命中失败，
+  // 整个 SW 套件一条断言都跑不到，却只报一句「常量形状变了」。
+  const sw = readFileSync(SW_SRC, 'utf8').replace(/\r\n/g, '\n');
   const marker = `const KNOWN_ORIGINS = [
   { origin: 'https://fushi.moe', basePath: '' },
   { origin: 'https://hajisensai.github.io', basePath: '/fushi.moe' },
