@@ -6,7 +6,8 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build && node tool/build-fingerprint.mjs",
     "docs:preview": "vitepress preview",
-    "verify": "node tool/verify-home.mjs && node tool/verify-download.mjs && node tool/verify-sw.mjs"
+    "verify": "node tool/verify-home.mjs && node tool/verify-download.mjs && node tool/verify-sw.mjs",
+    "demo:rebuild": "node tool/split-inline-assets.mjs && node tool/split-demo-data.mjs && node tool/inject-sw-register.mjs"
   },
   "devDependencies": {
     "vitepress": "^1.6.3"
