@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fushi 官网设计稿</title>
+<title>Fushi 语言习得</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=M+PLUS+Rounded+1c:wght@500&display=swap">
 <style>
@@ -95,12 +95,19 @@
     border-bottom: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
   }
   .nav .name { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; }
-  /* 占位 logo：正式图标未定稿前的占位图 */
-  .nav .logo {
-    width: 26px; height: 26px; border-radius: 7px; flex: none;
+  /* 占位 logo：正式图标未定稿前的占位图。一处定义，靠 --logo-size 缩放（nav 26px /
+     hero 76px），换正式图标时只改这一条。 */
+  .logo {
+    width: var(--logo-size, 26px); height: var(--logo-size, 26px);
+    border-radius: calc(var(--logo-size, 26px) * 0.27); flex: none;
     background: linear-gradient(135deg, #5ac8fa, #0071e3);
-    color: #fff; font-size: 15px; font-weight: 700;
+    color: #fff; font-size: calc(var(--logo-size, 26px) * 0.58); font-weight: 700;
     display: grid; place-items: center; letter-spacing: 0;
+  }
+  .hero .logo {
+    --logo-size: 76px;
+    margin-bottom: 22px;
+    box-shadow: 0 18px 34px -20px rgba(0, 113, 227, 0.9);
   }
   .nav .links { display: flex; gap: 24px; align-items: center; font-size: 12px; color: var(--ink); }
   .nav .links a:hover { color: var(--link); }
@@ -141,6 +148,7 @@
   @media (max-width: 980px) {
     .hero-grid { grid-template-columns: 1fr; }
     .hero-copy { text-align: center; }
+    .hero .logo { margin-inline: auto; }
     .hero .copy { margin-inline: auto; }
     .hero .btns { justify-content: center; }
   }
@@ -575,6 +583,7 @@
 <header class="hero">
   <div class="hero-grid">
     <div class="hero-copy">
+      <div class="logo" aria-hidden="true">F</div>
       <p class="eyebrow">一站式 · 开箱即用</p>
       <h1 class="h-hero">语言习得<br>本该如此快乐</h1>
       <p class="copy copy-2"><b>最少的配置，干最多的事。</b>播放器、词典、查词、制卡、下载追更，过去要拼一堆工具，现在装一个 App 就够。看番、读书、玩游戏时遇到生词，点一下查释义，点加号——原句、画面、原声、释义自动填进 Anki。</p>
@@ -6466,9 +6475,14 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         '<script>window.pycmd = window.pycmd || function () {};<\/script>' +
         '<style>' + LAPIS.css + animCss + shellCss + '<\/style></head>' +
         '<body class="card' + (animate ? ' demo-animate' : '') + '">' + html +
+        // 卡内的 replay 钮不自己起播放器，只把「播哪条」回调给父页面那个**唯一**的 av
+        // 队列（playAvQueue），和翻面自动播共用同一个所有者。曾经这里 new Audio().play()
+        // 自成一路：连按就层层叠加、谁也掐不掉谁，也掐不掉正在跑的自动播队列。
         '<script>document.addEventListener("click", function (e) {' +
         'var b = e.target.closest(".replay-button");' +
-        'if (b) { e.preventDefault(); var u = b.classList.contains("sent-replay") ? window.__demoSentAudio : window.__demoAudio; if (u) { try { new Audio(u).play(); } catch (err) {} } }' +
+        'if (!b) return;' +
+        'e.preventDefault();' +
+        'if (window.__demoPlay) window.__demoPlay(b.classList.contains("sent-replay") ? "sent" : "word");' +
         '});<\/script>' +
         '</body></html>';
     }
@@ -6507,8 +6521,11 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       doc.open();
       doc.write(lapisDoc(side, fields, !!(opts && opts.animate)));
       doc.close();
-      frame.contentWindow.__demoAudio = fields.audio || null;
-      frame.contentWindow.__demoSentAudio = fields.sentenceAudio || null;
+      // 卡内 replay 钮的唯一播放出口（见 lapisDoc 末尾脚本）：交回父页面的 av 队列，
+      // 新请求作废旧队列并掐掉正在响的那条 —— 与 Anki reviewer 的行为一致。
+      frame.contentWindow.__demoPlay = (which) => {
+        playAvQueue([which === 'sent' ? fields.sentenceAudio : fields.audio]);
+      };
     }
     function bindFlip(frameId, btnId, opts) {
       const frame = document.getElementById(frameId);
