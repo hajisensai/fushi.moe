@@ -466,18 +466,40 @@
     border-radius: 28px; overflow: hidden; background: var(--card);
     box-shadow: var(--card-shadow); position: relative;
   }
+  /* 下载中心「任务」页的样子，逐项对着 app 的 VideoDownloadJobsPanel 摆：
+     行首状态图标 → 标题 + 「mediaKind · year · 资源名」副标题 → chevron，
+     下面是两颗 tag chip（torrent 状态 / 流水线阶段）、进度条 + 百分比、动作按钮。
+     文案取 app 的 zh-CN 真值（下载中 / 等待资源 / 已完成、下载 / 入库、查看详情 /
+     取消、添加任务、资源·任务·订阅三个 tab），不自造词。 */
   .m-dl { padding: 5% 6%; display: flex; flex-direction: column; gap: 10px; font-size: 13px; background: var(--card); }
-  .m-dl .search {
-    padding: 9px 16px; border: 1px solid color-mix(in srgb, var(--hairline) 70%, transparent); border-radius: 980px;
-    color: var(--ink-2); font-size: 12px;
+  .m-dl .tabs { display: flex; align-items: center; gap: 18px; padding: 0 2px 10px; border-bottom: 1px solid color-mix(in srgb, var(--hairline) 45%, transparent); }
+  .m-dl .tab { font-size: 13px; color: var(--ink-2); padding-bottom: 8px; margin-bottom: -11px; border-bottom: 2px solid transparent; }
+  .m-dl .tab.on { color: var(--ink); font-weight: 500; border-bottom-color: var(--link); }
+  .m-dl .add { margin-left: auto; font-size: 12px; color: var(--link); white-space: nowrap; }
+  .m-dl .row { border: 1px solid color-mix(in srgb, var(--hairline) 55%, transparent); border-radius: 14px; padding: 11px 14px; }
+  .m-dl .hd { display: flex; align-items: flex-start; gap: 10px; }
+  .m-dl .ico {
+    flex: none; width: 20px; height: 20px; border-radius: 50%; font-style: normal; font-size: 12px;
+    display: grid; place-items: center; color: #fff; background: var(--link); line-height: 1;
   }
-  .m-dl .row { border: 1px solid color-mix(in srgb, var(--hairline) 55%, transparent); border-radius: 14px; padding: 10px 16px; }
-  .m-dl .row .t { display: flex; justify-content: space-between; gap: 10px; }
-  .m-dl .row .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .m-dl .row .meta { font-size: 11px; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .m-dl .row .pg { height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--hairline) 55%, transparent); margin-top: 8px; position: relative; }
-  .m-dl .row .pg i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--link); border-radius: 2px; }
-  .m-dl .row .watch { color: var(--link); font-size: 12px; white-space: nowrap; }
+  .m-dl .ico.ok { background: #34c759; }
+  .m-dl .ico.wait { background: color-mix(in srgb, var(--ink-2) 55%, transparent); }
+  .m-dl .tx { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .m-dl .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-dl .sub { font-size: 11px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-dl .chev { margin-left: auto; color: var(--ink-2); font-size: 17px; line-height: 1; }
+  /* 名字不叫 chips：页面已有一个裸 .chips 全局类（居中 + 36px 上边距），
+     蹭它就得逐条覆盖它漏下来的属性，漏一条就歪。 */
+  .m-dl .jtags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .m-dl .jtags span {
+    font-size: 11px; color: var(--ink-2); padding: 2px 9px; border-radius: 980px;
+    background: color-mix(in srgb, var(--hairline) 40%, transparent);
+  }
+  .m-dl .pgrow { display: flex; align-items: center; gap: 10px; margin-top: 9px; }
+  .m-dl .pg { flex: 1; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--hairline) 55%, transparent); position: relative; }
+  .m-dl .pg i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--link); border-radius: 2px; }
+  .m-dl .pct { font-size: 11px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .m-dl .acts { display: flex; gap: 16px; margin-top: 10px; font-size: 12px; color: var(--link); }
 
   /* —— 真 Lapis 卡（正反面翻转） —— */
   .lapis-demo { max-width: 460px; margin: 52px auto 0; text-align: center; }
@@ -773,21 +795,50 @@
   <div class="head rev">
     <p class="eyebrow">下载 · 追更</p>
     
-    <p class="copy copy-2">AniList / Nyaa 应用内搜索，整季一键下载、自动入库、边下边看；订阅自动追更。内置 libtorrent。</p>
+    <p class="copy copy-2">AniList / Nyaa 应用内搜索，整季一键下载、自动入库、边下边播；订阅自动追更。内置 libtorrent。</p>
   </div>
   <div class="stage rev">
     <div class="stage-card"><div class="m-dl">
-      <div class="search">⌕ 搜索 AniList / Nyaa…</div>
-      <div class="row">
-        <div class="t"><span class="name" lang="ja">[IrizaRaws] Adachi to Shimamura - 01 (BDRip 1920x1080 x264 10bit FLAC)</span><span class="watch">▶ 边下边看</span></div>
-        <div class="pg"><i style="width:64%"></i></div>
-        <div class="t" style="margin-top:6px"><span class="meta">0.7 GB · ↓ 12.6 MB/s</span><span class="meta">64%</span></div>
+      <div class="tabs">
+        <span class="tab on">任务</span><span class="tab">资源</span><span class="tab">订阅</span>
+        <span class="add">＋ 添加任务</span>
       </div>
       <div class="row">
-        <div class="t"><span class="name" lang="ja">藤子・F・不二雄大全集 ドラえもん 第1-5巻 (DLRAW)</span><span class="meta">0.9 GB · 已入库 ✓</span></div>
+        <div class="hd">
+          <i class="ico dl">↓</i>
+          <div class="tx">
+            <span class="name" lang="ja">安達としまむら S01E01</span>
+            <span class="sub" lang="ja">anime · 2020 · [IrizaRaws] Adachi to Shimamura - 01 (BDRip 1920x1080 x264 10bit FLAC)</span>
+          </div>
+          <span class="chev">›</span>
+        </div>
+        <div class="jtags"><span>下载中</span><span>下载</span></div>
+        <div class="pgrow"><span class="pg"><i style="width:64%"></i></span><span class="pct">64%</span></div>
+        <div class="acts"><span>查看详情</span><span>取消</span></div>
       </div>
       <div class="row">
-        <div class="t"><span class="name">订阅规则 · 3 条</span><span class="meta">每周五自动检查更新</span></div>
+        <div class="hd">
+          <i class="ico ok">✓</i>
+          <div class="tx">
+            <span class="name" lang="ja">ドラえもん 第1巻</span>
+            <span class="sub" lang="ja">manga · 1974 · 藤子・F・不二雄大全集 ドラえもん 第1-5巻 (DLRAW)</span>
+          </div>
+          <span class="chev">›</span>
+        </div>
+        <div class="jtags"><span>已完成</span><span>入库</span></div>
+        <div class="pgrow"><span class="pg"><i style="width:100%"></i></span><span class="pct">100%</span></div>
+      </div>
+      <div class="row">
+        <div class="hd">
+          <i class="ico wait">↓</i>
+          <div class="tx">
+            <span class="name" lang="ja">けいおん!! S02E01</span>
+            <span class="sub" lang="ja">anime · 2010 · 订阅「けいおん!!」自动入队</span>
+          </div>
+          <span class="chev">›</span>
+        </div>
+        <div class="jtags"><span>等待资源</span><span>下载</span></div>
+        <div class="pgrow"><span class="pg"><i style="width:3%"></i></span><span class="pct">3%</span></div>
       </div>
     </div></div>
   </div>
