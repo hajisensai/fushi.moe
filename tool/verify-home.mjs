@@ -164,7 +164,16 @@ async function main() {
     'FUSHI_DEMO_DATA.termmapPromise.then(function(){ return { ready: FUSHI_DEMO_DATA.termmapReady, failed: FUSHI_DEMO_DATA.termmapFailed, keys: Object.keys(FUSHI_TERMMAP).length }; })',
   );
   check('异步词库加载成功', termmap.ready === true && termmap.failed === false, JSON.stringify(termmap));
-  check('词库原地填充生效', termmap.keys === 593, '实际 ' + termmap.keys + ' 键');
+  // 不拿魔数比：设计稿每次改演示词库，键数就变一次，硬编码只会周期性假红。
+  // 这条要守的是「原地填充没丢数据」——那就跟 JSON 源文件自己的键数比。
+  const srcKeys = await evaluate(
+    "fetch('/demo/data/termmap.json').then(function(r){return r.json()}).then(function(d){return Object.keys(d).length})",
+  );
+  check(
+    '词库原地填充无损（与 JSON 源键数一致）',
+    typeof srcKeys === 'number' && srcKeys > 0 && termmap.keys === srcKeys,
+    'JSON ' + srcKeys + ' 键 / 页面 ' + termmap.keys + ' 键',
+  );
 
   // 三态提示必须真的能调用。第一版这里 typeof 通过、真调用抛 ReferenceError。
   const missStates = await evaluate(`(function(){
