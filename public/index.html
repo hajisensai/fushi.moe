@@ -6096,7 +6096,7 @@ const __fushiPopupWheelListener = (e) => {
 };
 // 官网演示页：弹窗是宿主页上的 shadow 覆盖层（同扩展 content script 路径），这个
 // 非 passive 监听绝不常驻 document——否则整页滚轮被 preventDefault + 0.48 降速接管
-// （「页面滚动变慢」的根因）。ensureHost() 创建 shadow host 时把它挂到 host 上，
+// （「页面滚动变慢」的根因）。makeCard() 创建每张弹窗卡时把它挂到卡 host 上，
 // 只作用于弹窗内滚轮；页面本身始终走原生滚动。
 window.__fushiPopupWheelListener = __fushiPopupWheelListener;
 
@@ -6300,7 +6300,6 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     const SENT_PIC = FUSHI_SENT_PIC;       // 视频句子文本 -> 该句画面帧（制卡配图）
     const BOOK_COVER = FUSHI_BOOK_COVER;   // 小说/有声书制卡配图 = 封面
     const MAX_NEST = 3;
-    let nestDepth = 0;
 
     const toastEl = document.getElementById('demo-toast');
     let toastTimer = null;
@@ -6499,7 +6498,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     window.audioSources = ['demo'];
     window.needsAudio = true;
     window.flutter_inappwebview = {
-      callHandler: function (name, a) {
+      callHandler: function (name, a, b) {
         switch (name) {
           case 'duplicateCheck':
             return Promise.resolve(false);
@@ -6516,59 +6515,69 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
           case 'mineEntry':
             try { showMineCard(a || {}); } catch (e) { console.error(e); }
             return Promise.resolve(true);
-          case 'onLinkClick':
-            handleNested(String(a || ''));
+          case 'onLinkClick': {
+            // popup.js 会带上被点词头/链接的视口矩形（args[1]）；demo 弹窗与 popup 同
+            // 文档，坐标可直接当子卡锚点。父层 = 当前 __fushiRoot 所在的卡（pointerdown
+            // 时已切到被操作的卡）；rect 缺失退回父卡锚点。
+            const pi = popupStack.findIndex(c => c.shadow === window.__fushiRoot);
+            const parentIdx = pi >= 0 ? pi : popupStack.length - 1;
+            const rect = (b && typeof b.x === 'number') ? b : null;
+            handleNested(String(a || ''), parentIdx, rect ? { rect } : {});
             return Promise.resolve(null);
+          }
           default:
             return Promise.resolve(null);
         }
       }
     };
 
-    function handleNested(q) {
-      if (!q) return;
-      if (nestDepth >= MAX_NEST) {
-        toast('演示页最多支持三级嵌套——App 内无限制');
-        return;
-      }
-      let hit = null;
-      for (let k = Math.min(6, q.length); k >= 1; k--) {
-        const key = q.slice(0, k);
-        if (TERMMAP[key]) { hit = TERMMAP[key]; break; }
-      }
-      if (!hit) {
-        fushiTermMiss(toast);
-        return;
-      }
-      nestDepth++;
-      window.lookupEntries = hit.entries;
-      try { window.renderPopup(); } catch (e) { console.error(e); }
-      if (host) host.scrollTop = 0;
-      autoplayWord(hit.entries);
+    // ============ 查词弹窗：对齐 App 的多层压栈模型 ============
+    // App 语义（base_source_page / dictionary_page_mixin 两车道同构）：
+    //   - 点父卡里的词头链接（onLinkClick）或正文文字：先 prunePopupStack(父层+1)
+    //     关掉旧后代，再在被点的词处压一张**新子卡**，父卡保留、被点的词高亮（TODO-1190）；
+    //   - 点某层卡片的空白区只关它的后代层，保留本层 + 祖先（TODO-834）；
+    //   - 点全部卡片之外才整栈关闭。
+    // 演示页同构实现；层数封顶 MAX_NEST（App 无限制）。
+    const popupStack = [];   // [{host, shadow, container, anchor, maxH, hl}]
+    const NORM_CSS = '#entries-container{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;zoom:1!important;}'
+      // 演示页不做收藏，全域隐藏 popup.js 的 ☆ 钮（popup.js 本体保持 app 原版不改）。
+      + '.favorite-button{display:none!important}'
+      // 父卡被点词高亮 = App highlightSelection 的查词高亮色
+      + '.demo-nest-hl{background:var(--fushi-primary-highlight, rgba(88,86,214,0.35));border-radius:3px;}';
+    let cardSheetsCache = null;   // 共享 CSSStyleSheet：每张卡不重复解析整份词典样式
+    function cardSheets() {
+      if (cardSheetsCache) return cardSheetsCache;
+      const norm = new CSSStyleSheet();
+      norm.replaceSync(NORM_CSS);
+      const content = new CSSStyleSheet();
+      content.replaceSync(FUSHI_CONTENT_CSS);
+      cardSheetsCache = [norm, content];
+      return cardSheetsCache;
     }
-
-    let host = null, container = null;
-    function ensureHost() {
-      if (host) return container;
-      host = document.createElement('div');
-      host.id = 'hibiki-popup-host';
+    function rectAnchor(r) {
+      const rect = {
+        x: r.x || 0, y: r.y || 0, width: r.width || 0, height: r.height || 0,
+        left: r.x || 0, top: r.y || 0, right: (r.x || 0) + (r.width || 0), bottom: (r.y || 0) + (r.height || 0),
+      };
+      return { isConnected: true, getBoundingClientRect: () => rect };
+    }
+    function makeCard(anchor) {
+      const host = document.createElement('div');
+      host.className = 'hibiki-popup-card';
+      if (!popupStack.length) host.id = 'hibiki-popup-host';   // 根卡保留旧 id（样式/取证兼容）
       // 对齐 app 内 FushiPopupSurface：Material elevation 0、圆角 10、1px outline 描边、无投影
       host.style.cssText = 'position:fixed;top:0;left:0;z-index:2147483645;overflow-x:hidden;overflow-y:auto;display:none;'
         + 'border-radius:10px;border:1px solid rgb(210, 210, 215);background:rgb(255, 255, 255);';
       const shadow = host.attachShadow({ mode: 'open' });
-      const norm = document.createElement('style');
-      // 演示页不做收藏，全域隐藏 popup.js 的 ☆ 钮（popup.js 本体保持 app 原版不改）。
-      norm.textContent = '#entries-container{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;zoom:1!important;}'
-        + '.favorite-button{display:none!important}';
-      shadow.appendChild(norm);
-      const css = document.createElement('style');
-      css.textContent = FUSHI_CONTENT_CSS;
-      shadow.appendChild(css);
+      let adopted = false;
+      try { shadow.adoptedStyleSheets = cardSheets(); adopted = true; } catch (_) {}
+      if (!adopted) {
+        const norm = document.createElement('style'); norm.textContent = NORM_CSS; shadow.appendChild(norm);
+        const css = document.createElement('style'); css.textContent = FUSHI_CONTENT_CSS; shadow.appendChild(css);
+      }
       const c = document.createElement('div');
       c.id = 'entries-container';
       shadow.appendChild(c);
-      container = c;
-      window.__fushiRoot = shadow;
       for (const k in THEME) c.style.setProperty(k, THEME[k]);
       const cs = THEME['--fushi-color-scheme'];
       c.setAttribute('data-theme', cs === 'light' ? 'light' : 'dark');
@@ -6579,65 +6588,152 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (typeof window.__fushiPopupWheelListener === 'function') {
         host.addEventListener('wheel', window.__fushiPopupWheelListener, { passive: false });
       }
-      // 嵌套查词：点击弹窗内的日文文本，从点击处向后取词继续查（与 app 行为一致；
-      // 演示词库没带上的词会弹「离线词库有限」提示）。按钮/链接/音频控件不劫持。
-      c.addEventListener('click', (e) => {
-        const path = e.composedPath ? e.composedPath() : [];
-        for (const n of path) {
-          if (n === c) break;
-          if (n && n.nodeType === 1 && (
-            n.tagName === 'A' || n.tagName === 'BUTTON' || n.tagName === 'AUDIO' ||
-            (n.classList && (n.classList.contains('replay-button') || n.classList.contains('tappable'))))) {
-            return;
-          }
-        }
-        let node = null, off = 0;
-        try {
-          if (document.caretPositionFromPoint) {
-            const pos = document.caretPositionFromPoint(e.clientX, e.clientY, { shadowRoots: [shadow] });
-            if (pos) { node = pos.offsetNode; off = pos.offset; }
-          }
-          if ((!node || node.nodeType !== 3) && document.caretRangeFromPoint) {
-            const r = document.caretRangeFromPoint(e.clientX, e.clientY);
-            if (r) { node = r.startContainer; off = r.startOffset; }
-          }
-        } catch (_) {}
-        if (!node || node.nodeType !== 3) return;
-        const q = (node.textContent || '').slice(off, off + 8).replace(/[\s。、！？「」『』（）()【】]/g, '');
-        if (!q) return;
-        if (!/[\u3040-\u30ff\u3400-\u9fff\uff66-\uff9f]/.test(q[0])) return;
-        handleNested(q);
-      });
+      const card = { host, shadow, container: c, anchor, maxH: 0, hl: null };
+      // popup.js 是单实例渲染器，全局 root 查询（overlay/lightbox 等）跟着被操作的卡走
+      host.addEventListener('pointerdown', () => { window.__fushiRoot = shadow; }, true);
+      c.addEventListener('click', (e) => onCardClick(card, e));
       try {
         new ResizeObserver(() => {
-          if (host && host.style.display !== 'none' && curAnchor) placePopup();
+          if (host.isConnected && host.style.display !== 'none') placeCard(card);
         }).observe(c);
       } catch (_) {}
       document.body.appendChild(host);
-      return c;
+      return card;
     }
-
-    let hlSpans = [];
-    function clearHl() {
-      hlSpans.forEach(s => s.classList.remove('demo-hl'));
-      hlSpans = [];
+    // 点卡片：文字=截断旧后代再压子卡；按钮/链接/音频控件不劫持；空白区=只关后代层
+    function onCardClick(card, e) {
+      const idx = popupStack.indexOf(card);
+      if (idx < 0) return;
+      const path = e.composedPath ? e.composedPath() : [];
+      for (const n of path) {
+        if (n === card.container) break;
+        if (n && n.nodeType === 1 && (
+          n.tagName === 'A' || n.tagName === 'BUTTON' || n.tagName === 'AUDIO' ||
+          (n.classList && (n.classList.contains('replay-button') || n.classList.contains('tappable'))))) {
+          return;
+        }
+      }
+      let node = null, off = 0;
+      try {
+        if (document.caretPositionFromPoint) {
+          const pos = document.caretPositionFromPoint(e.clientX, e.clientY, { shadowRoots: [card.shadow] });
+          if (pos) { node = pos.offsetNode; off = pos.offset; }
+        }
+        if ((!node || node.nodeType !== 3) && document.caretRangeFromPoint) {
+          const r = document.caretRangeFromPoint(e.clientX, e.clientY);
+          if (r) { node = r.startContainer; off = r.startOffset; }
+        }
+      } catch (_) {}
+      const raw = node && node.nodeType === 3
+        ? (node.textContent || '').slice(off, off + 8).replace(/[\s。、！？「」『』（）()【】]/g, '')
+        : '';
+      if (!raw || !/[぀-ヿ㐀-鿿ｦ-ﾟ]/.test(raw[0])) {
+        truncateStack(idx + 1);   // 空白区：只关后代，保留本层+祖先；顶层无后代=no-op
+        return;
+      }
+      handleNested(raw, idx, { sel: { node, off } });
     }
-    let curAnchor = null, curMaxH = 0;
-    // 查词把正在播的媒体暂停时记下来，关弹窗自动恢复播放
-    let resumeOnClose = null;
-    function pauseForLookup(media) {
-      if (media && !media.paused) {
-        media.pause();
-        resumeOnClose = () => { try { media.play(); } catch (_) {} };
+    // 嵌套查词：在第 parentIdx 层卡上点了词 → 关旧后代、父卡高亮被点词、压子卡
+    function handleNested(q, parentIdx, opt) {
+      if (!q) return;
+      let hit = null, hitLen = 0;
+      for (let k = Math.min(6, q.length); k >= 1; k--) {
+        const key = q.slice(0, k);
+        if (TERMMAP[key]) { hit = TERMMAP[key]; hitLen = k; break; }
+      }
+      if (!hit) {
+        fushiTermMiss(toast);
+        return;
+      }
+      truncateStack(parentIdx + 1);   // App prunePopupStack(index+1)：先关旧后代
+      if (popupStack.length > MAX_NEST) {
+        toast('演示页最多支持三级嵌套——App 内无限制');
+        return;
+      }
+      const parent = popupStack[parentIdx] || null;
+      let anchor = null;
+      if (parent) {
+        clearCardHl(parent);
+        const marked = markParentHl(parent, opt, hitLen);
+        if (marked) { parent.hl = marked; anchor = marked; }
+      }
+      if (!anchor && opt && opt.rect) anchor = rectAnchor(opt.rect);
+      if (!anchor && parent) anchor = parent.anchor;
+      if (!anchor) anchor = rectAnchor({ x: window.innerWidth / 2, y: window.innerHeight / 3, width: 0, height: 0 });
+      pushCard(hit.entries, anchor);
+    }
+    // 父卡被点词高亮（App TODO-1190 highlightSelection 同义）：文本点击=按命中字符数
+    // wrap 一段；词头链接=给 <a> 加类。返回的元素同时充当子卡的活锚点。
+    function markParentHl(parent, opt, len) {
+      try {
+        if (opt && opt.sel && opt.sel.node && opt.sel.node.isConnected) {
+          const node = opt.sel.node, off = opt.sel.off;
+          const r = document.createRange();
+          r.setStart(node, off);
+          r.setEnd(node, Math.min(node.textContent.length, off + len));
+          const span = document.createElement('span');
+          span.className = 'demo-nest-hl';
+          span.dataset.demoWrap = '1';
+          r.surroundContents(span);
+          return span;
+        }
+        if (opt && opt.rect && parent.shadow.elementFromPoint) {
+          const el = parent.shadow.elementFromPoint(
+            opt.rect.x + (opt.rect.width || 0) / 2, opt.rect.y + (opt.rect.height || 0) / 2);
+          const link = el && el.closest ? el.closest('a') : null;
+          if (link) { link.classList.add('demo-nest-hl'); return link; }
+        }
+      } catch (_) {}
+      return null;
+    }
+    function clearCardHl(card) {
+      const s = card && card.hl;
+      if (card) card.hl = null;
+      if (!s || !s.isConnected) return;
+      if (s.dataset && s.dataset.demoWrap) {
+        const p = s.parentNode;
+        while (s.firstChild) p.insertBefore(s.firstChild, s);
+        p.removeChild(s);
+        p.normalize();
+      } else {
+        s.classList.remove('demo-nest-hl');
       }
     }
-    function closePopup() {
-      if (host) host.style.display = 'none';
+    function pushCard(entries, anchor) {
+      const card = makeCard(anchor);
+      popupStack.push(card);
+      card.maxH = Math.min(parseInt(THEME['--fushi-popup-max-height']) || 541, Math.round(window.innerHeight * 0.72));
+      card.host.style.maxHeight = card.maxH + 'px';
+      card.host.style.display = 'block';
+      card.host.style.visibility = 'hidden';
+      card.host.style.left = '0px'; card.host.style.top = '0px';
+      window.__fushiRoot = card.shadow;   // renderPopup 渲染进本卡（popup.js 单实例渲染器）
+      window.lookupEntries = entries;
+      window._noResultsMessage = 'No results';
+      try { window.renderPopup(); } catch (e) { console.error('renderPopup failed', e); }
+      card.host.scrollTop = 0;
+      requestAnimationFrame(() => {
+        placeCard(card);
+        card.host.style.visibility = 'visible';
+      });
+      autoplayWord(entries);
+    }
+    // 关掉第 n 层及之上的所有卡；子卡关闭时顺带清父卡上它的来源词高亮
+    function truncateStack(n) {
+      while (popupStack.length > n) {
+        const card = popupStack.pop();
+        clearCardHl(card);
+        try { card.host.remove(); } catch (_) {}
+        const parent = popupStack[popupStack.length - 1];
+        if (parent) clearCardHl(parent);
+      }
+      const top = popupStack[popupStack.length - 1];
+      if (top) window.__fushiRoot = top.shadow;
+      if (!popupStack.length) onStackEmpty();
+    }
+    function onStackEmpty() {
       document.body.style.overflow = '';
-      nestDepth = 0;
-      curAnchor = null;
       clearHl();
-      if (resumeOnClose) { const r = resumeOnClose; resumeOnClose = null; r(); }
       // 歌词 iframe 里的真选区高亮一并清（与 Dart 宿主 clearInvocation 同款）
       try {
         const w = document.getElementById('lyrics-frame');
@@ -6646,76 +6742,82 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         }
       } catch (_) {}
     }
-    function placePopup() {
-      if (!host || !curAnchor) return;
-      // 锚点退化（宿主 iframe 被 display:none、矩形塌成 0×0@原点）→ 直接关弹窗，
-      // 否则残留弹窗会被钉在页面左上角。
-      const probe = curAnchor.getBoundingClientRect();
+
+    let hlSpans = [];
+    function clearHl() {
+      hlSpans.forEach(s => s.classList.remove('demo-hl'));
+      hlSpans = [];
+    }
+    // 查词把正在播的媒体暂停时记下来，关弹窗自动恢复播放
+    let resumeOnClose = null;
+    function pauseForLookup(media) {
+      if (media && !media.paused) {
+        media.pause();
+        resumeOnClose = () => { try { media.play(); } catch (_) {} };
+      }
+    }
+    // 整栈关闭（点卡外/Esc/根锚点失效/切 tab）。openEntries 换词重开走 truncateStack(0)
+    // 不经此处：重开弹窗不该把查词前暂停的媒体放出来。
+    function closePopup() {
+      truncateStack(0);
+      if (resumeOnClose) { const r = resumeOnClose; resumeOnClose = null; r(); }
+    }
+    function placeCard(card) {
+      const idx = popupStack.indexOf(card);
+      if (idx < 0 || !card.anchor) return;
+      // 锚点退化（宿主 iframe 被 display:none、矩形塌成 0×0@原点）→ 根卡整栈关、
+      // 子卡关本层及后代，否则残留卡片会被钉在页面左上角。
+      const probe = card.anchor.getBoundingClientRect();
       if (probe.width === 0 && probe.height === 0 && probe.x === 0 && probe.y === 0) {
-        closePopup();
+        if (idx === 0) closePopup(); else truncateStack(idx);
         return;
       }
-      const hr = host.getBoundingClientRect();
+      const hr = card.host.getBoundingClientRect();
       const w = hr.width;
       // 用弹窗的实际渲染高度，而不是 maxHeight 上限：词条短时按上限上翻，
       // 弹窗会悬在锚点词上方一大截（漫画区「查词位置往上偏」的根因）。
-      const h = Math.min(hr.height || curMaxH, curMaxH);
-      const a = curAnchor.getBoundingClientRect();
-      let left = Math.min(Math.max(8, a.x - 16), window.innerWidth - w - 8);
+      const h = Math.min(hr.height || card.maxH, card.maxH);
+      let left = Math.min(Math.max(8, probe.x - 16), window.innerWidth - w - 8);
       if (left < 8) left = 8;
-      let top = a.y + a.height + 10;
+      let top = probe.y + probe.height + 10;
       if (top + h > window.innerHeight - 8) {
-        top = a.y - h - 10;
+        top = probe.y - h - 10;
         if (top < 8) top = Math.max(8, window.innerHeight - h - 8);
       }
-      host.style.left = left + 'px';
-      host.style.top = top + 'px';
+      card.host.style.left = left + 'px';
+      card.host.style.top = top + 'px';
     }
-    // 页面滚动：弹窗跟随锚点词；词滚出视口即自动关闭
+    // 页面滚动/缩放：根卡跟随页面锚点词，词滚出视口即整栈关闭；其余卡各随自己的锚点重排
     let scrollTick = false;
     function onViewportChange() {
-      if (!host || host.style.display === 'none' || !curAnchor) return;
+      if (!popupStack.length) return;
       if (scrollTick) return;
       scrollTick = true;
       requestAnimationFrame(() => {
         scrollTick = false;
-        if (!host || host.style.display === 'none' || !curAnchor) return;
-        if (!curAnchor.isConnected) { closePopup(); return; }
-        const a = curAnchor.getBoundingClientRect();
+        if (!popupStack.length) return;
+        const rootAnchor = popupStack[0].anchor;
+        if (!rootAnchor || !rootAnchor.isConnected) { closePopup(); return; }
+        const a = rootAnchor.getBoundingClientRect();
         if (a.bottom < 0 || a.top > window.innerHeight || a.right < 0 || a.left > window.innerWidth) {
           closePopup();
           return;
         }
-        placePopup();
+        popupStack.slice().forEach(placeCard);
       });
     }
     window.addEventListener('scroll', onViewportChange, { passive: true });
     window.addEventListener('resize', onViewportChange);
 
     function openEntries(entries, anchorEl, spans, sentence, pic, src) {
-      ensureHost();
+      truncateStack(0);   // 换词重开：清掉整栈旧卡（不恢复媒体播放，见 closePopup 注释）
       clearHl();
-      nestDepth = 0;
       mineSentence = sentence || '';
       minePic = (typeof pic === 'function' ? pic() : pic) || '';
       mineSrc = src || '';
       (spans || []).forEach(s => { s.classList.add('demo-hl'); hlSpans.push(s); });
-      window.lookupEntries = entries;
-      window._noResultsMessage = 'No results';
-      curAnchor = anchorEl;
-      curMaxH = Math.min(parseInt(THEME['--fushi-popup-max-height']) || 541, Math.round(window.innerHeight * 0.72));
-      host.style.display = 'block';
       document.body.style.overflow = 'hidden';
-      host.style.visibility = 'hidden';
-      host.style.left = '0px'; host.style.top = '0px';
-      host.style.maxHeight = curMaxH + 'px';
-      try { window.renderPopup(); } catch (e) { console.error('renderPopup failed', e); }
-      host.scrollTop = 0;
-      requestAnimationFrame(() => {
-        placePopup();
-        host.style.visibility = 'visible';
-      });
-      autoplayWord(entries);
+      pushCard(entries, anchorEl);
     }
 
     // 通用：文本 -> 字符 span + 查词；posResolve(i) -> {entries, len} | null
@@ -6970,10 +7072,10 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (audioEl.duration) audioEl.currentTime = (e.clientX - r.x) / r.width * audioEl.duration;
     });
 
-    // ============ 关闭：点弹窗外任何非取词处即关 ============
+    // ============ 关闭：点全部卡片之外任何非取词处即整栈关（卡内语义由 onCardClick 处理）============
     document.addEventListener('mousedown', (e) => {
-      if (!host || host.style.display === 'none') return;
-      if (host.contains(e.target)) return;
+      if (!popupStack.length) return;
+      if (popupStack.some(c => c.host.contains(e.target))) return;
       if (e.target.closest && e.target.closest('.ch')) return;
       closePopup();
     });
