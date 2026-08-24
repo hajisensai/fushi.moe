@@ -12,7 +12,7 @@ import { handleSite } from './site';
  */
 async function failOpen(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
-  url.hostname = env.ORIGIN_GH_HOST || 'www.fushi.moe';
+  url.hostname = env.ORIGIN_GH_HOST || 'hajisensai.github.io';
   url.protocol = 'https:';
   url.port = '';
   try {

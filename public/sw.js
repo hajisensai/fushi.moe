@@ -15,8 +15,13 @@ const VERSION = 'v1';
 const CACHE = 'fushi-' + VERSION;
 const STATE_CACHE = 'fushi-state-' + VERSION;
 
-/** 两个来源各自锚定一边线路，谁通用谁。顺序不重要，当前页所在的那个永远排第一。 */
-const KNOWN_ORIGINS = ['https://fushi.moe', 'https://www.fushi.moe'];
+/*
+ * 两个来源各自锚定一条完全不同的网络路径：fushi.moe 走 Cloudflare，
+ * hajisensai.github.io 是 GitHub 自带域、直连 GitHub Pages 的 IP。
+ * 用 GitHub 自带域而不是自建子域，是为了不给用户新增任何要记的别名——
+ * 这个地址只在 SW 内部用，地址栏永远显示用户进来时的那个。
+ */
+const KNOWN_ORIGINS = ['https://fushi.moe', 'https://hajisensai.github.io'];
 
 const ORIGIN_TIMEOUT_MS = 6000;
 /** 某个来源失败后，多久之内不再优先尝试它。 */

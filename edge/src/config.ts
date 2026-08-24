@@ -3,7 +3,8 @@ import type { OriginSpec } from './origins';
 export interface Env {
   /** Cloudflare Pages 侧回源主机名（Pages 自带域，不对用户展示）。 */
   ORIGIN_CF_HOST: string;
-  /** GitHub Pages 侧回源主机名（DNS-only 灰云，直连 GitHub IP）。 */
+  /** GitHub Pages 侧回源主机名。用 GitHub 自带域，不需要任何自建别名，
+   *  用户也永远看不到它。前提是仓库不设自定义域（见 CNAME 已删除）。 */
   ORIGIN_GH_HOST: string;
   /** 对外规范主机名，所有别名与源站重定向都归一到它。 */
   CANONICAL_HOST: string;
@@ -41,7 +42,7 @@ export function settingsFrom(env: Env): Settings {
   return {
     origins: [
       { name: 'cf', host: env.ORIGIN_CF_HOST || 'fushi-moe.pages.dev' },
-      { name: 'gh', host: env.ORIGIN_GH_HOST || 'www.fushi.moe' },
+      { name: 'gh', host: env.ORIGIN_GH_HOST || 'hajisensai.github.io' },
     ],
     canonicalHost: env.CANONICAL_HOST || 'fushi.moe',
     downloadHost: env.DOWNLOAD_HOST || 'dl.fushi.moe',

@@ -1,0 +1,18 @@
+# Cloudflare Pages 响应头。
+#
+# ACAO 是必需的：SW 在 CF 线路不通时要跨源从 hajisensai.github.io 取内容，
+# 反向（从 github.io 进来的用户回取 fushi.moe）同样需要。GitHub Pages 默认
+# 就带 Access-Control-Allow-Origin: *，这里把 CF 侧补齐，两个方向才都成立。
+/*
+  Access-Control-Allow-Origin: *
+
+# SW 脚本本身绝不能被缓存住，否则改不掉了。
+/sw.js
+  Cache-Control: no-cache
+
+/sw-register.js
+  Cache-Control: no-cache
+
+# 构建指纹用于监控两侧产物是否一致，必须实时。
+/__build.json
+  Cache-Control: no-store

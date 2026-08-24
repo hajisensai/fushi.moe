@@ -1,0 +1,30 @@
+name = "fushi-moe-edge"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+
+# 只接管主域与下载域。hajisensai.github.io 不在本 zone 内，
+# 所以回源到它不会被自己再拦一次，天然不会递归。
+routes = [
+  { pattern = "fushi.moe/*", zone_name = "fushi.moe" },
+  { pattern = "dl.fushi.moe/*", zone_name = "fushi.moe" },
+]
+
+[vars]
+# CF Pages 自带域，不对用户展示
+ORIGIN_CF_HOST = "fushi-moe.pages.dev"
+# GitHub 自带域，同样不对用户展示；仓库必须不设自定义域，否则它会 301 跳回主域
+ORIGIN_GH_HOST = "hajisensai.github.io"
+CANONICAL_HOST = "fushi.moe"
+DOWNLOAD_HOST = "dl.fushi.moe"
+# 100 = 常态全部走 CF Pages，GitHub 只在失败时接手。
+# 备源的可用性由 /__health 持续探测，不靠分流真实流量来验证——
+# 那样会让一部分用户在两侧产物不一致时撞上资源 404。
+CF_WEIGHT = "100"
+ORIGIN_TIMEOUT_MS = "3000"
+BREAKER_COOLDOWN_S = "60"
+GH_REPO = "hajisensai/Fushi"
+
+# release 资产镜像。未创建时下载全部回退 GitHub，功能不缺，只是少一层冗余。
+[[r2_buckets]]
+binding = "MIRROR"
+bucket_name = "fushi-releases"
