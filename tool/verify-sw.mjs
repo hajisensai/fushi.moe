@@ -20,6 +20,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, statSync, writeFileSync 
 import { tmpdir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findBrowser, openCdp } from './cdp-client.mjs';
 import { resolveStaticPath } from './static-path.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -35,12 +36,6 @@ const PRIMARY_ORIGIN = 'http://localhost:' + PRIMARY_PORT;
 const SECONDARY_ORIGIN = 'http://127.0.0.1:' + SECONDARY_PORT;
 const SECONDARY_BASE = '/fushi.moe';
 const DEBUG_PORT = 9433 + PORT_OFFSET;
-
-const CHROME_CANDIDATES = [
-  'C:/Program Files/Google/Chrome/Application/chrome.exe',
-  'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe',
-  'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-];
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -127,38 +122,8 @@ function makeServer(root, label, port, basePath = '') {
   );
 }
 
-async function cdpConnect() {
-  for (let i = 0; i < 80; i++) {
-    try {
-      const list = await fetch('http://127.0.0.1:' + DEBUG_PORT + '/json/list').then((r) => r.json());
-      const page = list.find((t) => t.type === 'page');
-      if (page?.webSocketDebuggerUrl) return page.webSocketDebuggerUrl;
-    } catch { /* 还没起来 */ }
-    await new Promise((r) => setTimeout(r, 250));
-  }
-  throw new Error('连不上 CDP');
-}
-
-function makeClient(ws) {
-  let id = 0;
-  const pending = new Map();
-  ws.addEventListener('message', (ev) => {
-    const msg = JSON.parse(ev.data);
-    if (msg.id === undefined) return;
-    const p = pending.get(msg.id);
-    pending.delete(msg.id);
-    msg.error ? p.reject(new Error(JSON.stringify(msg.error))) : p.resolve(msg.result);
-  });
-  return (method, params = {}) =>
-    new Promise((resolve, reject) => {
-      const myId = ++id;
-      pending.set(myId, { resolve, reject });
-      ws.send(JSON.stringify({ id: myId, method, params }));
-    });
-}
-
 async function main() {
-  const browser = CHROME_CANDIDATES.find((p) => existsSync(p));
+  const browser = findBrowser();
   if (!browser) throw new Error('找不到 Chrome/Edge');
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('先跑 npm run docs:build');
 
@@ -177,9 +142,9 @@ async function main() {
     { stdio: 'ignore' },
   );
 
-  const ws = new WebSocket(await cdpConnect());
-  await new Promise((r) => ws.addEventListener('open', r, { once: true }));
-  const send = makeClient(ws);
+  const cdp = await openCdp(DEBUG_PORT);
+  const ws = cdp.socket;
+  const send = cdp.send;
   await send('Page.enable');
   await send('Runtime.enable');
 
