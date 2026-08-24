@@ -43,7 +43,12 @@
      那是 app 界面的一部分）。恢复深色时把上一版的两个块加回来即可。 */
 
   * { margin: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  /* 滚动条槽位常驻：查词/制卡预览会把背景滚动锁成 body{overflow:hidden}，那会连带
+     把 15px 经典滚动条整条撤掉，可用宽度突然多 15px，页面所有居中内容各右移 7.5px
+     （最扎眼的是漫画那张居中大图）。留住槽位后，锁与不锁的布局宽度完全一致，
+     不必在每个上锁点补偿 padding。叠加式滚动条（macOS / 移动端）本就不占位，
+     该属性对它们无效也无害。 */
+  html { scroll-behavior: smooth; scrollbar-gutter: stable; }
   body {
     background: var(--ground);
     color: var(--ink);
@@ -6526,6 +6531,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       frame.contentWindow.__demoPlay = (which) => {
         playAvQueue([which === 'sent' ? fields.sentenceAudio : fields.audio]);
       };
+      bindEscape(doc);
     }
     function bindFlip(frameId, btnId, opts) {
       const frame = document.getElementById(frameId);
@@ -6576,6 +6582,17 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     function closeMineCard() {
       mineOverlay.classList.remove('show');
       releaseLookupSession();
+    }
+    // Esc 收掉整个查词会话。**每个同源 demo 子文档都要挂**：点过 iframe 里的字
+    // （漫画 / 歌词）或卡内的 replay 钮之后，焦点就在那个子文档里，键盘事件根本
+    // 到不了父 window —— 只挂父窗口时这几条路径按 Esc 是死的。处理器只有一份。
+    function onEscapeKey(e) {
+      if (e.key !== 'Escape') return;
+      mineOverlay.classList.remove('show');
+      closePopup();
+    }
+    function bindEscape(doc) {
+      if (doc) doc.addEventListener('keydown', onEscapeKey);
     }
     mineOverlay.addEventListener('mousedown', (e) => {
       if (e.target === mineOverlay) closeMineCard();
@@ -7027,6 +7044,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       doc.open();
       doc.write(FUSHI_MANGA_DOC);
       doc.close();
+      bindEscape(doc);
     })();
 
     // ============ 4) 真游戏截图 + 台词浮窗 ============
@@ -7093,6 +7111,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       doc.open();
       doc.write(FUSHI_LYRICS_DOC);
       doc.close();
+      bindEscape(doc);
       lyricsWin = lyricsFrame.contentWindow;
     })();
     // 正文视图（小说 + 有声书同步）：同一份对齐 SRT，点字查词、当前句高亮
@@ -7193,9 +7212,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (e.target.closest && e.target.closest('.ch')) return;
       closePopup();
     });
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') { mineOverlay.classList.remove('show'); closePopup(); }
-    });
+    bindEscape(document);
 
     // Anki 黑带示例卡：真 Lapis 模板 + けいおん!! S02E01「大好き」
     // 音频取页面内真相源——和制卡预览卡吃的是同一份 AUDIO / SENT_AUDIO。
