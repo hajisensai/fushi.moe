@@ -6359,14 +6359,28 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       return AUDIO[(e.expression || '') + '|' + (e.reading || e.expression || '')] ||
              AUDIO[(e.expression || '') + '|' + (e.expression || '')] || null;
     }
+    // Anki 按模板里 av tag 的出现顺序**依次**播放（Lapis 背面是
+    // {{Word Audio}}{{Sentence Audio}}，先词后句），不是只播第一个。
+    // 一次只有一条队列在跑：新队列作废旧队列（token）并掐掉正在响的那条。
+    let avToken = 0;
+    function playAvQueue(urls) {
+      const token = ++avToken;
+      if (wordAudio) { try { wordAudio.pause(); } catch (_) {} wordAudio = null; }
+      const list = (urls || []).filter(Boolean);
+      const step = (i) => {
+        if (i >= list.length || token !== avToken) return;
+        let a;
+        try { a = new Audio(list[i]); } catch (_) { return; }
+        wordAudio = a;
+        const next = () => { if (token === avToken) step(i + 1); };
+        a.addEventListener('ended', next, { once: true });
+        a.addEventListener('error', next, { once: true });
+        a.play().catch(next);
+      };
+      step(0);
+    }
     function autoplayWord(entries) {
-      const url = audioFor(entries);
-      if (!url) return;
-      try {
-        if (wordAudio) { try { wordAudio.pause(); } catch (_) {} }
-        wordAudio = new Audio(url);
-        wordAudio.play().catch(() => {});
-      } catch (_) {}
+      playAvQueue([audioFor(entries)]);
     }
 
     const mineOverlay = document.getElementById('mine-overlay');
@@ -6506,14 +6520,8 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         side = side === 'front' ? 'back' : 'front';
         btn.textContent = side === 'front' ? '显示答案' : '回到正面';
         fillCardFrame(frame, cur, side, opts);
-        // Anki 翻到答案面会自动播词音频，预览卡同步这个行为
-        if (side === 'back' && cur.audio) {
-          try {
-            if (wordAudio) { try { wordAudio.pause(); } catch (_) {} }
-            wordAudio = new Audio(cur.audio);
-            wordAudio.play().catch(() => {});
-          } catch (_) {}
-        }
+        // 翻到答案面按 Anki 的 av 顺序自动播：先单词发音，放完接句子原声。
+        if (side === 'back') playAvQueue([cur.audio, cur.sentenceAudio]);
       });
       return {
         reset(fields) {
