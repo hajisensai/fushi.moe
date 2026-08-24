@@ -29,12 +29,11 @@ function walk(dir, acc = []) {
 // 指纹要在写 __build.json 之前算完，否则它会把自己算进去、每次都不一样
 const files = walk(DIST)
   .filter((p) => p !== OUT)
-    // 用 path.sep 而不是反斜杠字面量：Windows 上分隔符不同，指纹必须与平台无关
+  // 用 path.sep 而不是反斜杠字面量：Windows 上分隔符不同，指纹必须与平台无关
   .map((p) => relative(DIST, p).split(sep).join('/'))
-  .sort();
+  .sort((a, b) => a.localeCompare(b));
 
 /* 分隔符防止「文件名+内容」的拼接歧义：a/b + c 与 a + /bc 不能撞同一个指纹 */
-const SEPARATOR = String.fromCharCode(0);
 const h = createHash('sha256');
 for (const rel of files) {
   h.update(rel);

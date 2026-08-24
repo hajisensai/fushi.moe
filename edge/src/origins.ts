@@ -13,7 +13,7 @@ export interface OriginSpec {
 export function normalizeBasePath(raw: string | undefined): string {
   const trimmed = (raw ?? '').trim();
   if (trimmed === '' || trimmed === '/') return '';
-  return '/' + trimmed.replace(/^\/+|\/+$/g, '');
+  return '/' + trimmed.split('/').filter((part) => part !== '').join('/');
 }
 
 export function originUrl(origin: OriginSpec, incoming: URL): URL {

@@ -59,33 +59,30 @@ function human(n) {
 }
 
 function findLiteral(html, name) {
-  const decl = new RegExp('\\bconst\\s+' + name + '\\s*=\\s*');
+  const decl = new RegExp(String.raw`\bconst\s+${name}\s*=\s*`);
   const m = decl.exec(html);
   if (!m) return null;
   const start = m.index + m[0].length;
   // 用括号配平找到字面量结尾，字符串内的括号不计。
   let depth = 0;
   let inStr = false;
-  let esc = false;
   for (let i = start; i < html.length; i++) {
     const c = html[i];
-    if (esc) {
-      esc = false;
-      continue;
-    }
-    if (c === String.fromCharCode(92)) {
-      esc = true;
-      continue;
-    }
-    if (c === '"') {
-      inStr = !inStr;
-      continue;
-    }
-    if (inStr) continue;
-    if (c === '{' || c === '[') depth++;
-    else if (c === '}' || c === ']') {
-      depth--;
-      if (depth === 0) return { declStart: m.index, start, end: i + 1 };
+    switch (c) {
+      case '"':
+        inStr = !inStr;
+        break;
+      case '\\':
+        if (inStr) i++;
+        break;
+      case '{':
+      case '[':
+        if (!inStr) depth++;
+        break;
+      case '}':
+      case ']':
+        if (!inStr && --depth === 0) return { declStart: m.index, start, end: i + 1 };
+        break;
     }
   }
   return null;

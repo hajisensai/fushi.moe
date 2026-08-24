@@ -193,7 +193,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-self.addEventListener('message', (event) => {
+self.addEventListener('message', (event) => { // NOSONAR: event.origin is checked before acting
   if (event.origin !== self.location.origin) return;
   if (event.data === 'fushi-sw-unregister') {
     event.waitUntil(

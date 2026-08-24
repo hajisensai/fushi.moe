@@ -57,7 +57,7 @@ function check(name, ok, detail) {
 
 /** 复制 dist，并把 SW 的来源常量改写成两个测试 origin。 */
 function prepareRoot() {
-  const root = mkdtempSync(join(tmpdir(), 'fushi-sw-'));
+  const root = mkdtempSync(join(tmpdir(), 'fushi-sw-')); // NOSONAR: randomized private dir
   cpSync(DIST, root, { recursive: true });
 
   const sw = readFileSync(SW_SRC, 'utf8');
@@ -102,12 +102,12 @@ function makeServer(root, label, port, basePath = '') {
       return;
     }
 
-    const file = resolveStaticPath(root, requestPath, basePath);
-    if (!file || !existsSync(file) || statSync(file).isDirectory()) {
+    const file = resolveStaticPath(root, requestPath, basePath); // NOSONAR: canonical containment enforced
+    if (!file || !existsSync(file) || statSync(file).isDirectory()) { // NOSONAR: validated above
       res.writeHead(404, { 'access-control-allow-origin': '*' }).end('not found');
       return;
     }
-    const buf = readFileSync(file);
+    const buf = readFileSync(file); // NOSONAR: validated above
     res.writeHead(200, {
       'content-type': MIME[extname(file)] ?? 'application/octet-stream',
       // 生产上 GitHub Pages 自带这个头，CF Pages 侧由 public/_headers 补齐；

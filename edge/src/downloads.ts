@@ -121,7 +121,7 @@ async function serveFromMirror(
   if (await deps.health.isDown(MIRROR_BREAKER)) return null;
 
   const key = mirrorKey(tag, asset.name);
-  const filename = asset.name.replace(/"/g, '');
+  const filename = asset.name.replaceAll('"', '');
   try {
     if (request.method === 'HEAD') {
       const head = await deps.mirror.head(key);
@@ -201,66 +201,83 @@ function githubAssetUrl(repo: string, tag: string, name: string): string {
   );
 }
 
+function latestManifestResponse(manifest: ReleaseManifest | null, deps: DownloadDeps): Response {
+  if (!manifest) {
+    return new Response(JSON.stringify({ error: 'manifest unavailable' }), {
+      status: 503,
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store',
+        'access-control-allow-origin': '*',
+      },
+    });
+  }
+
+  const slots: Record<string, { url: string; name: string; size: number } | null> = {};
+  for (const slot of Object.keys(SLOTS)) {
+    const asset = resolveSlot(manifest, slot);
+    slots[slot] = asset
+      ? {
+          url:
+            'https://' +
+            deps.settings.canonicalHost +
+            deps.settings.downloadPrefix +
+            '/latest/' +
+            slot,
+          name: asset.name,
+          size: asset.size,
+        }
+      : null;
+  }
+  return new Response(
+    JSON.stringify({ tag: manifest.tag, publishedAt: manifest.publishedAt, slots }, null, 2),
+    {
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'public, max-age=300',
+        'access-control-allow-origin': '*',
+      },
+    },
+  );
+}
+
+function githubLatestRedirect(deps: DownloadDeps): Response {
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: 'https://github.com/' + deps.settings.ghRepo + '/releases/latest',
+      'cache-control': 'no-store',
+      'x-fushi-mirror': 'github-fallback',
+    },
+  });
+}
+
+function resolveVersionedAsset(
+  manifest: ReleaseManifest,
+  deps: DownloadDeps,
+  tag: string,
+  name: string,
+): ReleaseAsset {
+  const known = manifest.tag === tag ? manifest.assets.find((asset) => asset.name === name) : undefined;
+  return known ?? {
+    name,
+    size: 0,
+    url: githubAssetUrl(deps.settings.ghRepo, tag, name),
+  };
+}
+
 /** fushi.moe/releases 下的全部下载路由。入口已先剥掉 downloadPrefix。 */
 export async function handleDownload(request: Request, deps: DownloadDeps): Promise<Response> {
-  const url = new URL(request.url);
-  const parts = url.pathname.split('/').filter((s) => s !== '');
-
+  const parts = new URL(request.url).pathname.split('/').filter((part) => part !== '');
   if (parts.length === 0) {
     return Response.redirect('https://' + deps.settings.canonicalHost + '/download', 302);
   }
 
   const manifest = await loadManifest(deps);
-
   if (parts[0] === 'api' && parts[1] === 'latest') {
-    if (!manifest) {
-      return new Response(JSON.stringify({ error: 'manifest unavailable' }), {
-        status: 503,
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-          'cache-control': 'no-store',
-          'access-control-allow-origin': '*',
-        },
-      });
-    }
-    const slots: Record<string, { url: string; name: string; size: number } | null> = {};
-    for (const slot of Object.keys(SLOTS)) {
-      const a = resolveSlot(manifest, slot);
-      slots[slot] = a
-        ? {
-            url:
-              'https://' +
-              deps.settings.canonicalHost +
-              deps.settings.downloadPrefix +
-              '/latest/' +
-              slot,
-            name: a.name,
-            size: a.size,
-          }
-        : null;
-    }
-    return new Response(
-      JSON.stringify({ tag: manifest.tag, publishedAt: manifest.publishedAt, slots }, null, 2),
-      {
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-          'cache-control': 'public, max-age=300',
-          'access-control-allow-origin': '*',
-        },
-      },
-    );
+    return latestManifestResponse(manifest, deps);
   }
-
-  if (!manifest) {
-    return new Response(null, {
-      status: 302,
-      headers: {
-        location: 'https://github.com/' + deps.settings.ghRepo + '/releases/latest',
-        'cache-control': 'no-store',
-        'x-fushi-mirror': 'github-fallback',
-      },
-    });
-  }
+  if (!manifest) return githubLatestRedirect(deps);
 
   if (parts[0] === 'latest' && parts.length === 2) {
     const asset = resolveSlot(manifest, parts[1]!);
@@ -271,13 +288,7 @@ export async function handleDownload(request: Request, deps: DownloadDeps): Prom
   if (parts[0] === 'v' && parts.length === 3) {
     const tag = decodeURIComponent(parts[1]!);
     const name = decodeURIComponent(parts[2]!);
-    const known = manifest.tag === tag ? manifest.assets.find((a) => a.name === name) : undefined;
-    const asset: ReleaseAsset = known ?? {
-      name,
-      size: 0,
-      url: githubAssetUrl(deps.settings.ghRepo, tag, name),
-    };
-    return serveAsset(request, deps, tag, asset);
+    return serveAsset(request, deps, tag, resolveVersionedAsset(manifest, deps, tag, name));
   }
 
   return notFound('not found');
