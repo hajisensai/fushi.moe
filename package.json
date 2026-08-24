@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev",
-    "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview"
+    "docs:build": "vitepress build && node tool/build-fingerprint.mjs",
+    "docs:preview": "vitepress preview",
+    "verify": "node tool/verify-home.mjs && node tool/verify-download.mjs && node tool/verify-sw.mjs"
   },
   "devDependencies": {
     "vitepress": "^1.6.3"
