@@ -21,7 +21,10 @@ const STATE_CACHE = 'fushi-state-' + VERSION;
  * 用 GitHub 自带域而不是自建子域，是为了不给用户新增任何要记的别名——
  * 这个地址只在 SW 内部用，地址栏永远显示用户进来时的那个。
  */
-const KNOWN_ORIGINS = ['https://fushi.moe', 'https://hajisensai.github.io'];
+const KNOWN_ORIGINS = [
+  { origin: 'https://fushi.moe', basePath: '' },
+  { origin: 'https://hajisensai.github.io', basePath: '/fushi.moe' },
+];
 
 const ORIGIN_TIMEOUT_MS = 6000;
 /** 某个来源失败后，多久之内不再优先尝试它。 */
@@ -32,8 +35,9 @@ const STATE_KEY = 'https://fushi.invalid/preferred-origin';
 /** 当前页所在来源永远排第一：这样从哪边进来的用户，另一边就自动成为它的备份。 */
 function originCandidates() {
   const here = self.location.origin;
-  const rest = KNOWN_ORIGINS.filter((o) => o !== here);
-  return [here].concat(rest);
+  const current = KNOWN_ORIGINS.find((o) => o.origin === here) || { origin: here, basePath: '' };
+  const rest = KNOWN_ORIGINS.filter((o) => o.origin !== here);
+  return [current].concat(rest);
 }
 
 async function readState() {
@@ -74,9 +78,9 @@ async function orderedOrigins() {
   const all = originCandidates();
   const state = await readState();
   if (!state) return all;
-  const preferred = all.filter((o) => o === state.origin);
+  const preferred = all.filter((o) => o.origin === state.origin);
   if (preferred.length === 0) return all;
-  return preferred.concat(all.filter((o) => o !== state.origin));
+  return preferred.concat(all.filter((o) => o.origin !== state.origin));
 }
 
 function withTimeout(promise, ms) {
@@ -109,9 +113,9 @@ function rebuild(res) {
   });
 }
 
-async function fetchFrom(origin, request) {
+async function fetchFrom(source, request) {
   const url = new URL(request.url);
-  const target = new URL(url.pathname + url.search, origin);
+  const target = new URL(source.basePath + url.pathname + url.search, source.origin);
   const init = {
     method: request.method,
     headers: request.headers,
@@ -153,11 +157,11 @@ async function fetchWithFailover(request, isNavigation) {
   let lastError = null;
 
   for (let i = 0; i < origins.length; i++) {
-    const origin = origins[i];
+    const source = origins[i];
     try {
-      const res = await fetchFrom(origin, request);
-      if (origin === self.location.origin) await clearState();
-      else await writeState(origin);
+      const res = await fetchFrom(source, request);
+      if (source.origin === self.location.origin) await clearState();
+      else await writeState(source.origin);
       await putCache(request, res.clone());
       return res;
     } catch (err) {
@@ -190,6 +194,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('message', (event) => {
+  if (event.origin !== self.location.origin) return;
   if (event.data === 'fushi-sw-unregister') {
     event.waitUntil(
       (async () => {
@@ -209,7 +214,12 @@ self.addEventListener('fetch', (event) => {
   const isNavigation = request.mode === 'navigate';
 
   // 只接管本站自己的资源；下载直链、第三方脚本一律放行。
-  if (KNOWN_ORIGINS.indexOf(url.origin) === -1) return;
+  if (!KNOWN_ORIGINS.some((o) => o.origin === url.origin)) return;
+  // 安装包流不进站点缓存，也不能在 CF 断线时误映射到 GitHub Pages 项目站。
+  if (
+    url.origin === KNOWN_ORIGINS[0].origin &&
+    (url.pathname === '/releases' || url.pathname.startsWith('/releases/'))
+  ) return;
   // SW 自身与健康探针必须走真实网络，否则永远更新不掉。
   if (url.pathname === '/sw.js' || url.pathname === '/__health') return;
 

@@ -4,8 +4,25 @@ export type OriginName = 'cf' | 'gh';
 
 export interface OriginSpec {
   readonly name: OriginName;
-  /** 回源主机名，例如 cf.fushi.moe / gh.fushi.moe。 */
+  /** 回源主机名，例如 fushi-moe.pages.dev / hajisensai.github.io。 */
   readonly host: string;
+  /** 项目站在平台域上的路径前缀。根站为空，例如 GitHub Pages 项目站为 /fushi.moe。 */
+  readonly basePath: string;
+}
+
+export function normalizeBasePath(raw: string | undefined): string {
+  const trimmed = (raw ?? '').trim();
+  if (trimmed === '' || trimmed === '/') return '';
+  return '/' + trimmed.replace(/^\/+|\/+$/g, '');
+}
+
+export function originUrl(origin: OriginSpec, incoming: URL): URL {
+  const url = new URL(incoming.toString());
+  url.hostname = origin.host;
+  url.protocol = 'https:';
+  url.port = '';
+  url.pathname = origin.basePath + (incoming.pathname.startsWith('/') ? incoming.pathname : '/' + incoming.pathname);
+  return url;
 }
 
 /**

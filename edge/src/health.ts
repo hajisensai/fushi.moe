@@ -2,6 +2,7 @@ import type { HealthStore } from './breaker';
 import type { Settings } from './config';
 import { GH_API_BREAKER, MIRROR_BREAKER } from './downloads';
 import type { OriginSpec } from './origins';
+import { originUrl } from './origins';
 
 export interface HealthDeps {
   readonly settings: Settings;
@@ -34,7 +35,8 @@ async function probe(origin: OriginSpec, deps: HealthDeps): Promise<OriginReport
     build: null,
   };
   try {
-    const res = await deps.fetcher('https://' + origin.host + '/__build.json', {
+    const url = originUrl(origin, new URL('https://' + deps.settings.canonicalHost + '/__build.json'));
+    const res = await deps.fetcher(url.toString(), {
       signal: AbortSignal.timeout(deps.settings.timeoutMs),
     } as RequestInit);
     report.status = res.status;
@@ -57,7 +59,7 @@ export async function handleHealth(deps: HealthDeps): Promise<Response> {
   });
 
   const builds = reports.map((r) => r.build).filter((b): b is string => b !== null);
-  const inSync = builds.length < 2 || builds.every((b) => b === builds[0]);
+  const inSync = builds.length === reports.length && builds.every((b) => b === builds[0]);
 
   const body = {
     ok: reports.some((r) => r.probe === 'ok'),

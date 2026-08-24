@@ -10,7 +10,7 @@
 
 - Cloudflare Pages / Worker 承载要求域名 NS 在 Cloudflare，且该主机名必须是橙云代理。一旦代理，DNS 只返回 CF 的 anycast IP，**没法和 GitHub Pages 的 `185.199.108-111.153` 并列在同一组 A 记录里**。
 - 反向也堵死：Cloudflare 禁止在自己的 DNS 里把自家 IP 写成灰云 A 记录；CNAME 到 `*.pages.dev` / `*.workers.dev` 走灰云则证书名不匹配。
-- 付费的 CF Load Balancing 也救不了：它的 DNS-only 模式要求 pool 的 origin 是 IP，而 CF Pages 根本没有可写进 A 记录的 IP。
+- 付费的 CF Load Balancing 不在本方案约束内；这里不依赖它，也不把付费产品的行为当成免费方案的论据。
 - DNSPod 那类智能 DNS 能做境内/境外分线路，但**分线路解析是专业版及以上功能**（免费版只有默认线路，最低 TTL 600 秒），而且它真正的价值需要一台自己的境内可达服务器来承接——那是另一笔钱。
 
 所以切换被挪到了 DNS 的**上面一层（浏览器里的 Service Worker）和下面一层（Cloudflare 边缘的 Worker）**。效果对用户仍然是无感的，但有一个补不上的缺口，写在覆盖矩阵最后一行。
@@ -21,15 +21,18 @@
 
 ```
 fushi.moe             橙云 → Worker ┬→ 主  fushi-moe.pages.dev      (Cloudflare Pages)
-                                    └→ 备  hajisensai.github.io     (GitHub Pages)
+                                    └→ 备  hajisensai.github.io/fushi.moe
+                                              (GitHub Pages 项目站)
 
-dl.fushi.moe          橙云 → Worker ┬→ 主  R2 桶 fushi-releases
-                                    └→ 备  github.com/.../releases/download/...
+fushi.moe/releases/*  同一 Worker ┬→ 主  R2 桶 fushi-releases
+                                  └→ 备  github.com/.../releases/download/...
 
-浏览器里的 Service Worker：fushi.moe ⇄ hajisensai.github.io 互为备份
+浏览器里的 Service Worker：fushi.moe ⇄ hajisensai.github.io/fushi.moe 互为备份
 ```
 
-两个回源目标都用**平台自带域**，所以：不需要新建任何 DNS 记录，也不会给用户多出一个要记的别名。`hajisensai.github.io` 只在 SW 和 Worker 内部用，地址栏永远显示用户进来时的那个域名。
+两个回源目标都用**平台自带域**，下载也走主域路径，所以不会给用户多出一个别名域名。`hajisensai.github.io/fushi.moe` 只在 SW 和 Worker 内部用，地址栏永远显示 `fushi.moe`。
+
+注意 GitHub 这一侧是**项目站**，不是用户根站：`https://hajisensai.github.io/` 实际返回 404。Worker 与 SW 都必须给回源路径加 `/fushi.moe`，否则备源看起来配置好了，故障时却只会得到 404。
 
 ---
 
@@ -39,7 +42,7 @@ dl.fushi.moe          橙云 → Worker ┬→ 主  R2 桶 fushi-releases
 |---|---|---|---|
 | CF Pages 构建坏 / 回滚事故 | 边缘 Worker 回源 GitHub | 秒级 | 无感 |
 | GitHub Pages 挂 | 常态就在 CF，不受影响 | — | 无感 |
-| 用户线路连不上 CF（**回访用户**） | SW 改从 `hajisensai.github.io` 取 | 秒级 | 无感，地址栏不变 |
+| 用户线路连不上 CF（**回访用户**） | SW 改从 GitHub Pages 项目站取 | 秒级 | 无感，地址栏不变 |
 | 用户线路连不上 GitHub | 常态就走 CF | — | 无感 |
 | 下载：R2 不可达 | Worker 302 到 GitHub Releases | 秒级 | 无感 |
 | 下载：GitHub 挂 | Worker 走 R2 + R2 里的 `manifest.json` | 秒级 | 无感 |
@@ -61,7 +64,7 @@ dl.fushi.moe          橙云 → Worker ┬→ 主  R2 桶 fushi-releases
 ### 2. 建 Cloudflare 资源
 
 - **Pages 项目**：名字必须是 `fushi-moe`（`wrangler.toml` 和 workflow 里写死了这个名字）。不用连 Git，产物由 CI 推。
-- **R2 桶**：名字 `fushi-releases`。没有它下载会全部回退 GitHub，功能不缺，只是少一层冗余。
+- **R2 桶**：名字 `fushi-releases`。Worker 的 Wrangler 配置声明了这个 binding，首次部署 Worker 前必须建好；运行时某个对象不存在或 R2 读取失败时才会回退 GitHub。
 - **API Token**：模板选「编辑 Cloudflare Workers」，再补上这几项权限：
   - `Account / Cloudflare Pages / Edit`
   - `Account / Workers R2 Storage / Edit`
@@ -79,28 +82,24 @@ dl.fushi.moe          橙云 → Worker ┬→ 主  R2 桶 fushi-releases
 
 没配之前，所有 Cloudflare 相关的 job 都会**跳过并留一条 notice**，不会让 CI 变红。
 
-### 4. 首次部署并确认两侧都活着
+### 4. 首次部署 Pages，并确认两侧都活着
 
 推一次 `main`，等 workflow 跑完，然后：
 
 ```bash
 curl -s https://fushi-moe.pages.dev/__build.json
-curl -s https://hajisensai.github.io/__build.json
+curl -s https://hajisensai.github.io/fushi.moe/__build.json
 ```
 
 两边的 `fingerprint` 必须**完全一致**。不一致说明两个部署 job 拿到的不是同一份产物，这时**不要往下走**——见下面「为什么两侧必须字节一致」。
 
-### 5. 切 DNS（这一步之后站点才真正走 CF）
+### 5. 把 Pages 设为真实底层 origin，再启用 Worker Route
 
-在 Cloudflare DNS 面板：
+在 Cloudflare Pages 项目里添加自定义域 `fushi.moe`。Cloudflare 会创建并代理对应 DNS 记录；然后把仓库变量 `CLOUDFLARE_EDGE_ENABLED` 设为 `true`，重跑部署 workflow，让 Worker Route 接到 `fushi.moe/*` 前面。
 
-| 名称 | 类型 | 值 | 代理 |
-|---|---|---|---|
-| `fushi.moe` | A | `192.0.2.1`（占位，Worker 路由接管，源站不会被访问） | 橙云 |
-| `dl` | A | `192.0.2.1` | 橙云 |
-| `www` | CNAME | `fushi.moe` | 橙云 |
+**不要**把 DNS 指向 `192.0.2.1` / `100::` 之类的占位黑洞。Worker Route 的平台级 fail-open 会把请求交给 DNS 背后的真实 origin；底下是 Pages 才能继续出站，底下是黑洞就仍然全站失败。
 
-Worker 的路由已经写在 `edge/wrangler.toml` 里，部署时自动创建。
+Worker 的路由写在 `edge/wrangler.toml` 里，启用仓库变量后由 CI 自动创建。模块入口也调用 `ctx.passThroughOnException()`，未捕获异常或平台限制触发时会回落到 Pages；普通回源异常仍由代码切到 GitHub。
 
 ### 6. 删掉 `CNAME` 文件 ← 只能在这一步做
 
@@ -116,14 +115,12 @@ git rm CNAME && git commit -m "chore: 切换到 Cloudflare 主入口，释放 gi
 删完再确认一次：
 
 ```bash
-curl -sI https://hajisensai.github.io/ | head -3   # 必须是 200，不能是 301
+curl -sI https://hajisensai.github.io/fushi.moe/ | head -3   # 必须是 200，不能是 301
 ```
 
-### 7. 把 Workers 的超限行为设成 fail open
+### 7. 验证 Worker 的平台级 fail-open
 
-Cloudflare 面板 → Workers & Pages → 你的 Worker → Settings → 「Usage Model / Failure mode」选 **Fail open**。
-
-免费版 10 万请求/天，超了之后 fail open 会让请求直接落到源站而不是报错。这是最后一道保险。
+Route 的未捕获异常回退由代码里的 `ctx.passThroughOnException()` 开启。确认临时抛出测试异常时响应仍来自底层 Pages，再撤掉测试；不要只看面板文案就当作验收。
 
 ---
 
@@ -173,7 +170,7 @@ Cloudflare DNS 面板里把 `fushi.moe` 改成：
 
 **症状：Worker 自己出问题。**
 
-Worker 里所有未预料的异常都会走 `failOpen`，直接把请求代理到 GitHub 侧，不会变成 500。真要彻底摘掉它：Cloudflare 面板删掉 `fushi.moe/*` 的 Worker 路由，请求就直接落到 Pages。
+Worker 里可捕获的未预料异常会走代码级 `failOpen`，直接代理 GitHub 项目站；运行时级异常由 `passThroughOnException` 落到 DNS 背后的 Pages。真要彻底摘掉它：Cloudflare 面板删掉 `fushi.moe/*` 的 Worker 路由，请求就直接落到 Pages。
 
 **症状：SW 把用户卡住了。**
 
@@ -189,20 +186,20 @@ navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregist
 
 ## 下载链路
 
-`dl.fushi.moe` 的路由：
+`fushi.moe/releases` 的路由：
 
 | 路径 | 行为 |
 |---|---|
-| `/latest/<slot>` | 最新正式版的某个平台包。`slot` 见 `edge/src/manifest.ts` 的 `SLOTS` |
-| `/v/<tag>/<文件名>` | 指定版本的指定文件 |
-| `/api/latest` | JSON 清单，下载页用它渲染（带 CORS） |
-| `/` | 302 回 `fushi.moe/download` |
+| `/releases/latest/<slot>` | 最新正式版的某个平台包。`slot` 见 `edge/src/manifest.ts` 的 `SLOTS` |
+| `/releases/v/<tag>/<文件名>` | 指定版本的指定文件 |
+| `/releases/api/latest` | JSON 清单，下载页用它渲染 |
+| `/releases` | 302 回 `fushi.moe/download` |
 
 每个请求先看 R2 里有没有（支持 Range，断点续传可用），没有就 302 到 GitHub Releases。版本清单优先问 GitHub API，问不到就用 R2 里的 `manifest.json`——**这是「GitHub 挂了下载还活着」的那一环**。
 
 R2 镜像由发布仓库的 `.github/workflows/mirror-releases.yml` 在 release 发布后被动同步，只镜像正式版、保留最近 2 个版本。注意 `wrangler r2 object put` 没有 multipart，**超过 300MB 的资产会被跳过**（当前 `fushi-*-macos.zip` 是 285MB，贴着这条线），跳过的平台下载自动回退 GitHub。
 
-下载页本身还有一层独立的选源：并发探测两个源，自动用通的那个，也允许手动切换（记在 localStorage）。清单三级降级：`dl.fushi.moe/api/latest` → `api.github.com` → 静态表。**即使脚本完全没跑起来，SSR 产物里每一行也已经带着可用的 GitHub 链接**，下载页不会变成空壳。
+下载页本身还有一层独立的选源：并发探测两个源，自动用通的那个，也允许手动切换（记在 localStorage）。清单三级降级：`fushi.moe/releases/api/latest` → `api.github.com` → 静态表。**即使脚本完全没跑起来，SSR 产物里每一行也已经带着可用的 GitHub 链接**，下载页不会变成空壳。
 
 ---
 
@@ -220,7 +217,7 @@ node tool/verify-sw.mjs        # SW 无感切换端到端（两个本地 origin�
 cd edge && npm ci && npm run typecheck && npm test   # 边缘切换逻辑单测，24 项
 ```
 
-`verify-sw.mjs` 用 `localhost` 和 `127.0.0.1` 当两个 origin（都是安全上下文，能注册 SW，不用自签证书），把 dist 复制一份、只改写 `sw.js` 里的 `KNOWN_ORIGINS` 常量——逻辑本体一行不动，真实域名值另有一条静态断言兜着。「线路不可达」用直接销毁 socket 模拟，而不是返回 5xx：后者是源站故障，前者才是这套设计要救的那种网络层断连。
+`verify-sw.mjs` 用 `localhost` 和 `127.0.0.1` 当两个 origin（都是安全上下文，能注册 SW，不用自签证书），并让备源只在 `/fushi.moe` 下提供文件，模拟 GitHub 项目站的真实路径。测试只改写 `sw.js` 的来源常量，逻辑本体一行不动。「线路不可达」用直接销毁 socket 模拟，而不是返回 5xx：后者是源站故障，前者才是这套设计要救的网络层断连。
 
 ---
 

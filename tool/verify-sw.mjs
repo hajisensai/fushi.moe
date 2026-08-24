@@ -18,8 +18,9 @@ import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { cpSync, existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, extname, join, normalize } from 'node:path';
+import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveStaticPath } from './static-path.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DIST = join(HERE, '..', '.vitepress', 'dist');
@@ -32,6 +33,7 @@ const PRIMARY_PORT = 8811 + PORT_OFFSET;
 const SECONDARY_PORT = 8812 + PORT_OFFSET;
 const PRIMARY_ORIGIN = 'http://localhost:' + PRIMARY_PORT;
 const SECONDARY_ORIGIN = 'http://127.0.0.1:' + SECONDARY_PORT;
+const SECONDARY_BASE = '/fushi.moe';
 const DEBUG_PORT = 9433 + PORT_OFFSET;
 
 const CHROME_CANDIDATES = [
@@ -59,19 +61,25 @@ function prepareRoot() {
   cpSync(DIST, root, { recursive: true });
 
   const sw = readFileSync(SW_SRC, 'utf8');
-  const marker = "const KNOWN_ORIGINS = ['https://fushi.moe', 'https://hajisensai.github.io'];";
+  const marker = `const KNOWN_ORIGINS = [
+  { origin: 'https://fushi.moe', basePath: '' },
+  { origin: 'https://hajisensai.github.io', basePath: '/fushi.moe' },
+];`;
   if (!sw.includes(marker)) {
     throw new Error('sw.js 里的 KNOWN_ORIGINS 常量形状变了，测试改写会失效——先更新这里');
   }
   const patched = sw.replace(
     marker,
-    "const KNOWN_ORIGINS = ['" + PRIMARY_ORIGIN + "', '" + SECONDARY_ORIGIN + "'];",
+    `const KNOWN_ORIGINS = [
+  { origin: '${PRIMARY_ORIGIN}', basePath: '' },
+  { origin: '${SECONDARY_ORIGIN}', basePath: '${SECONDARY_BASE}' },
+];`,
   );
   writeFileSync(join(root, 'sw.js'), patched, 'utf8');
   return root;
 }
 
-function makeServer(root, label, port) {
+function makeServer(root, label, port, basePath = '') {
   const state = { down: false, hits: 0, paths: [] };
   const server = createServer((req, res) => {
     if (state.down) {
@@ -80,8 +88,9 @@ function makeServer(root, label, port) {
       return;
     }
     state.hits += 1;
-    const path = decodeURIComponent(req.url.split('?')[0]);
-    state.paths.push(path);
+    const requestPath = new URL(req.url, 'http://localhost').pathname;
+    state.paths.push(requestPath);
+    const path = basePath ? requestPath.slice(basePath.length) || '/' : requestPath;
 
     if (path === '/__which') {
       res.writeHead(200, {
@@ -93,8 +102,8 @@ function makeServer(root, label, port) {
       return;
     }
 
-    const file = normalize(join(root, path === '/' ? '/index.html' : path));
-    if (!file.startsWith(normalize(root)) || !existsSync(file) || statSync(file).isDirectory()) {
+    const file = resolveStaticPath(root, requestPath, basePath);
+    if (!file || !existsSync(file) || statSync(file).isDirectory()) {
       res.writeHead(404, { 'access-control-allow-origin': '*' }).end('not found');
       return;
     }
@@ -155,14 +164,14 @@ async function main() {
 
   const root = prepareRoot();
   const primary = await makeServer(root, 'primary', PRIMARY_PORT);
-  const secondary = await makeServer(root, 'secondary', SECONDARY_PORT);
+  const secondary = await makeServer(root, 'secondary', SECONDARY_PORT, SECONDARY_BASE);
   console.log('主线路 ' + PRIMARY_ORIGIN + '   备线路 ' + SECONDARY_ORIGIN);
 
   const proc = spawn(
     browser,
     [
       '--headless=new', '--disable-gpu', '--no-first-run', '--no-proxy-server',
-      '--user-data-dir=' + join(process.env.TEMP ?? '.', 'fushi-sw-verify-' + process.pid),
+      '--user-data-dir=' + join(root, 'chrome-profile'),
       '--remote-debugging-port=' + DEBUG_PORT, 'about:blank',
     ],
     { stdio: 'ignore' },
@@ -286,7 +295,8 @@ async function main() {
   const swText = readFileSync(SW_SRC, 'utf8');
   check(
     'sw.js 里的生产来源是主域 + GitHub 自带域',
-    swText.includes("'https://fushi.moe'") && swText.includes("'https://hajisensai.github.io'"),
+    swText.includes("origin: 'https://fushi.moe', basePath: ''") &&
+      swText.includes("origin: 'https://hajisensai.github.io', basePath: '/fushi.moe'"),
   );
 
   const failed = results.filter((r) => !r.ok);

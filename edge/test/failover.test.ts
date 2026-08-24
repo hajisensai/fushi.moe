@@ -6,8 +6,8 @@ import { handleSite } from '../src/site';
 import { fakeFetch, fakeR2, settings, store } from './fakes';
 
 const ORIGINS = [
-  { name: 'cf' as OriginName, host: 'cf.example' },
-  { name: 'gh' as OriginName, host: 'gh.example' },
+  { name: 'cf' as OriginName, host: 'cf.example', basePath: '' },
+  { name: 'gh' as OriginName, host: 'gh.example', basePath: '/fushi.moe' },
 ];
 const NONE = new Set<OriginName>();
 
@@ -80,6 +80,21 @@ describe('handleSite', () => {
     });
     const res = await handleSite(new Request('https://fushi.moe/'), deps);
     expect(res.headers.get('x-fushi-origin')).toBe('gh');
+    expect(deps.fetcher.calls[1]).toBe('https://gh.example/fushi.moe/');
+  });
+
+  it('GitHub 项目站前缀会加到回源路径并从重定向中剥掉', async () => {
+    const { deps, fetcher } = siteDeps({
+      'cf.example': () => new Response('down', { status: 503 }),
+      'gh.example': () =>
+        new Response(null, {
+          status: 301,
+          headers: { location: 'https://gh.example/fushi.moe/guide/' },
+        }),
+    });
+    const res = await handleSite(new Request('https://fushi.moe/guide'), deps);
+    expect(fetcher.calls[1]).toBe('https://gh.example/fushi.moe/guide');
+    expect(res.headers.get('location')).toBe('https://fushi.moe/guide/');
   });
 
   it('主源已熔断时不再白打一次，直接走备源', async () => {
@@ -194,7 +209,7 @@ describe('handleDownload', () => {
   it('镜像里有就从镜像出，不打 GitHub', async () => {
     const mirror = fakeR2({ 'releases/v1.2.3/fushi-1.2.3-arm64-v8a.apk': 'APKBYTES' });
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/latest/android-arm64'),
+      new Request('https://fushi.moe/latest/android-arm64'),
       dlDeps({ mirror }),
     );
     expect(res.status).toBe(200);
@@ -205,7 +220,7 @@ describe('handleDownload', () => {
   it('镜像里没有就 302 到 GitHub 直链', async () => {
     const mirror = fakeR2({});
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/latest/android-arm64'),
+      new Request('https://fushi.moe/latest/android-arm64'),
       dlDeps({ mirror }),
     );
     expect(res.status).toBe(302);
@@ -215,7 +230,7 @@ describe('handleDownload', () => {
 
   it('完全没绑镜像时同样回退 GitHub', async () => {
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/latest/windows'),
+      new Request('https://fushi.moe/latest/windows'),
       dlDeps({}),
     );
     expect(res.status).toBe(302);
@@ -228,7 +243,7 @@ describe('handleDownload', () => {
       'releases/v1.2.3/fushi-1.2.3-arm64-v8a.apk': 'APKBYTES',
     });
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/latest/android-arm64'),
+      new Request('https://fushi.moe/latest/android-arm64'),
       dlDeps({ ghApiUp: false, mirror }),
     );
     expect(res.status).toBe(200);
@@ -237,7 +252,7 @@ describe('handleDownload', () => {
 
   it('两边清单都拿不到时退回 Releases 页面，而不是报错', async () => {
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/latest/android-arm64'),
+      new Request('https://fushi.moe/latest/android-arm64'),
       dlDeps({ ghApiUp: false }),
     );
     expect(res.status).toBe(302);
@@ -248,7 +263,7 @@ describe('handleDownload', () => {
     const health = store();
     const mirror = fakeR2({}, { throwOnGet: true });
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/latest/android-arm64'),
+      new Request('https://fushi.moe/latest/android-arm64'),
       dlDeps({ mirror, health }),
     );
     expect(res.status).toBe(302);
@@ -257,14 +272,14 @@ describe('handleDownload', () => {
 
   it('未知槽位给 404，不瞎猜', async () => {
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/latest/nintendo-switch'),
+      new Request('https://fushi.moe/latest/nintendo-switch'),
       dlDeps({}),
     );
     expect(res.status).toBe(404);
   });
 
   it('/api/latest 给出全部槽位与版本号', async () => {
-    const res = await handleDownload(new Request('https://dl.fushi.moe/api/latest'), dlDeps({}));
+    const res = await handleDownload(new Request('https://fushi.moe/api/latest'), dlDeps({}));
     expect(res.status).toBe(200);
     expect(res.headers.get('access-control-allow-origin')).toBe('*');
     const body = (await res.json()) as { tag: string; slots: Record<string, unknown> };
@@ -277,7 +292,7 @@ describe('handleDownload', () => {
   it('按版本取任意文件名也能走镜像', async () => {
     const mirror = fakeR2({ 'releases/v1.0.0/old.apk': 'OLDBYTES' });
     const res = await handleDownload(
-      new Request('https://dl.fushi.moe/v/v1.0.0/old.apk'),
+      new Request('https://fushi.moe/v/v1.0.0/old.apk'),
       dlDeps({ mirror }),
     );
     expect(res.status).toBe(200);
@@ -285,7 +300,7 @@ describe('handleDownload', () => {
   });
 
   it('根路径把人送回下载页', async () => {
-    const res = await handleDownload(new Request('https://dl.fushi.moe/'), dlDeps({}));
+    const res = await handleDownload(new Request('https://fushi.moe/'), dlDeps({}));
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toBe('https://fushi.moe/download');
   });

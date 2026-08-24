@@ -4,7 +4,7 @@ import { ref, computed, onMounted } from 'vue'
 /*
  * 下载源选择。
  *
- * 两个源走的是完全不同的网络路径：dl.fushi.moe 落在 Cloudflare（R2 出网免费，
+ * 两个源走的是完全不同的网络路径：fushi.moe/releases 落在 Cloudflare（R2 出网免费，
  * 回源 GitHub Releases 兜底），github.com 是直连。哪条通、哪条快因人而异，
  * 所以默认「自动」——并发探一次，谁先应答用谁；同时留手动切换，
  * 选择记在 localStorage 里。
@@ -13,7 +13,7 @@ import { ref, computed, onMounted } from 'vue'
  * 探测全失败或脚本没跑起来时，页面仍然是一张能点的下载表。
  */
 
-const DL_HOST = 'https://dl.fushi.moe'
+const DL_BASE = '/releases'
 const GH_REPO = 'hajisensai/Fushi'
 const PROBE_TIMEOUT_MS = 4000
 const STORE_KEY = 'fushi-download-mirror'
@@ -74,11 +74,11 @@ async function probe(id, url, opts) {
 /** 清单本身也要有备份路径：dl 拿不到就直接问 GitHub，再不行退回静态表。 */
 async function loadRelease() {
   try {
-    const r = await withTimeout(fetch(DL_HOST + '/api/latest', { cache: 'no-store' }), PROBE_TIMEOUT_MS)
+    const r = await withTimeout(fetch(DL_BASE + '/api/latest', { cache: 'no-store' }), PROBE_TIMEOUT_MS)
     if (r.ok) {
       const d = await r.json()
       release.value = { tag: d.tag, slots: d.slots }
-      metaSource.value = 'dl.fushi.moe'
+      metaSource.value = 'fushi.moe'
       return
     }
   } catch { /* 落到下一条 */ }
@@ -101,7 +101,7 @@ async function loadRelease() {
       }
       for (const [slot, re] of Object.entries(patterns)) {
         const a = (d.assets ?? []).find((x) => re.test(x.name))
-        slots[slot] = a ? { url: DL_HOST + '/latest/' + slot, name: a.name, size: a.size } : null
+        slots[slot] = a ? { url: DL_BASE + '/latest/' + slot, name: a.name, size: a.size } : null
       }
       release.value = { tag: d.tag_name, slots }
       metaSource.value = 'api.github.com'
@@ -115,7 +115,7 @@ async function loadRelease() {
 function hrefFor(slot) {
   const info = release.value?.slots?.[slot]
   if (!info) return 'https://github.com/' + GH_REPO + '/releases/latest'
-  if (activeMirror.value === 'cf') return DL_HOST + '/latest/' + slot
+  if (activeMirror.value === 'cf') return DL_BASE + '/latest/' + slot
   return (
     'https://github.com/' + GH_REPO + '/releases/download/' +
     encodeURIComponent(release.value.tag) + '/' + encodeURIComponent(info.name)
@@ -140,7 +140,7 @@ onMounted(async () => {
   } catch { /* 读不到就用默认的自动 */ }
 
   await Promise.all([
-    probe('cf', DL_HOST + '/api/latest'),
+    probe('cf', DL_BASE + '/api/latest'),
     // GitHub 不给我们 CORS，用 no-cors 只看连不连得上，不读内容
     probe('gh', 'https://github.com/' + GH_REPO + '/releases/latest', { mode: 'no-cors' }),
     loadRelease(),

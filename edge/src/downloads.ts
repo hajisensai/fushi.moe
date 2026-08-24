@@ -201,7 +201,7 @@ function githubAssetUrl(repo: string, tag: string, name: string): string {
   );
 }
 
-/** dl.fushi.moe 的全部路由。 */
+/** fushi.moe/releases 下的全部下载路由。入口已先剥掉 downloadPrefix。 */
 export async function handleDownload(request: Request, deps: DownloadDeps): Promise<Response> {
   const url = new URL(request.url);
   const parts = url.pathname.split('/').filter((s) => s !== '');
@@ -228,7 +228,12 @@ export async function handleDownload(request: Request, deps: DownloadDeps): Prom
       const a = resolveSlot(manifest, slot);
       slots[slot] = a
         ? {
-            url: 'https://' + deps.settings.downloadHost + '/latest/' + slot,
+            url:
+              'https://' +
+              deps.settings.canonicalHost +
+              deps.settings.downloadPrefix +
+              '/latest/' +
+              slot,
             name: a.name,
             size: a.size,
           }

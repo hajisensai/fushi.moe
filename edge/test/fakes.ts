@@ -4,11 +4,11 @@ import type { Settings } from '../src/config';
 export function settings(over: Partial<Settings> = {}): Settings {
   return {
     origins: [
-      { name: 'cf', host: 'cf.example' },
-      { name: 'gh', host: 'gh.example' },
+      { name: 'cf', host: 'cf.example', basePath: '' },
+      { name: 'gh', host: 'gh.example', basePath: '/fushi.moe' },
     ],
     canonicalHost: 'fushi.moe',
-    downloadHost: 'dl.fushi.moe',
+    downloadPrefix: '/releases',
     cfWeight: 100,
     timeoutMs: 1000,
     cooldownS: 60,

@@ -1,6 +1,13 @@
 import type { HealthStore } from './breaker';
 import type { Settings } from './config';
-import { downSet, isOriginFailure, pickOrder, type OriginName, type OriginSpec } from './origins';
+import {
+  downSet,
+  isOriginFailure,
+  originUrl,
+  pickOrder,
+  type OriginName,
+  type OriginSpec,
+} from './origins';
 
 export interface SiteDeps {
   readonly settings: Settings;
@@ -12,6 +19,8 @@ export interface SiteDeps {
   readonly waitUntil?: (p: Promise<unknown>) => void;
 }
 
+const OUTAGE_CACHE_TTL_S = 24 * 60 * 60;
+
 /** 把源站主机名写回规范主机名，避免 gh./cf. 子域泄漏给用户。 */
 function rewriteLocation(res: Response, deps: SiteDeps): Response {
   const loc = res.headers.get('location');
@@ -22,8 +31,13 @@ function rewriteLocation(res: Response, deps: SiteDeps): Response {
   } catch {
     return res;
   }
-  const isOriginHost = deps.settings.origins.some((o) => o.host === target.hostname);
-  if (!isOriginHost) return res;
+  const origin = deps.settings.origins.find((o) => o.host === target.hostname);
+  if (!origin) return res;
+  if (origin.basePath && target.pathname.startsWith(origin.basePath + '/')) {
+    target.pathname = target.pathname.slice(origin.basePath.length);
+  } else if (origin.basePath && target.pathname === origin.basePath) {
+    target.pathname = '/';
+  }
   target.hostname = deps.settings.canonicalHost;
   const headers = new Headers(res.headers);
   headers.set('location', target.toString());
@@ -35,10 +49,7 @@ async function tryOrigin(
   request: Request,
   deps: SiteDeps,
 ): Promise<Response | null> {
-  const url = new URL(request.url);
-  url.hostname = origin.host;
-  url.protocol = 'https:';
-  url.port = '';
+  const url = originUrl(origin, new URL(request.url));
 
   const upstream = new Request(url.toString(), {
     method: request.method,
@@ -94,7 +105,16 @@ export async function handleSite(request: Request, deps: SiteDeps): Promise<Resp
     const out = rewriteLocation(res, deps);
     if (cacheable && out.status === 200 && deps.staleCache) {
       const copy = out.clone();
-      const store = deps.staleCache.put(new Request(request.url), copy);
+      const cacheHeaders = new Headers(copy.headers);
+      // Cache API 不支持 stale-if-error；给内部副本单独设长 TTL，只有双源都挂时才读。
+      cacheHeaders.set('cache-control', `public, max-age=${OUTAGE_CACHE_TTL_S}`);
+      cacheHeaders.delete('set-cookie');
+      const cached = new Response(copy.body, {
+        status: copy.status,
+        statusText: copy.statusText,
+        headers: cacheHeaders,
+      });
+      const store = deps.staleCache.put(new Request(request.url), cached);
       deps.waitUntil ? deps.waitUntil(store) : await store.catch(() => {});
     }
     return tag(out, origin.name);

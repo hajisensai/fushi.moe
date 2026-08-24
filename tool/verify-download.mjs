@@ -13,9 +13,11 @@
 
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import { dirname, extname, join, normalize } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveStaticPath } from './static-path.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DIST = join(HERE, '..', '.vitepress', 'dist');
@@ -39,12 +41,12 @@ const FAKE_RELEASE = {
   tag: 'v9.9.9',
   publishedAt: '2026-08-24T00:00:00Z',
   slots: {
-    'android-arm64': { url: 'https://dl.fushi.moe/latest/android-arm64', name: 'fushi-9.9.9-arm64-v8a.apk', size: 138412032 },
-    'android-arm32': { url: 'https://dl.fushi.moe/latest/android-arm32', name: 'fushi-9.9.9-armeabi-v7a.apk', size: 135266304 },
-    'android-x64': { url: 'https://dl.fushi.moe/latest/android-x64', name: 'fushi-9.9.9-x86_64.apk', size: 119537664 },
-    windows: { url: 'https://dl.fushi.moe/latest/windows', name: 'fushi-9.9.9-windows-setup.exe', size: 246415360 },
-    macos: { url: 'https://dl.fushi.moe/latest/macos', name: 'fushi-9.9.9-macos.zip', size: 298844160 },
-    ios: { url: 'https://dl.fushi.moe/latest/ios', name: 'fushi-9.9.9-ios.ipa', size: 66060288 },
+    'android-arm64': { url: '/releases/latest/android-arm64', name: 'fushi-9.9.9-arm64-v8a.apk', size: 138412032 },
+    'android-arm32': { url: '/releases/latest/android-arm32', name: 'fushi-9.9.9-armeabi-v7a.apk', size: 135266304 },
+    'android-x64': { url: '/releases/latest/android-x64', name: 'fushi-9.9.9-x86_64.apk', size: 119537664 },
+    windows: { url: '/releases/latest/windows', name: 'fushi-9.9.9-windows-setup.exe', size: 246415360 },
+    macos: { url: '/releases/latest/macos', name: 'fushi-9.9.9-macos.zip', size: 298844160 },
+    ios: { url: '/releases/latest/ios', name: 'fushi-9.9.9-ios.ipa', size: 66060288 },
   },
 };
 
@@ -55,9 +57,9 @@ const GH_API_RELEASE = {
 
 function startServer() {
   const server = createServer((req, res) => {
-    const path = decodeURIComponent(req.url.split('?')[0]);
-    const file = normalize(join(DIST, path === '/' ? '/index.html' : path));
-    if (!file.startsWith(normalize(DIST)) || !existsSync(file) || statSync(file).isDirectory()) {
+    const path = new URL(req.url, 'http://localhost').pathname;
+    const file = resolveStaticPath(DIST, path);
+    if (!file || !existsSync(file) || statSync(file).isDirectory()) {
       res.writeHead(404).end('not found');
       return;
     }
@@ -125,7 +127,7 @@ function installInterceptor(cdp) {
     const { requestId, request } = msg.params;
     const url = request.url;
     try {
-      if (url.includes('dl.fushi.moe')) {
+      if (new URL(url).pathname === '/releases/api/latest') {
         if (!scenario.cfUp) {
           await cdp.send('Fetch.failRequest', { requestId, errorReason: 'ConnectionFailed' });
           return;
@@ -219,11 +221,12 @@ async function main() {
   if (!existsSync(join(DIST, 'download.html'))) throw new Error('先跑 npm run docs:build');
 
   const server = await startServer();
+  const profileDir = mkdtempSync(join(tmpdir(), 'fushi-download-profile-'));
   const proc = spawn(
     browser,
     [
       '--headless=new', '--disable-gpu', '--no-first-run', '--no-proxy-server',
-      '--user-data-dir=' + join(process.env.TEMP ?? '.', 'fushi-dl-verify'),
+      '--user-data-dir=' + profileDir,
       '--remote-debugging-port=' + DEBUG_PORT, 'about:blank',
     ],
     { stdio: 'ignore' },

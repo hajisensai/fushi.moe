@@ -16,9 +16,11 @@
 
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { existsSync, readFileSync, statSync } from 'node:fs';
-import { dirname, extname, join, normalize } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveStaticPath } from './static-path.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(HERE, '..', 'public');
@@ -59,11 +61,10 @@ const PREEXISTING_NOISE = ['/favicon.ico', 'image://'];
 function startServer() {
   const requested = [];
   const server = createServer((req, res) => {
-    const path = decodeURIComponent(req.url.split('?')[0]);
+    const path = new URL(req.url, 'http://localhost').pathname;
     requested.push(path);
-    const rel = path === '/' ? '/index.html' : path;
-    const file = normalize(join(PUBLIC_DIR, rel));
-    if (!file.startsWith(normalize(PUBLIC_DIR)) || !existsSync(file) || statSync(file).isDirectory()) {
+    const file = resolveStaticPath(PUBLIC_DIR, path);
+    if (!file || !existsSync(file) || statSync(file).isDirectory()) {
       res.writeHead(404).end('not found');
       return;
     }
@@ -131,6 +132,7 @@ async function main() {
   if (!browser) throw new Error('找不到 Chrome/Edge');
 
   const { server, requested } = await startServer();
+  const profileDir = mkdtempSync(join(tmpdir(), 'fushi-home-profile-'));
   console.log('静态服务器: http://127.0.0.1:' + PORT + '  (' + PUBLIC_DIR + ')');
 
   const proc = spawn(
@@ -141,7 +143,7 @@ async function main() {
       '--no-first-run',
       '--no-default-browser-check',
       '--no-proxy-server',
-      '--user-data-dir=' + join(process.env.TEMP ?? '.', 'fushi-verify-profile'),
+      '--user-data-dir=' + profileDir,
       '--remote-debugging-port=' + DEBUG_PORT,
       '--autoplay-policy=no-user-gesture-required',
       'about:blank',
