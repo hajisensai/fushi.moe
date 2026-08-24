@@ -1,6 +1,6 @@
 # fushi.moe
 
-[Fushi](https://github.com/hajisensai/Fushi) 官方网站，[VitePress](https://vitepress.dev/) 默认主题，GitHub Actions 自动部署到 GitHub Pages。
+[Fushi](https://github.com/hajisensai/Fushi) 官方网站，[VitePress](https://vitepress.dev/) 默认主题。GitHub Actions 一次构建后把同一产物部署到 Cloudflare Pages 与 GitHub Pages，Cloudflare Worker 负责回源切换。
 
 ## 结构
 
@@ -24,7 +24,6 @@ npm run docs:build     # 产物在 .vitepress/dist
 
 ## 部署
 
-推送到 `main` 后 `.github/workflows/deploy.yml` 自动构建发布（Pages 源为 GitHub Actions）。自定义域名 fushi.moe 在仓库 Pages 设置中配置；DNS 需在服务商处把 A 记录指向 GitHub Pages：
+推送到 `main` 后 `.github/workflows/deploy.yml` 自动构建发布。完整的 Cloudflare 资源、DNS 切换、GitHub 项目站路径与回退步骤见 [`docs/failover.md`](docs/failover.md)。
 
-- `fushi.moe` A → `185.199.108.153` / `185.199.109.153` / `185.199.110.153` / `185.199.111.153`
-- 或 CNAME → `hajisensai.github.io`
+正式激活前，根目录 `CNAME` 继续维持现有 GitHub Pages 自定义域；只在 `fushi.moe` 已切到 Cloudflare Pages + Worker 后删除。

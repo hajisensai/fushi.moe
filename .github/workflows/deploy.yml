@@ -1,4 +1,4 @@
-name: Deploy VitePress site to Pages
+name: Deploy site
 
 on:
   push:
@@ -19,30 +19,129 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+
       - name: Build with VitePress
         run: npm run docs:build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+
+      # 两个来源必须拿到逐字节相同的产物：VitePress 的资源名带内容哈希，
+      # 两侧不一致时用户在切换瞬间会拿 A 的 HTML 去请求 B 没有的资源。
+      # 所以这里只构建一次，后面两个部署 job 复用同一个 artifact。
+      - name: Upload build artifact (shared by both deploy jobs)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: site-dist
+          path: .vitepress/dist
+          retention-days: 7
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: .vitepress/dist
 
-  deploy:
+  # GitHub Pages 侧。正式切流后仓库不能再设自定义域：
+  # 设了的话 hajisensai.github.io 会 301 跳回主域，备源就形同虚设。
+  deploy-github-pages:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+  deploy-cloudflare-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # 密钥没配好之前不该让每次 push 都红。缺密钥就跳过并留一条 notice。
+      - name: Check Cloudflare credentials
+        id: guard
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::未配置 CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID，跳过 Cloudflare Pages 部署。站点此时只有 GitHub Pages 一个来源，故障切换不成立。"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download the same artifact GitHub Pages got
+        if: steps.guard.outputs.ready == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: site-dist
+          path: dist
+
+      - name: Deploy to Cloudflare Pages
+        if: steps.guard.outputs.ready == 'true'
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3 NOSONAR: immutable SHA
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=fushi-moe --branch=main
+
+  # 边缘 Worker：站点回源切换 + 下载路由。它跟站点产物无关，单独发。
+  deploy-edge-worker:
+    needs: [build, deploy-cloudflare-pages]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: edge
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: edge/package-lock.json
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # 切换逻辑错了比不切换更糟——熔断顺序、回退目标、404 不切源这些
+      # 必须在发上去之前就是绿的。
+      - name: Unit tests
+        run: npm test
+
+      - name: Check Cloudflare credentials
+        id: guard
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          EDGE_ENABLED: ${{ vars.CLOUDFLARE_EDGE_ENABLED }}
+        run: |
+          if [ -z "$CF_TOKEN" ] || [ -z "$CF_ACCOUNT" ] || [ "$EDGE_ENABLED" != "true" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare 密钥未配置，或 CLOUDFLARE_EDGE_ENABLED 尚未设为 true；跳过 Worker Route 部署。先让 Pages 自定义域成为真实底层 origin。"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy Worker
+        if: steps.guard.outputs.ready == 'true'
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3 NOSONAR: immutable SHA
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: edge
+          command: deploy

@@ -7,7 +7,11 @@ export default defineConfig({
     'Fushi：免费开源的沉浸式语言学习应用。读小说、听有声书、看视频、读漫画，点一下查词，再点一下做成带原文语境的 Anki 卡。',
   cleanUrls: true,
   lastUpdated: false,
-  head: [['link', { rel: 'icon', type: 'image/png', href: '/icon-placeholder.png' }]],
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: '/icon-placeholder.png' }],
+    // 多来源故障切换 SW：CF 线路不通时改从 GitHub 侧取内容，地址栏不变。
+    ['script', { src: '/sw-register.js', defer: '' }],
+  ],
   themeConfig: {
     logo: '/icon-placeholder.png',
     nav: [
