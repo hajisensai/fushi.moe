@@ -590,6 +590,7 @@
   .stats .langs summary::-webkit-details-marker { display: none; }
   .stats .langs[open] summary { border-bottom-color: transparent; }
   .stats .langs p { margin-top: 8px; line-height: 1.9; letter-spacing: 0.02em; }
+  .stats .langs .note { display: inline-block; margin-top: 6px; opacity: 0.7; }
   /* 正文里的内链：不改字号字重，只加下划线，避免把段落节奏打断 */
   .ilink { color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
   .ilink:hover { color: var(--accent); }
@@ -653,7 +654,11 @@
 <section class="black-band stats center">
   <div class="grid rev">
     <div><div class="n">4</div><p class="cap"><b>个平台</b>，同一套体验</p><p class="sub">WIN · MAC · AND · IOS</p></div>
-    <div><div class="n">5</div><p class="cap"><b>种目标语言</b></p><p class="sub">日本語 · 简体中文 · 繁體中文 · 한국어 · English</p></div>
+    <div><div class="n">18</div><p class="cap"><b>种目标语言</b></p>
+      <details class="langs"><summary>内置词形还原 · 查看全部</summary>
+        <p>日语 · 韩语 · 英语 · 西班牙语 · 法语 · 德语 · 阿拉伯语 · 希腊语 · 古希腊语 · 拉丁语 · 世界语 · 巴斯克语 · 格鲁吉亚语 · 爱尔兰语 · 古爱尔兰语 · 阿尔巴尼亚语 · 他加禄语 · 意第绪语<br><span class="note">另可导入任意 Yomitan 格式词典查词，不限于以上语言。</span></p>
+      </details>
+    </div>
     <div><div class="n">17</div><p class="cap"><b>种界面语言</b></p>
       <details class="langs"><summary>UI 本地化 · 查看全部</summary>
         <p>简体中文 · 繁體中文 · English · 日本語 · 한국어 · Deutsch · Español · Français · Italiano · Nederlands · Português (BR) · Русский · Türkçe · Tiếng Việt · ไทย · Bahasa Indonesia · العربية</p>
