@@ -276,8 +276,6 @@
     cursor: pointer; -webkit-user-select: none; user-select: none;
   }
   .vplayer .vsub .ch.demo-hl { background: var(--app-hl); }
-  /* 收藏句星标：对齐 app 字幕列表的实心星，跟在当前字幕句前 */
-  .vplayer .vsub .vsub-star { color: #ffd60a; margin-right: 0.4em; text-shadow: none; }
   .vplayer .vctrl {
     display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #101011;
   }
@@ -356,8 +354,6 @@
     scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.4) transparent;
   }
   .bookpage .bcue.now { background: rgba(70, 130, 180, 0.35); }
-  /* 收藏句整句高亮：对齐 app HighlightBridge 黄色（暗底 α=.45），压过播放中句的蓝 */
-  .bookpage .bcue.fav-hl { background: rgba(255, 220, 0, 0.45); }
   .bookpage .ch.demo-hl { background: rgb(75, 62, 43); }  /* rgba(180,145,90,.35) ⊕ #121212 */
 
   /* —— 歌词模式 = app LyricsModeHtml 原版文档（iframe） —— */
@@ -6314,7 +6310,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     const mineCard = document.getElementById('mine-card');
     let mineSentence = '';
     let minePic = '';   // 当前查词上下文的制卡配图（视频帧 / 封面 / 页面截图）
-    let mineSrc = '';   // 当前查词来源域：video / book / gal / manga（收藏语义按域分）
+    let mineSrc = '';   // 当前查词来源域：video / book / gal / manga
     function stripHtml(html) {
       const t = document.createElement('div');
       t.innerHTML = html || '';
@@ -6478,29 +6474,6 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (e.target === mineOverlay) { mineOverlay.classList.remove('show'); document.body.style.overflow = ''; }
     });
 
-    // 演示页收藏态，对齐 App 语义：弹窗星标收藏的是**当前句**（BUG-123 后 App 弹窗已无
-    // 单词☆，星标与书内/视频的句子收藏同源）。书正文=整句黄高亮，视频=字幕句加星。
-    // 仅本页会话内存，刷新即清（App 里落 FavoriteSentences 表）。
-    const demoFavs = new Set();      // 已收藏的句子文本（书/视频）
-    const demoFavWords = new Set();  // 已收藏的单词（gal 浮窗 popup.js 语义 = FavoriteWords）
-    const favWordKey = (a) => ((a && a.expression) || '') + '|' + ((a && a.reading) || '');
-    function setVsubStar(on) {
-      const cur = vsub.querySelector('.vsub-star');
-      if (on && !cur) {
-        const s = document.createElement('span');
-        s.className = 'vsub-star';
-        s.textContent = '★';
-        vsub.insertBefore(s, vsub.firstChild);
-      }
-      if (!on && cur) cur.remove();
-    }
-    function applyFavMarks(sentence, on) {
-      const bi = MEDIA.abook.findIndex((c) => c.text === sentence);
-      if (bi >= 0 && bookCueEls[bi]) bookCueEls[bi].classList.toggle('fav-hl', on);
-      if (vCueIdx >= 0 && MEDIA.video[vCueIdx] && MEDIA.video[vCueIdx].text === sentence) {
-        setVsubStar(on);
-      }
-    }
     window.audioSources = ['demo'];
     window.needsAudio = true;
     window.flutter_inappwebview = {
@@ -6509,31 +6482,13 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
           case 'duplicateCheck':
             return Promise.resolve(false);
           case 'favoriteCheck':
-            // 对齐 App：gal 浮窗（popup.js）☆=收藏单词；书/视频弹窗星标=收藏当前句
-            return Promise.resolve(mineSrc === 'gal'
-              ? demoFavWords.has(favWordKey(a))
-              : demoFavs.has(mineSentence));
-          case 'favoriteEntry': {
-            if (mineSrc === 'gal') {
-              const wk = favWordKey(a);
-              const wOn = !demoFavWords.has(wk);
-              if (wOn) demoFavWords.add(wk); else demoFavWords.delete(wk);
-              toast(wOn ? '已收藏单词——App 里可在收藏夹回顾' : '已取消收藏');
-              return Promise.resolve(wOn);
-            }
-            const k = mineSentence;
-            if (!k) return Promise.resolve(false);
-            const on = !demoFavs.has(k);
-            if (on) demoFavs.add(k); else demoFavs.delete(k);
-            applyFavMarks(k, on);
-            toast(on ? '已收藏当前句——书内整句高亮、视频字幕加星' : '已取消收藏');
-            return Promise.resolve(on);
-          }
+            // 演示页不做收藏（收藏钮已在 shadow 样式里隐藏），恒返回未收藏。
+            return Promise.resolve(false);
           case 'resolveWordAudio': {
             const k = (a && a.expression || '') + '|' + (a && a.reading || a && a.expression || '');
             const k2 = (a && a.expression || '') + '|' + (a && a.expression || '');
             const url = AUDIO[k] || AUDIO[k2] || null;
-            if (!url) toast('演示页离线音频未收录这个词——App 里可配置多个真实音源');
+            if (!url) toast('演示页未收录该词发音——App 可配置多个在线音源');
             return Promise.resolve(url);
           }
           case 'mineEntry':
@@ -6551,7 +6506,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     function handleNested(q) {
       if (!q) return;
       if (nestDepth >= MAX_NEST) {
-        toast('体验网页只支持三级嵌套查词——App 里可以无限嵌套');
+        toast('演示页最多支持三级嵌套——App 内无限制');
         return;
       }
       let hit = null;
@@ -6560,7 +6515,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         if (TERMMAP[key]) { hit = TERMMAP[key]; break; }
       }
       if (!hit) {
-        toast('演示页离线词库有限，这个词没带上——App 里都能查');
+        toast('演示词库未收录——App 内可查完整词典');
         return;
       }
       nestDepth++;
@@ -6580,7 +6535,9 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         + 'border-radius:10px;border:1px solid rgb(210, 210, 215);background:rgb(255, 255, 255);';
       const shadow = host.attachShadow({ mode: 'open' });
       const norm = document.createElement('style');
-      norm.textContent = '#entries-container{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;zoom:1!important;}';
+      // 演示页不做收藏，全域隐藏 popup.js 的 ☆ 钮（popup.js 本体保持 app 原版不改）。
+      norm.textContent = '#entries-container{width:100%!important;max-width:none!important;max-height:none!important;overflow:visible!important;zoom:1!important;}'
+        + '.favorite-button{display:none!important}';
       shadow.appendChild(norm);
       const css = document.createElement('style');
       css.textContent = FUSHI_CONTENT_CSS;
@@ -6720,14 +6677,6 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       mineSentence = sentence || '';
       minePic = (typeof pic === 'function' ? pic() : pic) || '';
       mineSrc = src || '';
-      // 对齐 App：漫画弹窗没有收藏钮（BaseSourcePage 默认无星标 header，漫画未覆写）
-      if (!window.__demoFavCss) {
-        const st = document.createElement('style');
-        st.textContent = '.demo-no-fav .favorite-button{display:none!important}';
-        window.__fushiRoot.appendChild(st);
-        window.__demoFavCss = true;
-      }
-      container.classList.toggle('demo-no-fav', mineSrc === 'manga');
       (spans || []).forEach(s => { s.classList.add('demo-hl'); hlSpans.push(s); });
       window.lookupEntries = entries;
       window._noResultsMessage = 'No results';
@@ -6826,8 +6775,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       if (idx < 0) return;
       const cue = MEDIA.video[idx];
       buildCharText(vsub, [[cue.text, null]], termResolve(cue.pos, () => pauseForLookup(video)),
-        cue.text, () => toast('演示词库没带上这个词——App 里都能查'), SENT_PIC[cue.text] || '', 'video');
-      if (demoFavs.has(cue.text)) setVsubStar(true);
+        cue.text, () => toast('演示词库未收录——App 内可查完整词典'), SENT_PIC[cue.text] || '', 'video');
     }
     function vSync() {
       const t = video.currentTime;
@@ -6866,10 +6814,10 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     // ============ 4) 真游戏截图 + 台词浮窗 ============
     const galLine = document.getElementById('gal-line');
     buildCharText(galLine, [[EXTRA.gal.text, null]], termResolve(EXTRA.gal.pos, null),
-      EXTRA.gal.text, () => toast('演示词库没带上这个词——App 里都能查'),
+      EXTRA.gal.text, () => toast('演示词库未收录——App 内可查完整词典'),
       () => { const im = document.querySelector('.gal-stage > img'); return im ? im.src : ''; }, 'gal');
     document.getElementById('gal-voice').addEventListener('click', () => {
-      toast('演示页没带这句的原声——真机上 Hook 会同步捕获角色语音，点这里即重播');
+      toast('演示页未收录该句语音');
     });
 
     // ============ 5) 有声书歌词模式 = app 原版 LyricsModeHtml 文档（iframe）+ 真 selectText 管线 ============
@@ -6895,7 +6843,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
           const w = frameEl.contentWindow;
           if (!hit) {
             try { w.fushiSelection.clearSelection(); } catch (_) {}
-            toast('演示词库没带上这个词——App 里都能查');
+            toast('演示词库未收录——App 内可查完整词典');
             return Promise.resolve(null);
           }
           if (onLookupPause) onLookupPause();
