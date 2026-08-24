@@ -351,35 +351,26 @@
   /* —— G：真游戏窗口截图 + 台词浮窗 —— */
   .gal-stage { border-radius: 28px; overflow: hidden; box-shadow: var(--card-shadow); position: relative; background: #000; }
   .gal-stage img { display: block; width: 100%; height: auto; }
-  .gal-stage .hookchip {
-    position: absolute; top: 9%; right: 3%;
-    background: rgba(13, 15, 20, 0.85); border: 1px solid #343842; border-radius: 10px;
-    padding: 8px 13px; font-size: 11px; color: #a2a5ae; line-height: 1.8;
+  /* 可点的台词直接压在**游戏自己那行字**的像素上（和漫画演示同一路数：透明命中
+     格 + 命中高亮），不再另画一个黑底「台词浮窗」把游戏的字盖掉。格子来自 1920×1080
+     原帧实测：这行是等宽排版，pitch 39.975px、线性拟合残差 σ=2.0px，所以按
+     x0 + i·pitch 均分就能逐字对齐（叠格目检逐字命中）。用百分比，随图缩放。 */
+  .gal-stage .galtext { position: absolute; left: 0; right: 0; top: 76.481%; height: 5.0%; }
+  .gal-stage .galtext .ch {
+    position: absolute; top: 0; height: 100%; cursor: pointer;
+    color: transparent; -webkit-user-select: none; user-select: none;
   }
-  .gal-stage .hookchip b { color: #eceae4; font-weight: 500; }
-  .gal-stage .hookchip .on { color: var(--band-accent); font-size: 10px; }
-  /* 台词浮窗：复刻 app GalHookTextOverlay 外观（深色半透明圆角 + 台词 + 语音钮） */
-  .gal-stage .luna {
-    position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%);
-    width: min(84%, 720px);
-    background: rgba(8, 9, 12, 0.82); border: 1px solid rgba(70, 71, 71, 0.55);
-    border-radius: 12px; padding: 12px 16px 11px;
-    backdrop-filter: blur(2px);
-  }
-  .gal-stage .luna .line {
-    font-family: var(--jp-sans); font-size: clamp(14px, 2.2vw, 19px); color: #f2f0ea;
-    line-height: 1.8; cursor: pointer; -webkit-user-select: none; user-select: none;
-  }
-  .gal-stage .luna .row {
-    display: flex; justify-content: space-between; align-items: center; margin-top: 7px;
-  }
-  .gal-stage .luna .voice {
+  /* 高亮要半透明：底下压着的是游戏渲染的真字，盖实了就看不见选中的是哪几个字。
+     颜色取 app 查词选区那一档暖色。全局 .ch.demo-hl 会把 color 改回 inherit，
+     这里必须一并按住，否则命中的字会突然冒出一层重影文字。 */
+  .gal-stage .galtext .ch.demo-hl { background: rgba(180, 145, 90, 0.55); color: transparent; }
+  .gal-stage .galvoice {
+    position: absolute; left: 3%; bottom: 5%;
     display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
-    border: 1px solid rgba(70, 71, 71, 0.55); border-radius: 980px; padding: 3px 12px;
-    font-size: 11px; color: #a2a5ae; background: none;
+    border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 980px; padding: 4px 13px;
+    font-size: 11px; color: #e8e8ea; background: rgba(8, 9, 12, 0.55); backdrop-filter: blur(2px);
   }
-  .gal-stage .luna .voice i { width: 0; height: 0; border-left: 6px solid var(--band-accent); border-block: 4px solid transparent; }
-  .gal-stage .luna .src { font-size: 10px; color: #6e7280; letter-spacing: 0.05em; }
+  .gal-stage .galvoice i { width: 0; height: 0; border-left: 6px solid var(--band-accent); border-block: 4px solid transparent; }
 
   /* —— N：正文视图（阅读器 dark 主题真值：#121212 / rgba(255,255,255,.87)，
         有声书句高亮 rgba(70,130,180,.35)，查词选区 rgba(180,145,90,.35) 合成不透明） —— */
@@ -725,22 +716,16 @@
 <section class="feature" id="sec-g">
   <div class="head rev">
     <p class="eyebrow">游戏</p>
-    <p class="copy copy-2">浮窗上点词查释义，点加号制卡。</p>
+    <p class="copy copy-2">游戏台词上点词查释义，点加号制卡。</p>
   </div>
   <div class="stage rev duo">
     <div class="duo-pane">
     <div class="gal-stage">
-      <img src="/demo/media/a35d6fae98eef022.jpg" alt="游戏窗口" draggable="false">
-      <div class="hookchip"><b>捕获状态</b><br><span class="on">TEXT ✓ · VOICE ✓ · 已配对</span></div>
-      <div class="luna">
-        <p class="line" id="gal-line" lang="ja"></p>
-        <div class="row">
-          <button class="voice" id="gal-voice" type="button"><i></i>重播原声</button>
-          <span class="src">FUSHI · 台词浮窗</span>
-        </div>
-      </div>
+      <img src="/demo/media/e6c5fafa4c001798.jpg" alt="游戏窗口" draggable="false">
+      <div class="galtext" id="gal-line" lang="ja"></div>
+      <button class="galvoice" id="gal-voice" type="button"><i></i>重播原声</button>
     </div>
-      <p class="duo-cap">网页交互演示 · 可点浮窗台词</p>
+      <p class="duo-cap">网页交互演示 · 可点游戏台词</p>
     </div>
     <div class="duo-pane">
       <div class="shotbox">
@@ -7170,9 +7155,16 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
 
     // ============ 4) 真游戏截图 + 台词浮窗 ============
     const galLine = document.getElementById('gal-line');
+    // 每个字格的左边界 = left0 + i·pitch（百分比，实测自 1920×1080 原帧）。
+    // 文本本身透明——玩家看到的是游戏渲染的那行字，我们只在它上面放命中框。
+    const GAL_CELL = { left: 16.7473, pitch: 2.0821 };
     buildCharText(galLine, [[EXTRA.gal.text, null]], termResolve(EXTRA.gal.pos, null),
       EXTRA.gal.text, () => fushiTermMiss(toast),
       () => { const im = document.querySelector('.gal-stage > img'); return im ? im.src : ''; }, 'gal');
+    galLine.querySelectorAll('.ch').forEach((s, i) => {
+      s.style.left = (GAL_CELL.left + i * GAL_CELL.pitch) + '%';
+      s.style.width = GAL_CELL.pitch + '%';
+    });
     // 「重播原声」= 真·游戏语音（该卡 SentenceAudio 的 xwma 转码）。走页面唯一的
     // av 队列，与卡内 replay 钮 / 翻面自动播同一个所有者：连按不叠、换词即掐。
     document.getElementById('gal-voice').addEventListener('click', () => {
