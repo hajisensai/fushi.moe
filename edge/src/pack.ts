@@ -69,9 +69,13 @@ async function proxy(
     waitUntil: deps.waitUntil,
   });
   if (!cached) {
-    return new Response('pack origin unavailable', {
-      status: 502,
-      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+    return new Response(null, {
+      status: 302,
+      headers: {
+        location: url,
+        'cache-control': 'no-store',
+        'x-fushi-pack-origin': 'github-direct-fallback',
+      },
     });
   }
   return cached;

@@ -114,18 +114,20 @@ describe('handlePack', () => {
     expect(seen, '任何一次都不该真的打到上游').toHaveLength(0);
   });
 
-  it('上游 5xx 收敛成 502，不把源站错误当内容缓存', async () => {
+  it('上游 5xx 时 302 到同一个 GitHub 公开资产，不把错误缓存', async () => {
     const { fn } = capturing(() => ok('boom', 503));
     const res = await handlePack(req('/v1/x.000'), deps(fn));
-    expect(res.status).toBe(502);
+    expect(res.status).toBe(302);
     expect(res.headers.get('cache-control')).toBe('no-store');
+    expect(res.headers.get('location')).toContain('github.com/owner/pack/releases/download/');
   });
 
-  it('上游不可达时也是 502 而不是抛异常', async () => {
+  it('上游不可达时同样 302 到 GitHub，让客户端直连', async () => {
     const fn = (async () => {
       throw new TypeError('network down');
     }) as typeof fetch;
     const res = await handlePack(req('/v1/x.000'), deps(fn));
-    expect(res.status).toBe(502);
+    expect(res.status).toBe(302);
+    expect(res.headers.get('x-fushi-pack-origin')).toBe('github-direct-fallback');
   });
 });
