@@ -1,6 +1,7 @@
 import type { HealthStore } from './breaker';
 import type { Settings } from './config';
 import { GH_MANIFEST_BREAKER, MIRROR_BREAKER } from './downloads';
+import { fetchWithTimeout } from './fetch-timeout';
 import type { OriginSpec } from './origins';
 import { originUrl } from './origins';
 
@@ -36,9 +37,12 @@ async function probe(origin: OriginSpec, deps: HealthDeps): Promise<OriginReport
   };
   try {
     const url = originUrl(origin, new URL('https://' + deps.settings.canonicalHost + '/__build.json'));
-    const res = await deps.fetcher(url.toString(), {
-      signal: AbortSignal.timeout(deps.settings.timeoutMs),
-    } as RequestInit);
+    const res = await fetchWithTimeout(
+      deps.fetcher,
+      url.toString(),
+      {},
+      deps.settings.timeoutMs,
+    );
     report.status = res.status;
     if (res.ok) {
       report.probe = 'ok';
