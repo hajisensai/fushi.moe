@@ -1,0 +1,106 @@
+/*
+ * VitePress 页的正文排版。外壳（顶栏/底栏/token）在 public/chrome.css，
+ * 这里只管 <Content /> 渲染出来的 markdown。
+ *
+ * 取的是首页同一套 Apple 语法：同样的字号阶梯、同样的 --ink/--hairline，
+ * 段落节奏比默认文档主题松，标题层级靠字重和留白拉开而不是靠分隔线。
+ */
+
+/* 外壳样式 /chrome.css 由 .vitepress/config.mts 的 head 挂 link 引入——
+   它是 public/ 下原样发布的文件，Vite 的 @import 按项目根解析，够不着。 */
+
+.site-shell { display: flex; flex-direction: column; min-height: 100vh; }
+.site-main { flex: 1; padding: clamp(48px, 7vw, 96px) 22px clamp(72px, 9vw, 120px); }
+
+.prose {
+  max-width: 692px; margin-inline: auto;
+  font-size: 17px; line-height: 1.6;
+  color: var(--ink);
+}
+
+/* ---------- 标题 ---------- */
+.prose h1 {
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 600; line-height: 1.05; letter-spacing: -0.003em;
+  text-wrap: balance; margin-bottom: 24px;
+}
+.prose h2 {
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 600; line-height: 1.15; letter-spacing: -0.003em;
+  margin-top: 72px; margin-bottom: 16px; text-wrap: balance;
+}
+.prose h3 {
+  font-size: 21px; font-weight: 600; line-height: 1.24;
+  margin-top: 40px; margin-bottom: 12px;
+}
+.prose h1 + p, .prose h2 + p, .prose h3 + p { margin-top: 0; }
+
+/* ---------- 正文 ---------- */
+.prose p { margin: 16px 0; }
+.prose .lead { font-size: clamp(19px, 2vw, 21px); line-height: 1.48; color: var(--ink-2); }
+.prose strong { font-weight: 600; }
+.prose a { color: var(--link); text-decoration: none; }
+.prose a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.prose ul, .prose ol { margin: 16px 0; padding-left: 1.35em; }
+.prose li { margin: 8px 0; }
+.prose li::marker { color: var(--ink-2); }
+.prose hr { border: 0; border-top: 1px solid var(--hairline); margin: 64px 0; }
+.prose code {
+  font-size: 0.88em; padding: 2px 6px; border-radius: 6px;
+  background: var(--alt); color: var(--ink);
+}
+
+/* ---------- 图 ---------- */
+.prose img {
+  display: block; width: 100%; height: auto; margin: 28px 0;
+  border-radius: 18px; border: 1px solid var(--hairline);
+  box-shadow: var(--card-shadow);
+}
+
+/* ---------- 表 ---------- */
+.prose table {
+  width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 15px;
+}
+.prose th, .prose td {
+  text-align: left; padding: 14px 12px;
+  border-bottom: 1px solid var(--hairline); vertical-align: top;
+}
+.prose th {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+.prose tbody tr:last-child td { border-bottom: 0; }
+
+/* ---------- ::: tip / ::: warning ---------- */
+.prose .custom-block {
+  margin: 24px 0; padding: 18px 20px; border-radius: 16px;
+  background: var(--alt); font-size: 15px; line-height: 1.55;
+}
+.prose .custom-block p { margin: 8px 0; }
+.prose .custom-block p:first-child { margin-top: 0; }
+.prose .custom-block p:last-child { margin-bottom: 0; }
+.prose .custom-block-title {
+  font-weight: 600; font-size: 13px; letter-spacing: 0.02em;
+  color: var(--ink-2); margin-bottom: 6px !important;
+}
+.prose .custom-block.tip { box-shadow: inset 3px 0 0 var(--link); }
+.prose .custom-block.warning { box-shadow: inset 3px 0 0 #b25000; }
+.prose .custom-block.warning .custom-block-title { color: #b25000; }
+.prose .custom-block.danger { box-shadow: inset 3px 0 0 #c1121f; }
+
+/* ---------- 分段大标题（下载页用来切段落，仿 apple.com 的段间大字） ---------- */
+.prose .band {
+  margin: 96px 0; padding: 0;
+}
+.prose .band-line {
+  border: 0; border-top: 1px solid var(--hairline); margin: 0 0 56px;
+}
+.prose .eyebrow {
+  font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+}
+
+@media (max-width: 760px) {
+  .prose h2 { margin-top: 56px; }
+  .prose { font-size: 16px; }
+}
