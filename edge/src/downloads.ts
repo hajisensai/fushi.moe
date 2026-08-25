@@ -198,8 +198,14 @@ async function serveFromMirror(
     headers.set('content-disposition', 'attachment; filename="' + filename + '"');
     headers.set('x-fushi-mirror', 'r2');
 
+    // R2 在请求没带 Range 时也可能填出 range={offset:0,length:size}；206 只允许回给
+    // 真正的 Range 请求（RFC 9110 §15.3.7）——普通 <a> 点击收到 206 在部分浏览器里
+    // 会被当成坏应答而不是下载（2026-08-25 手机端「404」/桌面端导航异常的根因之一）。
     const range = obj.range as { offset?: number; length?: number } | undefined;
-    if (range && typeof range.offset === 'number' && typeof range.length === 'number') {
+    if (
+      request.headers.has('range') &&
+      range && typeof range.offset === 'number' && typeof range.length === 'number'
+    ) {
       headers.set('content-range', contentRange(range.offset, range.length, obj.size));
       headers.set('content-length', String(range.length));
       return new Response(body, { status: 206, headers });

@@ -44,15 +44,21 @@ export function fakeFetch(
 /** 只实现被用到的那部分 R2 语义。 */
 export function fakeR2(objects: Record<string, string>, opts: { throwOnGet?: boolean } = {}) {
   return {
-    async get(key: string) {
+    async get(key: string, getOpts?: { range?: Headers }) {
       if (opts.throwOnGet) throw new Error('r2 down');
       const body = objects[key];
       if (body === undefined) return null;
+      // 模拟真 R2：只要传了 range 选项就填 range（没有 Range 头时也是整段），
+      // 206/200 的判断必须由调用方按请求头决定。
+      const header = getOpts?.range?.get('range');
+      const m = header ? /bytes=(\d+)-(\d+)/.exec(header) : null;
+      const offset = m ? Number(m[1]) : 0;
+      const length = m ? Number(m[2]) - offset + 1 : body.length;
       return {
-        body: new Response(body).body,
+        body: new Response(body.slice(offset, offset + length)).body,
         size: body.length,
         httpEtag: '"' + key + '"',
-        range: undefined,
+        range: getOpts?.range ? { offset, length } : undefined,
         writeHttpMetadata(_h: Headers) {},
         text: async () => body,
       };
