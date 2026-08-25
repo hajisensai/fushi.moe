@@ -10,6 +10,7 @@ index.md                # 首页（hero + 功能九宫格）
 guide.md                # 「5 分钟配好 Fushi」上手教程
 features.md             # 功能一览
 download.md             # 下载页
+edge/                   # Worker：站点故障切换、受限 R2 安装包、推荐包 Workers Cache
 public/images/guide/    # 教程配图（来自主仓库 docs/static-assets/user-guide）
 public/icon-placeholder.png  # 占位图标（待正式 logo 替换）
 ```

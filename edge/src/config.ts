@@ -22,6 +22,8 @@ export interface Env {
   BREAKER_COOLDOWN_S: string;
   /** 发布仓库，形如 owner/repo。 */
   GH_REPO: string;
+  /** 正式版静态下载清单。由 Fushi 发布流程写入 update-manifest 分支。 */
+  GH_MANIFEST_URL?: string;
   /** 推荐包仓库（切片放它的 release），形如 owner/repo。 */
   PACK_REPO?: string;
   /** 推荐包路由前缀。 */
@@ -38,6 +40,7 @@ export interface Settings {
   readonly timeoutMs: number;
   readonly cooldownS: number;
   readonly ghRepo: string;
+  readonly ghManifestUrl: string;
   readonly packRepo: string;
   readonly packPrefix: string;
 }
@@ -68,6 +71,9 @@ export function settingsFrom(env: Env): Settings {
     timeoutMs: num(env.ORIGIN_TIMEOUT_MS, 3000, 500, 30000),
     cooldownS: num(env.BREAKER_COOLDOWN_S, 60, 5, 3600),
     ghRepo: env.GH_REPO || 'hajisensai/Fushi',
+    ghManifestUrl:
+      env.GH_MANIFEST_URL ||
+      'https://raw.githubusercontent.com/hajisensai/Fushi/update-manifest/latest-stable-fushi.json',
     packRepo: env.PACK_REPO || 'hajisensai/fushi-pack',
     packPrefix: normalizeBasePath(env.PACK_PREFIX || '/pack'),
   };

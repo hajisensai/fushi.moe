@@ -98,7 +98,8 @@ npx wrangler pages deploy ci-dist --project-name=fushi-moe --branch=main
 
 1. **不碰 GitHub API**。`releases/latest/download/<name>` 是 GitHub 自带的、
    会 302 到最新 release 的稳定端点，所以不需要 API、不需要限流熔断、不需要清单缓存。
-2. **不碰 R2**。R2 免费额度 10 GB，塞进 9.5 GB 的包就没地方放 app 的发布镜像了。
+2. **推荐包不碰 R2**。9.5 GB 会吃满免费存储；推荐包固定走 GitHub Release +
+   普通 Workers Cache，应用安装包才使用受总量守卫约束的专用 R2 桶。
 3. **滚动路径绝不能 immutable**。只有 `/pack/manifest.json` 是滚动的，切片路径带 tag。
    滚动 URL 配长缓存会让同一次下载拿到新旧混合的分片，逐片 sha256 会红、9.5 GB 白下。
 
@@ -204,7 +205,11 @@ curl -s https://fushi.moe/__health | jq
     "cf": { "breaker": "closed", "probe": "ok", "build": "aefd95…" },
     "gh": { "breaker": "closed", "probe": "ok", "build": "aefd95…" }
   },
-  "mirror": { "bound": true, "breaker": "closed" }
+  "mirror": { "bound": true, "breaker": "closed" },
+  "githubManifest": {
+    "source": "update-manifest/latest-stable-fushi.json",
+    "breaker": "closed"
+  }
 }
 ```
 
@@ -253,11 +258,16 @@ navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregist
 | `/releases/api/latest` | JSON 清单，下载页用它渲染 |
 | `/releases` | 302 回 `fushi.moe/download` |
 
-每个请求先看 R2 里有没有（支持 Range，断点续传可用），没有就 302 到 GitHub Releases。版本清单优先问 GitHub API，问不到就用 R2 里的 `manifest.json`——**这是「GitHub 挂了下载还活着」的那一环**。
+每个请求先看 R2 里有没有（支持 Range，断点续传可用），没有就 302 到 GitHub Releases。版本清单优先读 `Fushi` 仓库 `update-manifest` 分支里的
+`latest-stable-fushi.json`：它由现有发布 CI 自动更新，是普通静态文件，完全不调用
+`api.github.com`；GitHub 静态清单拿不到时才用 R2 里的 `manifest.json`。
 
-R2 镜像由发布仓库的 `.github/workflows/mirror-releases.yml` 在 release 发布后被动同步，只镜像正式版、保留最近 2 个版本。注意 `wrangler r2 object put` 没有 multipart，**超过 300MB 的资产会被跳过**（当前 `fushi-*-macos.zip` 是 285MB，贴着这条线），跳过的平台下载自动回退 GitHub。
+R2 镜像由发布仓库的 `.github/workflows/mirror-releases.yml` 在 release 发布后被动同步，只镜像正式版、保留最近 2 个版本。workflow 必须在上传前按专用桶的保守总量上限做预检并先清理旧版本；预计超限就跳过，不能靠 R2 账单提醒（它不会硬停）。`wrangler r2 object put` 没有 multipart，**超过 300MB 的资产会被跳过**，对应平台自动回退 GitHub。
 
-下载页本身还有一层独立的选源：并发探测两个源，自动用通的那个，也允许手动切换（记在 localStorage）。清单三级降级：`fushi.moe/releases/api/latest` → `api.github.com` → 静态表。**即使脚本完全没跑起来，SSR 产物里每一行也已经带着可用的 GitHub 链接**，下载页不会变成空壳。
+推荐包分片本身不进 R2：带 tag 的 GitHub Release URL 通过普通 Workers Cache
+缓存一年，滚动 manifest 只缓存 5 分钟；不启用付费的 Cache Reserve。
+
+下载页本身还有一层独立的选源：并发探测两个源，自动用通的那个，也允许手动切换（记在 localStorage）。清单三级降级：`fushi.moe/releases/api/latest` → GitHub 静态 `update-manifest` JSON → 静态表。**即使脚本完全没跑起来，SSR 产物里每一行也已经带着可用的 GitHub 链接**，下载页不会变成空壳。
 
 ---
 

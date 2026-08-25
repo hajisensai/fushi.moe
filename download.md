@@ -15,6 +15,7 @@ import { ref, computed, onMounted } from 'vue'
 
 const DL_BASE = '/releases'
 const GH_REPO = 'hajisensai/Fushi'
+const GH_MANIFEST_URL = 'https://raw.githubusercontent.com/hajisensai/Fushi/update-manifest/latest-stable-fushi.json'
 const PROBE_TIMEOUT_MS = 4000
 const STORE_KEY = 'fushi-download-mirror'
 
@@ -71,7 +72,7 @@ async function probe(id, url, opts) {
   }
 }
 
-/** 清单本身也要有备份路径：dl 拿不到就直接问 GitHub，再不行退回静态表。 */
+/** 清单本身也要有备份路径：Worker 拿不到就读 GitHub 静态清单，再退回静态表。 */
 async function loadRelease() {
   try {
     const r = await withTimeout(fetch(DL_BASE + '/api/latest', { cache: 'no-store' }), PROBE_TIMEOUT_MS)
@@ -85,7 +86,7 @@ async function loadRelease() {
 
   try {
     const r = await withTimeout(
-      fetch('https://api.github.com/repos/' + GH_REPO + '/releases/latest', { cache: 'no-store' }),
+      fetch(GH_MANIFEST_URL, { cache: 'no-store' }),
       PROBE_TIMEOUT_MS,
     )
     if (r.ok) {
@@ -101,10 +102,15 @@ async function loadRelease() {
       }
       for (const [slot, re] of Object.entries(patterns)) {
         const a = (d.assets ?? []).find((x) => re.test(x.name))
-        slots[slot] = a ? { url: DL_BASE + '/latest/' + slot, name: a.name, size: a.size } : null
+        slots[slot] = a ? {
+          url: DL_BASE + '/latest/' + slot,
+          githubUrl: a.browser_download_url,
+          name: a.name,
+          size: typeof a.size === 'number' ? a.size : 0,
+        } : null
       }
-      release.value = { tag: d.tag_name, slots }
-      metaSource.value = 'api.github.com'
+      release.value = { tag: d.tag, slots }
+      metaSource.value = 'GitHub 静态清单'
       return
     }
   } catch { /* 静态表兜底 */ }
@@ -116,7 +122,7 @@ function hrefFor(slot) {
   const info = release.value?.slots?.[slot]
   if (!info) return 'https://github.com/' + GH_REPO + '/releases/latest'
   if (activeMirror.value === 'cf') return DL_BASE + '/latest/' + slot
-  return (
+  return info.githubUrl || (
     'https://github.com/' + GH_REPO + '/releases/download/' +
     encodeURIComponent(release.value.tag) + '/' + encodeURIComponent(info.name)
   )

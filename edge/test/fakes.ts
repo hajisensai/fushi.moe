@@ -13,6 +13,7 @@ export function settings(over: Partial<Settings> = {}): Settings {
     timeoutMs: 1000,
     cooldownS: 60,
     ghRepo: 'owner/repo',
+    ghManifestUrl: 'https://raw.example/latest-stable-fushi.json',
     packRepo: 'owner/pack',
     packPrefix: '/pack',
     ...over,
