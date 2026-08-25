@@ -13,7 +13,6 @@ public/chrome.css       # 顶栏 / 底栏 / 设计 token，两种页面共用
 public/site.js          # 界面语言（17 种，与 app 同集）+ 顶栏语言菜单 + 浮动回顶
 public/i18n/<code>.json # 站点文案字典；zh-CN 是源语言，键与标记上的 data-i18n 同一份
 edge/                   # Worker：站点故障切换、R2 安装包、通道清单、分片来源代理、推荐包 Workers Cache
-public/images/guide/    # 教程配图（来自主仓库 docs/static-assets/user-guide）
 public/icon-placeholder.png  # 占位图标（待正式 logo 替换）
 ```
 

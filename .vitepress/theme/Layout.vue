@@ -72,7 +72,7 @@ onMounted(() => {
       <nav class="site-footer-links">
         <a href="/#acgn" data-i18n="nav.features">功能</a><a href="/#method" data-i18n="nav.method">怎么开始</a><a href="/download" data-i18n="nav.download">下载</a><a href="https://github.com/hajisensai/Fushi">GitHub</a><a href="https://discord.gg/WhjwyGmm7f">Discord</a><a href="https://qm.qq.com/q/Sx2nWTvJCw" data-i18n="nav.qq">QQ 群</a>
       </nav>
-      <p class="site-footer-legal" data-i18n="footer.legal">自由软件 · 以 <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a> 许可发布</p>
+      <p class="site-footer-legal" data-i18n="footer.legal">以 <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a> 许可发布</p>
       <p>© 2026 Fushi</p>
     </footer>
     <a class="site-totop" href="#top" aria-label="回到顶部" title="回到顶部" data-i18n-attr="aria-label=nav.totop;title=nav.totop"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>

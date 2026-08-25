@@ -51,6 +51,17 @@ const MIME = {
  *   弹窗同样增长 113 个元素，说明是既有行为而不是拆分引入的。
  */
 const PREEXISTING_NOISE = ['/favicon.ico', 'image://'];
+/*
+ * 第三方外链（Google Fonts 等）连不连得上取决于跑测试那台机器的外网，本机实测会
+ * 间歇性 ERR_CONNECTION_TIMED_OUT 把「无未捕获 JS 异常」打红。它们不是本站产物，
+ * 只作诊断打印，不参与判定；本站资源（127.0.0.1）的失败照常算红。
+ */
+function isThirdParty(text) {
+  return /https?:\/\/(?!127\.0\.0\.1|localhost)[^\s/]+/i.test(text);
+}
+function isNoise(text) {
+  return PREEXISTING_NOISE.some((n) => text.includes(n)) || isThirdParty(text);
+}
 
 function startServer() {
   const requested = [];
@@ -117,11 +128,11 @@ async function main() {
     }
     if (msg.method === 'Log.entryAdded' && msg.params.entry.level === 'error') {
       const line = msg.params.entry.text + ' ' + (msg.params.entry.url ?? '');
-      (PREEXISTING_NOISE.some((n) => line.includes(n)) ? noise : jsErrors).push(line);
+      (isNoise(line) ? noise : jsErrors).push(line);
     }
     if (msg.method === 'Network.responseReceived' && msg.params.response.status >= 400) {
       const url = msg.params.response.url;
-      (PREEXISTING_NOISE.some((n) => url.includes(n)) ? noise : failedRequests).push(
+      (isNoise(url) ? noise : failedRequests).push(
         msg.params.response.status + ' ' + url,
       );
     }
@@ -283,7 +294,8 @@ async function main() {
   check('抽出的图片无破图', imgOk.broken === 0 && imgOk.total > 0, JSON.stringify(imgOk));
 
   check('无未捕获 JS 异常', jsErrors.length === 0, jsErrors.slice(0, 3).join(' | '));
-  check('无失败请求（排除既有 favicon 噪声）', failedRequests.length === 0, failedRequests.slice(0, 5).join(' | '));
+  check('无失败请求（排除既有 favicon 噪声与第三方外链）', failedRequests.length === 0, failedRequests.slice(0, 5).join(' | '));
+  if (noise.length) console.log('  [诊断] 已忽略的噪声/第三方外链: ' + noise.slice(0, 4).join(' | '));
 
   const mediaRequests = requested.filter((p) => p.startsWith('/demo/media/'));
   check(
