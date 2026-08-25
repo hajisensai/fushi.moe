@@ -203,6 +203,25 @@ describe('handleDownload ?src=', () => {
     expect(res.headers.get('location')).toBeNull();
   });
 
+  it('镜像路径：没带 Range 的普通请求回 200 整文件，带 Range 才回 206', async () => {
+    const mirror = fakeR2({ 'releases/v1.2.3/fushi-1.2.3-windows-setup.exe': 'ABCDEFGHIJ' });
+    const plain = await handleDownload(
+      new Request('https://fushi.moe/latest/windows'),
+      deps(manifests().fn, mirror),
+    );
+    expect(plain.status).toBe(200);
+    expect(plain.headers.get('content-range')).toBeNull();
+    expect(plain.headers.get('content-length')).toBe('10');
+    expect(await plain.text()).toBe('ABCDEFGHIJ');
+    const ranged = await handleDownload(
+      new Request('https://fushi.moe/latest/windows', { headers: { range: 'bytes=2-4' } }),
+      deps(manifests().fn, mirror),
+    );
+    expect(ranged.status).toBe(206);
+    expect(ranged.headers.get('content-range')).toBe('bytes 2-4/10');
+    expect(await ranged.text()).toBe('CDE');
+  });
+
   it('?src=r2 命中走镜像', async () => {
     const mirror = fakeR2({ 'releases/v1.2.3/fushi-1.2.3-windows-setup.exe': 'MIRRORED' });
     const res = await handleDownload(
