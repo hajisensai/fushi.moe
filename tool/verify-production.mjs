@@ -41,6 +41,12 @@ check(
 const home = await request('https://fushi.moe/');
 check(home.response.ok, '主站返回 2xx');
 
+const packOrigin = await request(
+  'https://github.com/hajisensai/fushi-pack/releases/latest/download/manifest.json',
+  { json: true },
+);
+check(packOrigin.response.ok, 'GitHub Runner 可直取推荐包 manifest 资产');
+
 const pack = await request('https://fushi.moe/pack/manifest.json', { json: true });
 check(pack.response.ok && Array.isArray(pack.body?.parts) && pack.body.parts.length > 0,
   '/pack/manifest.json 含推荐包分片');
