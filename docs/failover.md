@@ -53,6 +53,37 @@ fushi.moe/releases/*  同一 Worker ┬→ 主  R2 桶 fushi-releases
 
 ---
 
+## 绝不要用本地构建部署任一侧
+
+两侧必须来自**同一次构建的同一份产物**。`deploy.yml` 里 build job 只跑一次、
+两个 deploy job 复用同一个 `site-dist` artifact，就是为了这条。
+
+实测（同一个 commit `c835bf1`，CI Linux vs 本机 Windows）：
+
+| | |
+|---|---|
+| 相同文件 | 477 |
+| **不同文件** | **12** |
+| 构建指纹 | `c0418340…` vs `0fc4daed…` |
+| 资源文件名 | `assets/app.CfYtMa4H.js` vs `assets/app.Dy3bQNnK.js` |
+
+差异落在**内容哈希的资源文件名**上，所以后果不是「版本略旧」，而是：浏览器从 A 拿到
+HTML、切到 B 之后去请求 B 上根本不存在的资源名 —— **整页 404**。这正是跨源切换
+最怕的失效方式，而且只在真正发生故障切换时才暴露。
+
+必须手动部署某一侧时（例如首次建 Pages 项目），**取 CI 的 artifact，不要本地构建**：
+
+```bash
+# 取 main 上最近一次成功构建的产物
+RID=$(gh run list --repo hajisensai/fushi.moe --workflow "Deploy site" --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+gh run download "$RID" --repo hajisensai/fushi.moe --name site-dist --dir ci-dist
+npx wrangler pages deploy ci-dist --project-name=fushi-moe --branch=main
+```
+
+部署完用 `/__build.json` 对一次指纹，两侧必须逐字相同。
+
+---
+
 ## 推荐包分发（`/pack`）
 
 新手引导的推荐包约 **9.5 GB**，切片放 `hajisensai/fushi-pack` 的 release。
