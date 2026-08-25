@@ -276,19 +276,34 @@
   /* contain 而非 cover：录屏是「app 真长这样」的证据，裁掉边缘就等于裁掉界面。
      补齐的上下留白用该段录屏自身的边缘色（浅色主题的三段是近白），接缝看不出来。 */
   .shotbox video { display: block; width: 100%; height: 100%; object-fit: contain; }
-  .shotbox.light { --shot-bg: #f7f7f8; }
+  .shotbox.light { --shot-bg: #f7f7f8; --load-ink: var(--ink-2); }
   .shotbox .sndbtn {
     position: absolute; right: 12px; bottom: 12px; width: 34px; height: 34px; padding: 0;
     border: 0; border-radius: 50%; cursor: pointer; background: rgba(0, 0, 0, 0.55);
     color: #fff; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center;
   }
-  .shotbox.ph {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    background: rgba(127, 127, 127, 0.08); border: 1px dashed var(--hairline);
-    box-shadow: none; color: var(--ink-2);
+  /* 媒体到位前的占位提示。慢网实测（3Mbps / 300ms RTT）四段录屏分别空 3.1s /
+     3.1s / 6.7s / 7.4s+，这期间框里什么都没有——漫画那行左黑框右白框，用户无从
+     判断是在加载还是坏了。让位判据是「有东西可画」（poster 到了或首帧解出来了），
+     不是「视频能播」：poster 往往先到，等 canplay 反而会把已经画出来的首帧盖住。 */
+  .mediaload {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 11px;
+    background: var(--shot-bg, #000); color: var(--load-ink, rgba(255, 255, 255, 0.6));
+    font-size: 12px; letter-spacing: 0.06em;
+    transition: opacity 0.35s ease;
   }
-  .shotbox.ph .ph-t { font-size: 14px; }
-  .shotbox.ph .ph-s { font-size: 12px; opacity: 0.75; }
+  .mediaload::before {
+    content: ''; width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid currentColor; border-top-color: transparent;
+    animation: mediaload-spin 0.9s linear infinite;
+  }
+  .mediaload.done { opacity: 0; pointer-events: none; }
+  .mediaload.failed::before { animation: none; border-top-color: currentColor; opacity: 0.4; }
+  @keyframes mediaload-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .mediaload::before { animation: none; border-top-color: currentColor; opacity: 0.4; }
+  }
   @media (max-width: 1080px) {
     .feature .stage.duo { grid-template-columns: minmax(0, 1fr); max-width: 980px; }
   }
@@ -668,6 +683,7 @@
     <div class="vplayer" id="vplayer">
       <div class="vwrap">
         <video id="demo-video" playsinline preload="metadata" poster="/demo/media/bb2d8ab44d033aa2.jpg" src="/demo/media/6bfcee4444667cec.mp4"></video>
+        <div class="mediaload"><span data-fail="视频加载失败">演示视频加载中…</span></div>
         <div class="vbig" id="vbig" role="button" aria-label="播放"><i></i></div>
         <p class="vsub" id="vsub" lang="ja"></p>
       </div>
@@ -681,6 +697,7 @@
     </div>
     <div class="duo-pane">
       <div class="shotbox light">
+        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
         <video id="shot-a" src="/preview/video.mp4" poster="/preview/video-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
         <button class="sndbtn" id="snd-a" type="button" aria-label="开启声音">&#128263;</button>
@@ -698,12 +715,14 @@
   <div class="stage rev duo">
     <div class="duo-pane">
     <div class="manga-stage" id="manga-stage">
+      <div class="mediaload"><span data-fail="页图加载失败">演示加载中…</span></div>
       <iframe id="manga-frame" title="漫画阅读器（app 实机代码渲染）" style="display:block;width:100%;height:100%;border:0;background:#000"></iframe>
     </div>
       <p class="duo-cap">网页交互演示 · 可点气泡文字</p>
     </div>
     <div class="duo-pane">
       <div class="shotbox light">
+        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
         <video id="shot-c" src="/preview/manga.mp4" poster="/preview/manga-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
         <button class="sndbtn" id="snd-c" type="button" aria-label="开启声音">&#128263;</button>
@@ -722,6 +741,7 @@
     <div class="duo-pane">
     <div class="gal-stage">
       <img src="/demo/media/e6c5fafa4c001798.jpg" alt="游戏窗口" draggable="false">
+      <div class="mediaload"><span data-fail="截图加载失败">演示加载中…</span></div>
       <div class="galtext" id="gal-line" lang="ja"></div>
       <button class="galvoice" id="gal-voice" type="button"><i></i>重播原声</button>
     </div>
@@ -729,6 +749,7 @@
     </div>
     <div class="duo-pane">
       <div class="shotbox">
+        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
         <video id="shot-g" src="/preview/gal.mp4" poster="/preview/gal-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
         <button class="sndbtn" id="snd-g" type="button" aria-label="开启声音">&#128263;</button>
@@ -760,6 +781,7 @@
     </div>
     <div class="duo-pane">
       <div class="shotbox light">
+        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
         <video id="shot-n" src="/preview/audiobook.mp4" poster="/preview/audiobook-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
         <button class="sndbtn" id="snd-n" type="button" aria-label="开启声音">&#128263;</button>
@@ -7142,6 +7164,35 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     renderVCue(-1);
 
     // ============ 3) 漫画 = app mangaWindowDocument 原版文档（真 OCR 块 + 真选区引擎） ============
+    // 媒体到位前顶一块「加载中」。判据是「有东西可画」：video 拿到首帧（loadeddata）
+    // 或 poster 图先下完都算数——poster 常常先到，只等 loadeddata 会把已经画出来的
+    // 首帧白白盖住。img 直接看 complete/load。任一路 error 就翻成「加载失败」，
+    // 不留一个永远转的圈。
+    function medialoadWatch(tip, media) {
+      if (!tip) return;
+      const done = () => tip.classList.add('done');
+      const fail = () => {
+        tip.classList.add('failed');
+        const s = tip.querySelector('span');
+        if (s && s.dataset.fail) s.textContent = s.dataset.fail;
+      };
+      if (!media) return;
+      if (media.tagName === 'IMG') {
+        if (media.complete && media.naturalWidth) { done(); return; }
+        media.addEventListener('load', done, { once: true });
+        media.addEventListener('error', fail, { once: true });
+        return;
+      }
+      if (media.readyState >= 2) done();
+      media.addEventListener('loadeddata', done, { once: true });
+      media.addEventListener('error', fail, { once: true });
+      const poster = media.getAttribute('poster');
+      if (poster) { const probe = new Image(); probe.addEventListener('load', done, { once: true }); probe.src = poster; }
+    }
+    document.querySelectorAll('.mediaload').forEach((tip) => {
+      medialoadWatch(tip, tip.parentElement.querySelector('video, img'));
+    });
+
     const mangaFrame = document.getElementById('manga-frame');
     window.__fushiMangaBridge = makeFrameBridge(mangaFrame, null,
       () => { try { const im = mangaFrame.contentDocument.querySelector('img'); return im ? im.src : ''; } catch (_) { return ''; } }, 'manga');
@@ -7151,6 +7202,8 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       doc.write(FUSHI_MANGA_DOC);
       doc.close();
       bindEscape(doc);
+      // 页图在 iframe 文档里，父文档的 querySelector 够不着，单独接一次。
+      medialoadWatch(document.querySelector('#manga-stage > .mediaload'), doc.querySelector('img'));
     })();
 
     // ============ 4) 真游戏截图 + 台词浮窗 ============
