@@ -33,6 +33,8 @@ function isSafeSegment(seg: string): boolean {
 export interface PackDeps {
   readonly settings: Settings;
   readonly fetcher: typeof fetch;
+  readonly cache?: Cache;
+  readonly waitUntil?: (promise: Promise<unknown>) => void;
 }
 
 function notFound(message: string): Response {
@@ -63,6 +65,8 @@ async function proxy(
     cacheControl,
     markerHeader: 'x-fushi-pack-origin',
     markerValue: 'github-workers-cache',
+    cache: deps.cache,
+    waitUntil: deps.waitUntil,
   });
   if (!cached) {
     return new Response('pack origin unavailable', {

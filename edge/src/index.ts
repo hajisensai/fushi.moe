@@ -76,6 +76,8 @@ export default {
         return await handlePack(new Request(packUrl.toString(), request), {
           settings,
           fetcher: fetch,
+          cache: caches.default,
+          waitUntil,
         });
       }
 

@@ -8,8 +8,6 @@ function capturing(reply: () => Response) {
     url: string;
     headers: Record<string, string>;
     method: string;
-    cacheTtl?: number;
-    cacheEverything?: boolean;
   }[] = [];
   const fn = (async (input: Request | string, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.url;
@@ -17,15 +15,10 @@ function capturing(reply: () => Response) {
     new Headers(init?.headers).forEach((v, k) => {
       headers[k] = v;
     });
-    const cf = (init as RequestInit & {
-      cf?: { cacheTtl?: number; cacheEverything?: boolean };
-    } | undefined)?.cf;
     seen.push({
       url,
       headers,
       method: init?.method ?? 'GET',
-      cacheTtl: cf?.cacheTtl,
-      cacheEverything: cf?.cacheEverything,
     });
     return reply();
   }) as typeof fetch;
@@ -36,8 +29,8 @@ function ok(body = 'x', status = 200, headers: Record<string, string> = {}): Res
   return new Response(body, { status, headers });
 }
 
-function deps(fetcher: typeof fetch) {
-  return { settings: settings({ packRepo: 'owner/pack' }), fetcher };
+function deps(fetcher: typeof fetch, cache?: Cache) {
+  return { settings: settings({ packRepo: 'owner/pack' }), fetcher, cache };
 }
 
 function req(path: string, init?: RequestInit): Request {
@@ -54,8 +47,6 @@ describe('handlePack', () => {
     );
     // 不该出现任何 api.github.com 调用：少一个 API 就少一份限流与熔断负担。
     expect(seen.some((s) => s.url.includes('api.github.com'))).toBe(false);
-    expect(seen[0]!.cacheEverything).toBe(true);
-    expect(seen[0]!.cacheTtl).toBe(300);
   });
 
   it('滚动的 manifest 绝不能 immutable，带 tag 的切片才可以', async () => {
@@ -72,8 +63,25 @@ describe('handlePack', () => {
     expect(b.seen[0]!.url).toBe(
       'https://github.com/owner/pack/releases/download/pack-2026-08-14/demo.zip.000',
     );
-    expect(b.seen[0]!.cacheEverything).toBe(true);
-    expect(b.seen[0]!.cacheTtl).toBe(31_536_000);
+  });
+
+  it('普通 GET 写入 caches.default，第二次不再回源 GitHub', async () => {
+    const { fn, seen } = capturing(() => ok('cached-bytes'));
+    let stored: Response | undefined;
+    const cache = {
+      async match() {
+        return stored?.clone();
+      },
+      async put(_request: Request, response: Response) {
+        stored = response.clone();
+      },
+    } as unknown as Cache;
+
+    const first = await handlePack(req('/v1/x.000'), deps(fn, cache));
+    const second = await handlePack(req('/v1/x.000'), deps(fn, cache));
+    expect(await first.text()).toBe('cached-bytes');
+    expect(await second.text()).toBe('cached-bytes');
+    expect(seen).toHaveLength(1);
   });
 
   it('Range 与 If-Range 原样透传', async () => {
