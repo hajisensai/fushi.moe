@@ -10,8 +10,17 @@ async function request(url, { json = false, redirect = 'follow' } = {}) {
     signal: AbortSignal.timeout(TIMEOUT_MS),
     headers: { 'user-agent': 'fushi-moe-production-verify' },
   });
-  const body = json && response.ok ? await response.json() : null;
+  const text = json ? await response.text() : '';
+  let body = null;
+  if (json && text) {
+    try {
+      body = JSON.parse(text);
+    } catch {
+      body = { unparsed: text.slice(0, 500) };
+    }
+  }
   console.log(`${response.status} ${url} -> ${response.url}`);
+  if (json) console.log(JSON.stringify(body, null, 2));
   return { response, body };
 }
 
@@ -19,9 +28,6 @@ function check(ok, message) {
   if (!ok) throw new Error(message);
   console.log(`PASS ${message}`);
 }
-
-const home = await request('https://fushi.moe/');
-check(home.response.ok, '主站返回 2xx');
 
 const health = await request('https://fushi.moe/__health', { json: true });
 check(health.response.ok && health.body?.ok === true, '/__health 正常');
@@ -31,6 +37,9 @@ check(
   health.body?.githubManifest?.source === 'update-manifest/latest-stable-fushi.json',
   '最新版本清单使用 GitHub 静态 update-manifest',
 );
+
+const home = await request('https://fushi.moe/');
+check(home.response.ok, '主站返回 2xx');
 
 const pack = await request('https://fushi.moe/pack/manifest.json', { json: true });
 check(pack.response.ok && Array.isArray(pack.body?.parts) && pack.body.parts.length > 0,
