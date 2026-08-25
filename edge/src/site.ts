@@ -1,5 +1,6 @@
 import type { HealthStore } from './breaker';
 import type { Settings } from './config';
+import { fetchWithTimeout } from './fetch-timeout';
 import {
   downSet,
   isOriginFailure,
@@ -59,9 +60,7 @@ async function tryOrigin(
   });
 
   try {
-    const res = await deps.fetcher(upstream, {
-      signal: AbortSignal.timeout(deps.settings.timeoutMs),
-    } as RequestInit);
+    const res = await fetchWithTimeout(deps.fetcher, upstream, {}, deps.settings.timeoutMs);
     if (isOriginFailure(res.status)) return null;
     return res;
   } catch {

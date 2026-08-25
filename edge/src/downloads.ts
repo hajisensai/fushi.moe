@@ -1,5 +1,6 @@
 import type { HealthStore } from './breaker';
 import type { Settings } from './config';
+import { fetchWithTimeout } from './fetch-timeout';
 import {
   manifestFromPublished,
   mirrorKey,
@@ -54,13 +55,17 @@ export async function loadManifest(deps: DownloadDeps): Promise<ReleaseManifest 
 
 async function fetchPublishedManifest(deps: DownloadDeps): Promise<ReleaseManifest | null> {
   try {
-    const res = await deps.fetcher(deps.settings.ghManifestUrl, {
-      headers: {
-        accept: 'application/json',
-        'user-agent': 'fushi-moe-edge',
+    const res = await fetchWithTimeout(
+      deps.fetcher,
+      deps.settings.ghManifestUrl,
+      {
+        headers: {
+          accept: 'application/json',
+          'user-agent': 'fushi-moe-edge',
+        },
       },
-      signal: AbortSignal.timeout(deps.settings.timeoutMs),
-    } as RequestInit);
+      deps.settings.timeoutMs,
+    );
     if (!res.ok) return null;
     return manifestFromPublished(await res.json());
   } catch {
