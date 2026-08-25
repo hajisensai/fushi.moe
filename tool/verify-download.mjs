@@ -33,7 +33,9 @@ const MIME = {
 };
 
 const FAKE_RELEASE = {
+  channel: 'stable',
   tag: 'v9.9.9',
+  version: '9.9.9',
   publishedAt: '2026-08-24T00:00:00Z',
   slots: {
     'android-arm64': { url: '/releases/latest/android-arm64', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-arm64-v8a.apk', name: 'fushi-9.9.9-arm64-v8a.apk', size: 138412032 },
@@ -47,9 +49,35 @@ const FAKE_RELEASE = {
 
 const GH_STATIC_MANIFEST = {
   tag: 'v9.9.9',
+  version: '9.9.9',
+  channel: 'formal',
   assets: Object.values(FAKE_RELEASE.slots).map((s) => ({
     name: s.name,
     size: s.size,
+    browser_download_url: s.githubUrl,
+  })),
+};
+
+/* 调试通道：Android 只有一个含全部架构的通用包，桌面三件套照旧。 */
+const FAKE_DEBUG_RELEASE = {
+  channel: 'debug',
+  tag: 'v9.9.10-debug.123+abc1234',
+  version: '9.9.10-debug.123',
+  publishedAt: '2026-08-25T00:00:00Z',
+  slots: {
+    'android-universal': { url: '/releases/debug/android-universal', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-abc1234-debug.apk', name: 'fushi-9.9.10-debug.123-abc1234-debug.apk', size: 0 },
+    windows: { url: '/releases/debug/windows', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-windows-setup.exe', name: 'fushi-9.9.10-debug.123-windows-setup.exe', size: 0 },
+    macos: { url: '/releases/debug/macos', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-macos.zip', name: 'fushi-9.9.10-debug.123-macos.zip', size: 0 },
+    ios: { url: '/releases/debug/ios', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-ios.ipa', name: 'fushi-9.9.10-debug.123-ios.ipa', size: 0 },
+  },
+};
+
+const GH_STATIC_DEBUG_MANIFEST = {
+  tag: FAKE_DEBUG_RELEASE.tag,
+  version: FAKE_DEBUG_RELEASE.version,
+  channel: 'debug',
+  assets: Object.values(FAKE_DEBUG_RELEASE.slots).map((s) => ({
+    name: s.name,
     browser_download_url: s.githubUrl,
   })),
 };
@@ -88,11 +116,14 @@ function installInterceptor(cdp) {
     const { requestId, request } = msg.params;
     const url = request.url;
     try {
-      if (new URL(url).pathname === '/releases/api/latest') {
+      const parsed = new URL(url);
+      if (parsed.pathname === '/releases/api/latest') {
         if (!scenario.cfUp) {
           await cdp.send('Fetch.failRequest', { requestId, errorReason: 'ConnectionFailed' });
           return;
         }
+        // Worker 按 ?channel= 回对应通道的清单，并在应答里带回 channel（页面靠它识别老 Worker）。
+        const debug = parsed.searchParams.get('channel') === 'debug';
         await cdp.send('Fetch.fulfillRequest', {
           requestId,
           responseCode: 200,
@@ -100,7 +131,7 @@ function installInterceptor(cdp) {
             { name: 'content-type', value: 'application/json' },
             { name: 'access-control-allow-origin', value: '*' },
           ],
-          body: b64(JSON.stringify(FAKE_RELEASE)),
+          body: b64(JSON.stringify(debug ? FAKE_DEBUG_RELEASE : FAKE_RELEASE)),
         });
         return;
       }
@@ -109,6 +140,7 @@ function installInterceptor(cdp) {
           await cdp.send('Fetch.failRequest', { requestId, errorReason: 'ConnectionFailed' });
           return;
         }
+        const debug = parsed.pathname.endsWith('latest-debug-fushi.json');
         await cdp.send('Fetch.fulfillRequest', {
           requestId,
           responseCode: 200,
@@ -116,7 +148,7 @@ function installInterceptor(cdp) {
             { name: 'content-type', value: 'application/json' },
             { name: 'access-control-allow-origin', value: '*' },
           ],
-          body: b64(JSON.stringify(GH_STATIC_MANIFEST)),
+          body: b64(JSON.stringify(debug ? GH_STATIC_DEBUG_MANIFEST : GH_STATIC_MANIFEST)),
         });
         return;
       }
@@ -140,7 +172,7 @@ function installInterceptor(cdp) {
   });
 }
 
-async function runScenario(cdp, label, { cfUp, ghUp }) {
+async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
   scenario.cfUp = cfUp;
   scenario.ghUp = ghUp;
 
@@ -150,6 +182,17 @@ async function runScenario(cdp, label, { cfUp, ghUp }) {
   await cdp.send('Page.navigate', { url: 'http://127.0.0.1:' + PORT + '/download.html' });
   await new Promise((r) => setTimeout(r, 6500));
 
+  if (channel) {
+    // 通道切换是页内状态：点按钮 → 重新取该通道清单 → 表格按通道换行。
+    await cdp.send('Runtime.evaluate', {
+      expression: '(function(){' +
+        'var b = [].slice.call(document.querySelectorAll(".dl-channels button")).find(function (x) { return x.textContent.indexOf(' + JSON.stringify(channel) + ') >= 0; });' +
+        'if (b) b.click(); return !!b; })()',
+      returnByValue: true,
+    });
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+
   const state = await cdp.send('Runtime.evaluate', {
     expression: `(function(){
       var status = document.querySelector('.dl-status');
@@ -158,9 +201,17 @@ async function runScenario(cdp, label, { cfUp, ghUp }) {
       });
       var links = [].slice.call(document.querySelectorAll('.dl-table a')).map(function (a) { return a.getAttribute('href'); });
       var warn = document.querySelector('.dl-warn');
+      var channels = [].slice.call(document.querySelectorAll('.dl-channels button')).map(function (b) {
+        return { text: b.textContent.replace(/\s+/g, ' ').trim(), on: b.classList.contains('on') };
+      });
+      var rows = [].slice.call(document.querySelectorAll('.dl-table tbody tr')).map(function (tr) {
+        return tr.querySelector('td b') ? tr.querySelector('td b').textContent.trim() : '';
+      });
       return {
         status: status ? status.textContent.replace(/\s+/g, ' ').trim() : null,
         buttons: btns,
+        channels: channels,
+        rows: rows,
         firstLink: links[0] || null,
         allLinks: links,
         warn: warn ? warn.textContent.replace(/\s+/g, ' ').trim() : null
@@ -223,6 +274,18 @@ async function main() {
     c.firstLink,
   );
   check('C 给出了说明文案', (c.warn ?? '').length > 0, c.warn);
+
+  console.log('\n--- 场景 D：切到调试版 ---');
+  const d = await runScenario(cdp, 'D 调试版', { cfUp: true, ghUp: true, channel: '调试版' });
+  check('D 调试版按钮处于选中', d.channels.some((x) => x.text.includes('调试版') && x.on), JSON.stringify(d.channels));
+  check('D 状态行显示调试版 tag', (d.status ?? '').includes('v9.9.10-debug.123'), d.status);
+  check('D 表格换成调试版槽位（通用 Android 包，无 arm64 行）', d.rows.includes('Android') && !d.rows.some((r) => r.includes('arm64')), JSON.stringify(d.rows));
+  check('D 链接指向调试版通道', d.allLinks.length > 0 && d.allLinks.every((h) => h.includes('/releases/debug/') || h.includes('-debug.')), JSON.stringify(d.allLinks));
+
+  console.log('\n--- 场景 E：CF 不通时切调试版走 GitHub 静态清单 ---');
+  const e = await runScenario(cdp, 'E CF 不通 + 调试版', { cfUp: false, ghUp: true, channel: '调试版' });
+  check('E 仍取到调试版清单', (e.status ?? '').includes('v9.9.10-debug.123'), e.status);
+  check('E 链接走调试版 GitHub 直链', (e.firstLink ?? '').includes('-debug.'), e.firstLink);
 
   ws.close();
   proc.kill();

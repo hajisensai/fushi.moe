@@ -16,3 +16,11 @@
 # 构建指纹用于监控两侧产物是否一致，必须实时。
 /__build.json
   Cache-Control: no-store
+
+# 界面语言字典：改文案后 5 分钟内生效即可；再验证靠 ETag。
+/i18n/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+# 站点脚本与 SW 同理，不能被长期缓存住。
+/site.js
+  Cache-Control: no-cache
