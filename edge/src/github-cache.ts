@@ -17,6 +17,8 @@ export interface GithubCacheProxyOptions {
   readonly markerValue: string;
   readonly cache?: Cache;
   readonly waitUntil?: (promise: Promise<unknown>) => void;
+  /** 回源失败时把原因交回调用方（上游状态码或异常文本），否则失败就是一个哑巴 null。 */
+  readonly onFailure?: (reason: string) => void;
 }
 
 /**
@@ -52,7 +54,10 @@ export async function proxyGithubCached(
       headers,
       redirect: 'follow',
     } as RequestInit);
-    if (upstream.status >= 500) return null;
+    if (upstream.status >= 500) {
+      options.onFailure?.('upstream status ' + upstream.status + ' from ' + new URL(upstream.url || options.url).hostname);
+      return null;
+    }
 
     const responseHeaders = new Headers();
     for (const name of FORWARDED_HEADERS) {
@@ -77,7 +82,8 @@ export async function proxyGithubCached(
       options.waitUntil ? options.waitUntil(store) : await store.catch(() => {});
     }
     return response;
-  } catch {
+  } catch (err) {
+    options.onFailure?.('fetch threw: ' + (err instanceof Error ? err.name + ': ' + err.message : String(err)));
     return null;
   }
 }
