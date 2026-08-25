@@ -9,39 +9,13 @@ export default defineConfig({
   lastUpdated: false,
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/icon-placeholder.png' }],
+    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
+    // 顶栏 / 底栏 / 设计 token 的唯一真相源，与手写首页 public/index.html 共用。
+    ['link', { rel: 'stylesheet', href: '/chrome.css' }],
     // 多来源故障切换 SW：CF 线路不通时改从 GitHub 侧取内容，地址栏不变。
     ['script', { src: '/sw-register.js', defer: '' }],
   ],
-  themeConfig: {
-    logo: '/icon-placeholder.png',
-    nav: [
-      { text: '5 分钟上手', link: '/guide' },
-      { text: '功能', link: '/features' },
-      { text: '下载', link: '/download' },
-    ],
-    sidebar: [
-      {
-        text: '开始',
-        items: [
-          { text: '下载 Fushi', link: '/download' },
-          { text: '5 分钟配好 Fushi', link: '/guide' },
-          { text: '功能一览', link: '/features' },
-        ],
-      },
-    ],
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/hajisensai/Fushi' },
-      { icon: 'discord', link: 'https://discord.gg/WhjwyGmm7f' },
-    ],
-    outline: { label: '本页目录', level: [2, 3] },
-    docFooter: { prev: '上一页', next: '下一页' },
-    darkModeSwitchLabel: '外观',
-    sidebarMenuLabel: '菜单',
-    returnToTopLabel: '回到顶部',
-    footer: {
-      message: '自由软件 · GPLv3 许可发布',
-      copyright: '© 2026 Fushi',
-    },
-    search: { provider: 'local' },
-  },
+  // themeConfig 是 VitePress 默认主题的配置面。本站跑的是 .vitepress/theme/
+  // 下的自定义页壳（只有首页 + 下载页两页，用不上侧边栏 / 搜索 / 上下页导航），
+  // 顶栏底栏的内容直接写在 Layout.vue 里，所以这里不再配任何东西。
 })

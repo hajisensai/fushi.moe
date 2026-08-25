@@ -157,6 +157,8 @@ onMounted(async () => {
 
 # 下载 Fushi
 
+<p class="lead">选一个平台装上，剩下的交给应用内的新手引导。四个平台同一套体验，全部免费开源。</p>
+
 <div class="dl-picker" v-if="!probing">
   <div class="dl-status">
     正在使用 <b>{{ activeMirrorName }}</b>
@@ -202,7 +204,7 @@ onMounted(async () => {
 
 Linux 暂无预编译包，请[从源码构建](https://github.com/hajisensai/Fushi#building)。
 
-装好之后，花五分钟照着[上手教程](/guide)配好推荐词典和 Anki，就可以开始了。历史版本见[全部 Releases](https://github.com/hajisensai/Fushi/releases)。
+历史版本见[全部 Releases](https://github.com/hajisensai/Fushi/releases)。
 
 <noscript>
 
@@ -214,32 +216,139 @@ Linux 暂无预编译包，请[从源码构建](https://github.com/hajisensai/Fu
 </noscript>
 
 <style scoped>
+/*
+ * 选源器样式。类名 .dl-picker / .dl-status / .dl-buttons / .dl-table / .dl-warn
+ * 是 tool/verify-download.mjs 的断言锚点——改名会让下载页三个场景的验证
+ * 直接选不到元素，全部空过。
+ *
+ * 取值走站点 token（/chrome.css），不再用 --vp-c-*：那是 VitePress 默认主题
+ * 的变量，本站换成自定义主题后它们根本不存在，写了也只会拿到空值。
+ */
 .dl-picker {
-  margin: 1.2rem 0;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 10px;
-  background: var(--vp-c-bg-soft);
+  margin: 30px 0 22px;
+  padding: 18px 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  background: var(--alt);
 }
-.dl-status { font-size: 0.95rem; margin-bottom: 0.6rem; }
+.dl-status { font-size: 15px; margin-bottom: 12px; color: var(--ink); }
 .dl-status .sep { margin-left: 0.35rem; }
-.dl-auto { color: var(--vp-c-text-2); margin-left: 0.35rem; }
-.dl-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.dl-auto { color: var(--ink-2); margin-left: 0.35rem; }
+.dl-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 .dl-buttons button {
-  padding: 0.35rem 0.8rem;
-  border: 1px solid var(--vp-c-divider);
-  border-radius: 999px;
-  background: var(--vp-c-bg);
-  font-size: 0.9rem;
+  padding: 6px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 980px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
   cursor: pointer;
 }
+.dl-buttons button:hover { border-color: var(--ink-2); }
 .dl-buttons button.on {
-  border-color: var(--vp-c-brand-1);
-  color: var(--vp-c-brand-1);
+  border-color: var(--link);
+  color: var(--link);
   font-weight: 600;
 }
-.dl-buttons button.dead { opacity: 0.55; }
-.dl-buttons small { color: var(--vp-c-text-2); margin-left: 0.3rem; }
+.dl-buttons button.dead { opacity: 0.5; }
+.dl-buttons small { color: var(--ink-2); margin-left: 0.3rem; }
 .dl-table { display: table; width: 100%; }
-.dl-warn { color: var(--vp-c-text-2); font-size: 0.9rem; }
+.dl-table td:last-child a {
+  display: inline-block; white-space: nowrap;
+  color: var(--link); font-weight: 500;
+}
+.dl-warn { color: var(--ink-2); font-size: 14px; }
 </style>
+
+---
+
+<p class="eyebrow">装好之后</p>
+
+## 跟着新手引导走就行
+
+第一次启动 Fushi 会自动打开新手引导：先问你想用哪些功能，再一步步把推荐词典包、Anki、备份同步和阅读字体配好。中途关掉了想重来，路径是 **设置 → 系统 → 新手引导**。
+
+| 引导步骤 | 做什么 |
+|---|---|
+| 欢迎 | 选界面语言和明暗主题 |
+| 功能选择 | 勾掉用不上的模块，它们不会出现在底栏 |
+| 推荐包 | 下载并导入日语词典 + 日/英发音音频库 |
+| Anki | 连上 AnkiDroid / AnkiConnect，一键创建 Lapis 牌组 |
+| 备份 · 互联 · 字体 | 按需配置，都可以跳过 |
+
+## 推荐包：不用一本一本挑词典
+
+推荐包里是**日语单词、音调、词频词典**，外加**日语 / 英语本地发音音频库**，约 9.5 GB。在引导的「安装推荐包」那一步里直接下载并导入——分片并发、多镜像、断了能续，不用自己去找下载链接。
+
+::: warning 在全新安装时做这一步
+导入推荐包走的是备份导入流程，**会覆盖本地已有数据**。刚装好、还没导入自己的书和视频时做最合适。
+:::
+
+学别的语言？跳过这一步，用词典管理导入任意 Yomitan / MDX (MDict) / DSL / Migaku 格式的词典即可。可查语言由你导入的词典决定，跟界面语言无关。
+
+## 接上 Anki
+
+Anki——名字来自「暗記（あんき）」——是世界上使用最广的[间隔重复（SRS）](https://zh.wikipedia.org/wiki/%E9%97%B4%E9%9A%94%E9%87%8D%E5%A4%8D)软件。你在 Fushi 里查到的词一键送进 Anki，用最少的复习时间达到最好的记忆效果。先从 [Anki 官网](https://apps.ankiweb.net/)装好它。
+
+::: tip 务必做一件事
+Anki 默认算法是 30 多年前的 SM2，效果很差。请在牌组选项里把算法切换成内置的 **FSRS**——世界上最好的间隔重复算法之一。
+:::
+
+引导里的 Anki 那一步会带你走完下面的操作。想手动配、或者事后再配，路径是 **设置 → 制卡**。
+
+### Android（AnkiDroid）
+
+1. 安装并打开 Anki（AnkiDroid）。
+2. 回到 Fushi，进入 **设置 → 制卡**。
+3. 点 **「刷新牌组与笔记模板」**（图中 ①）；Fushi 会请求权限，点允许。
+4. 点 **「创建 Lapis 牌组」**（图中 ②）。
+5. 没有红色警告或报错，就配置成功了。
+
+![Android 端 Anki 配置](/images/guide/anki-android-setup.png)
+
+### Windows（AnkiConnect）
+
+1. 安装并打开 Anki。
+2. 点左上角 **「工具」** 菜单 → 附加组件 → 获取插件。
+3. 粘贴插件代码安装 AnkiConnect：`2055492159`，然后重启 Anki。
+4. 回到 Fushi，进入 **设置 → 制卡**。
+5. 点 **「刷新牌组与笔记模板」**（图中 ①）。
+6. 点 **「创建 Lapis 牌组」**（图中 ②）。
+7. 没有红色警告或报错，就配置成功了。
+
+![Anki Windows 工具菜单](/images/guide/anki-windows-tools-menu.png)
+
+![Windows 端 Anki 配置](/images/guide/anki-windows-setup.png)
+
+配完可以顺手去设置里逛一圈：阅读主题、字体、注音假名、界面缩放都能按自己习惯调，不调也完全能用。
+
+---
+
+<p class="eyebrow">然后呢</p>
+
+## 别背单词表，从沉浸开始
+
+语料选你喜欢的，这是最重要的一点。推荐从**动漫（首选）**、视觉小说或有声书开始。语料有难有易，不必勉强选择过难的内容。
+
+遇到看不懂的词，点击查词并制卡（太难的句子或状态不好时可以跳过）。遇到一整段看不懂的时候，可以尝试查词理解，理解不了也没关系——跳过它。**学会忍受模糊感**，看不懂不要紧，随着沉浸量的积累，自然就能看懂。
+
+学习是一个慢慢积累的过程。选择你真正喜欢的语料，**兴趣永远是第一位的**——只有喜欢，才能坚持天天沉浸。
+
+::: tip 关于起步时机
+不需要等词汇量很大才开始沉浸。背够 500–1000 词时就可以开始了，甚至任何你想开始的时候都可以。
+:::
+
+::: tip 关于听力提升
+当你积累到 2000–5000 词左右时，可以尝试隐藏字幕看动画，这对听力帮助非常大。
+:::
+
+::: tip 关于字幕
+字幕选用目标语言字幕，即和视频语言一致的字幕。起步阶段听不懂时可以叠加母语副字幕辅助理解，但这只是拐杖——应尽早丢掉。等词汇量积累到一定程度，可以尝试隐藏字幕。
+:::
+
+---
+
+导入一本 EPUB、拖进一集番、或者直接在应用里搜索下载——遇到不认识的词，点一下查，再点一下记住它。
+
+有问题来 [Discord](https://discord.gg/WhjwyGmm7f) 或 [QQ 群](https://qm.qq.com/q/Sx2nWTvJCw) 问，反馈会被很快处理。更多语言版本的完整指南见[简体中文（飞书）](https://ncnies6wfjok.feishu.cn/wiki/OZbww3T3IiEAx5kBhHkcF07vncb)和 [English Guide](https://github.com/hajisensai/Fushi/blob/main/docs/user-guide.md)。

@@ -1,0 +1,186 @@
+/*
+ * 站点外壳（顶栏 / 底栏 / Apple 语法 token）——全站唯一真相源。
+ *
+ * 为什么要单独一个文件：首页是手写静态页 public/index.html，其余页面由
+ * VitePress 渲染，两条完全不同的产出路径。以前各写各的顶栏，结果首页顶栏是
+ * 「回到开头 / 怎么开始」两个锚点、文档页顶栏是 VitePress 默认主题的另一套，
+ * 从首页点进 /download 视觉直接断裂。现在两边引同一个文件、用同一套类名，
+ * 样式只可能改在一处。
+ *
+ * 标记也只有一份形状（见文件末尾的注释），静态页手抄、Vue 侧在
+ * .vitepress/theme/Layout.vue，改动时两处必须同步。
+ */
+
+/* ============ Apple 语法 token（取自 apple.com.cn/environment 实测值） ============ */
+:root {
+  --ground: #ffffff;
+  --alt: #f5f5f7;
+  --ink: #1d1d1f;
+  --ink-2: #6e6e73;
+  --hairline: #d2d2d7;
+  --link: #0071e3;
+  --link-ink: #ffffff;
+  --accent: #5856d6;
+  --card: #ffffff;
+  --card-shadow: 0 20px 44px rgba(0, 0, 0, 0.08);
+  --band: #000000;
+  --band-2: #161617;
+  --band-line: #2d2d2f;
+  --band-ink: #f5f5f7;
+  --band-ink-2: #86868b;
+  --band-accent: #7d7aff;
+  --band-link: #2997ff;
+  /* app 实拍面（捕获自真实 app 深色主题） */
+  --app-bg: rgb(18, 19, 20);
+  --app-ink: rgb(227, 226, 227);
+  --app-ink-2: rgb(199, 198, 199);
+  --app-line: rgb(70, 71, 71);
+  --app-primary: rgb(186, 201, 209);
+  --app-hl: rgba(186, 201, 209, 0.35);
+  --sans: "SF Pro Display", "SF Pro SC", "PingFang SC", -apple-system, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --jp: "Noto Serif JP", "Yu Mincho", serif;
+  --jp-sans: "Noto Sans JP", "PingFang SC", sans-serif;
+  /* 《けいおん!!》S02E01 ass Style: zhengwen —— DFGMaruGothic-Md */
+  --ass-font: "DFG Maru Gothic Md", "DFGMaruGothic-Md", "HGMaruGothicMPRO", "Hiragino Maru Gothic ProN", "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
+  /* 顶栏高度：底栏之外的东西要按它让位（锚点 scroll-margin、移动端面板起点）。 */
+  --nav-h: 52px;
+}
+/* 暂定强制亮色主题：深色 token 块整体停用（保留 app 实拍面板的深色，
+   那是 app 界面的一部分）。恢复深色时把上一版的两个块加回来即可。 */
+
+* { margin: 0; box-sizing: border-box; }
+/* 滚动条槽位常驻：查词/制卡预览会把背景滚动锁成 body{overflow:hidden}，那会连带
+   把 15px 经典滚动条整条撤掉，可用宽度突然多 15px，页面所有居中内容各右移 7.5px
+   （最扎眼的是漫画那张居中大图）。留住槽位后，锁与不锁的布局宽度完全一致，
+   不必在每个上锁点补偿 padding。叠加式滚动条（macOS / 移动端）本就不占位，
+   该属性对它们无效也无害。 */
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.47;
+  -webkit-font-smoothing: antialiased;
+}
+/* 顶栏是 sticky 的，锚点落点要让开它，否则跳过去标题被压在栏下面。 */
+:target { scroll-margin-top: calc(var(--nav-h) + 12px); }
+
+/* 占位 logo：正式图标未定稿前的占位图。一处定义，靠 --logo-size 缩放（顶栏 26px /
+   hero 76px），换正式图标时只改这一条。 */
+.logo {
+  width: var(--logo-size, 26px); height: var(--logo-size, 26px);
+  border-radius: calc(var(--logo-size, 26px) * 0.27); flex: none;
+  background: linear-gradient(135deg, #5ac8fa, #0071e3);
+  color: #fff; font-size: calc(var(--logo-size, 26px) * 0.58); font-weight: 700;
+  display: grid; place-items: center; letter-spacing: 0;
+}
+
+.btn {
+  display: inline-block; background: var(--link); color: var(--link-ink);
+  font-size: 17px; line-height: 1.17; padding: 12px 24px; border-radius: 980px;
+  text-decoration: none;
+}
+.btn:hover { filter: brightness(1.07); }
+
+/* ============================== 顶栏 ============================== */
+.site-nav {
+  position: sticky; top: 0; z-index: 500;
+  display: flex; justify-content: space-between; align-items: center;
+  height: var(--nav-h); padding: 0 max(22px, calc(50vw - 540px));
+  background: color-mix(in srgb, var(--ground) 80%, transparent);
+  backdrop-filter: saturate(1.8) blur(20px);
+  -webkit-backdrop-filter: saturate(1.8) blur(20px);
+  border-bottom: 1px solid color-mix(in srgb, var(--hairline) 60%, transparent);
+}
+.site-nav a { color: inherit; text-decoration: none; }
+.site-nav-brand {
+  font-size: 21px; font-weight: 600; letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 10px;
+}
+.site-nav-right { display: flex; align-items: center; gap: 18px; }
+.site-nav-links {
+  display: flex; gap: 24px; align-items: center;
+  font-size: 12px; color: var(--ink);
+}
+.site-nav-links a { display: inline-flex; align-items: center; gap: 8px; }
+.site-nav-links a:hover { color: var(--link); }
+.site-nav-links svg { width: 17px; height: 17px; fill: currentColor; display: block; }
+/* 宽屏下社交入口只留图标，标题字留给屏读器和窄屏面板。 */
+.site-nav-ico .site-nav-word {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.site-nav .btn { font-size: 12px; padding: 4px 11px; }
+
+/* 汉堡开关：纯 CSS，靠一个视觉隐藏但仍可聚焦的 checkbox 驱动兄弟选择器。
+   以前窄屏是把所有导航项 display:none 掉，手机上顶栏只剩 logo 和下载按钮，
+   GitHub / Discord / QQ 群全都点不到——这里把它们收进下拉面板而不是丢掉。 */
+.site-nav-check {
+  position: absolute; width: 1px; height: 1px;
+  opacity: 0; margin: 0; pointer-events: none;
+}
+.site-nav-burger { display: none; }
+
+@media (max-width: 760px) {
+  .site-nav-right { position: relative; gap: 12px; }
+  .site-nav-burger {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; margin-right: -6px;
+    border-radius: 8px; cursor: pointer; color: var(--ink);
+  }
+  .site-nav-burger svg { width: 19px; height: 19px; display: block; }
+  .site-nav-check:focus-visible + .site-nav-burger { outline: 2px solid var(--link); outline-offset: 2px; }
+
+  .site-nav-links {
+    display: none;
+    position: absolute; right: -12px; top: calc(var(--nav-h) / 2 + 22px);
+    min-width: 190px; flex-direction: column; align-items: stretch; gap: 0;
+    padding: 6px; font-size: 15px;
+    /* 面板必须不透明：它浮在 hero 大标题上，靠 backdrop-filter 兜底的话，
+       浏览器不支持或被禁用时底下的字会直接透上来，糊成一片。顶栏那条可以半透明，
+       它下面永远是页面顶端的留白。 */
+    background: var(--ground);
+    border: 1px solid var(--hairline);
+    border-radius: 14px; box-shadow: var(--card-shadow);
+  }
+  .site-nav-check:checked ~ .site-nav-links { display: flex; }
+  .site-nav-links a { padding: 10px 12px; border-radius: 9px; }
+  .site-nav-links a:hover { background: var(--alt); }
+  /* 窄屏面板里图标配文字，才知道点的是什么。 */
+  .site-nav-ico .site-nav-word {
+    position: static; width: auto; height: auto;
+    overflow: visible; clip-path: none;
+  }
+}
+
+/* ============================== 底栏 ============================== */
+.site-footer {
+  border-top: 1px solid color-mix(in srgb, var(--hairline) 55%, transparent);
+  padding: 34px 22px 40px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  font-size: 12px; line-height: 1.5; color: var(--ink-2);
+  text-align: center;
+}
+.site-footer a { color: inherit; text-decoration: none; }
+.site-footer a:hover { color: var(--link); }
+.site-footer-links {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px;
+  color: var(--ink);
+}
+.site-footer-legal a { text-decoration: underline; text-underline-offset: 3px; }
+
+/*
+ * 标记形状（两处必须一致：public/index.html 与 .vitepress/theme/Layout.vue）
+ *
+ * <nav class="site-nav" id="top">
+ *   <a class="site-nav-brand" href="/"><span class="logo" aria-hidden="true">F</span>Fushi</a>
+ *   <div class="site-nav-right">
+ *     <input class="site-nav-check" type="checkbox" id="site-nav-check">
+ *     <label class="site-nav-burger" for="site-nav-check">…</label>
+ *     <span class="site-nav-links">…</span>
+ *     <a class="btn" href="/download">下载</a>
+ *   </div>
+ * </nav>
+ *
+ * 注意顺序：checkbox 必须排在 .site-nav-links 前面，:checked ~ 才选得到它。
+ */
