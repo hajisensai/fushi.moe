@@ -264,8 +264,10 @@ navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregist
 
 R2 镜像由发布仓库的 `.github/workflows/mirror-releases.yml` 在 release 发布后被动同步，只镜像正式版、保留最近 2 个版本。workflow 必须在上传前按专用桶的保守总量上限做预检并先清理旧版本；预计超限就跳过，不能靠 R2 账单提醒（它不会硬停）。`wrangler r2 object put` 没有 multipart，**超过 300MB 的资产会被跳过**，对应平台自动回退 GitHub。
 
-推荐包分片本身不进 R2：带 tag 的 GitHub Release URL 通过普通 Workers Cache
-缓存一年，滚动 manifest 只缓存 5 分钟；不启用付费的 Cache Reserve。
+推荐包分片本身不进 R2：带 tag 的 GitHub Release URL 在 GitHub 允许 Worker 回源的
+colo 通过普通 Workers Cache 缓存一年，滚动 manifest 只缓存 5 分钟；如果 GitHub
+拒绝 Cloudflare 出口回源，Worker 立即 302 到同一个公开资产让客户端直连，不返回
+502。全程不启用付费的 Cache Reserve。
 
 下载页本身还有一层独立的选源：并发探测两个源，自动用通的那个，也允许手动切换（记在 localStorage）。清单三级降级：`fushi.moe/releases/api/latest` → GitHub 静态 `update-manifest` JSON → 静态表。**即使脚本完全没跑起来，SSR 产物里每一行也已经带着可用的 GitHub 链接**，下载页不会变成空壳。
 
