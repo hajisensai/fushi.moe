@@ -255,6 +255,7 @@ async function serveViaEdge(
   asset: ReleaseAsset,
   immutable: boolean,
 ): Promise<Response> {
+  let failure = '';
   const proxied = await proxyGithubCached({
     url: asset.url,
     request,
@@ -265,8 +266,12 @@ async function serveViaEdge(
     markerValue: 'github-edge',
     cache: deps.manifestCache,
     waitUntil: deps.waitUntil,
+    onFailure: (reason) => {
+      failure = reason;
+    },
   });
-  if (!proxied) return jsonError(502, 'github upstream unavailable');
+  // 502 体里带上原因：Worker 出口到 GitHub 失败在生产里只能从这里看，没有别的日志面。
+  if (!proxied) return jsonError(502, 'github upstream unavailable: ' + (failure || 'unknown'));
   return proxied;
 }
 
