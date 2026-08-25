@@ -292,13 +292,17 @@
     background: var(--shot-bg, #000); color: var(--load-ink, rgba(255, 255, 255, 0.6));
     font-size: 12px; letter-spacing: 0.06em;
     transition: opacity 0.35s ease;
+    /* 延迟 180ms 才现身：线上走 CDN 时七处里只有一处来得及显示，快网下不延迟就是
+       一闪而过的噪声。加载真慢时这 180ms 无关痛痒，快时则完全不闪。 */
+    animation: mediaload-appear 0.2s ease 0.18s both;
   }
+  @keyframes mediaload-appear { from { opacity: 0; } to { opacity: 1; } }
   .mediaload::before {
     content: ''; width: 22px; height: 22px; border-radius: 50%;
     border: 2px solid currentColor; border-top-color: transparent;
     animation: mediaload-spin 0.9s linear infinite;
   }
-  .mediaload.done { opacity: 0; pointer-events: none; }
+  .mediaload.done { animation: none; opacity: 0; pointer-events: none; }
   .mediaload.failed::before { animation: none; border-top-color: currentColor; opacity: 0.4; }
   @keyframes mediaload-spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) {
