@@ -48,8 +48,12 @@ export async function proxyGithubCached(
   }
   headers.set('user-agent', 'fushi-moe-edge');
 
+  // 不能写成 options.fetcher(...)：那是成员调用，this 会是 options。Workers 的全局
+  // fetch 要求 this 是全局对象，否则抛 "Illegal invocation"——生产里 /pack 与 ?src=gh
+  // 全部因此走到兜底，从上线起就没真正代理过一次（2026-08-25 从 502 体里抓到的）。
+  const fetcher = options.fetcher;
   try {
-    const upstream = await options.fetcher(options.url, {
+    const upstream = await fetcher(options.url, {
       method: options.request.method === 'HEAD' ? 'HEAD' : 'GET',
       headers,
       redirect: 'follow',
