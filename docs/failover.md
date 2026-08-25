@@ -253,12 +253,20 @@ navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregist
 
 | 路径 | 行为 |
 |---|---|
-| `/releases/latest/<slot>` | 最新正式版的某个平台包。`slot` 见 `edge/src/manifest.ts` 的 `SLOTS` |
-| `/releases/v/<tag>/<文件名>` | 指定版本的指定文件 |
-| `/releases/api/latest` | JSON 清单，下载页用它渲染 |
+| `/releases/latest/<slot>` | 最新正式版的某个平台包。`slot` 见 `edge/src/manifest.ts` 的 `SLOTS`；`/stable/` 同义 |
+| `/releases/debug/<slot>` `/releases/beta/<slot>` | 其它发布通道（清单分别读 `latest-debug-fushi.json` / `latest-beta-fushi.json`）。调试版 Android 只有 `android-universal` 一个通用包 |
+| `/releases/v/<tag>/<文件名>` | 指定版本的指定文件。**不依赖清单**：清单挂了也按 tag/文件名拼直链服务 |
+| `/releases/api/latest[?channel=stable\|debug\|beta]` | JSON 清单，下载页用它渲染；应答带回 `channel`，页面据此识别不认 `?channel=` 的老 Worker |
 | `/releases` | 302 回 `fushi.moe/download` |
 
-每个请求先看 R2 里有没有（支持 Range，断点续传可用），没有就 302 到 GitHub Releases。版本清单优先读 `Fushi` 仓库 `update-manifest` 分支里的
+每个请求先看 R2 里有没有（支持 Range，断点续传可用），没有就 302 到 GitHub Releases。
+
+资产路由另接受 `?src=r2` / `?src=gh` 显式点名来源，给下载页的**分片加速**（IDM 式多连接 Range 下载）用：
+浏览器只能 fetch 同域——GitHub 直链没有 CORS 头（实测 302 与 206 都不带 `access-control-allow-origin`），
+302 过去就是一次失败的跨域请求。所以 `?src=gh` 由 Worker 把字节搬过来（Range 透传、206 原样回，
+`x-fushi-mirror: github-edge`，上游 5xx 给 502），`?src=r2` 未命中给 404 而不是 302——下载器靠这两个
+明确的失败判「这个来源没有」并把分片交给另一个来源。两个来源逐字节相同，拼完的文件一致。
+分片请求都带 Range，Workers Cache 只存整文件的 200 应答，不会把 300 MB 塞进边缘缓存。版本清单优先读 `Fushi` 仓库 `update-manifest` 分支里的
 `latest-stable-fushi.json`：它由现有发布 CI 自动更新，是普通静态文件，完全不调用
 `api.github.com`；GitHub 静态清单拿不到时才用 R2 里的 `manifest.json`。
 
@@ -270,6 +278,12 @@ colo 通过普通 Workers Cache 缓存一年，滚动 manifest 只缓存 5 分�
 502。全程不启用付费的 Cache Reserve。
 
 下载页本身还有一层独立的选源：并发探测两个源，自动用通的那个，也允许手动切换（记在 localStorage）。清单三级降级：`fushi.moe/releases/api/latest` → GitHub 静态 `update-manifest` JSON → 静态表。**即使脚本完全没跑起来，SSR 产物里每一行也已经带着可用的 GitHub 链接**，下载页不会变成空壳。
+
+点「下载」时，页面先用 `?src=r2` / `?src=gh` 各发一个小 Range 探测，能用的来源按耗时排序后，
+`.vitepress/theme/chunked-download.mjs` 把文件切成 8 MiB 分片、每来源 2 条连接（全局 ≤4，同域 6 连接上限内）并发拉，
+快来源做完自己的继续从队列取（工作窃取），失败片放回队列优先让别的来源接、连续失败 3 次的来源退出。
+有 `showSaveFilePicker`（Chromium 桌面）就流式写盘；否则整包落内存再存（超过 512 MiB 不冒险）；两个同域来源都探不到就退回普通链接。
+行为由 `tool/chunked-download.test.mjs` 用假 Range 服务覆盖（双源拼接、探测剔除、中途失败换源、忽略 Range 的 200 判失败、全失败、中止、并发上限、快慢分配）。
 
 ---
 

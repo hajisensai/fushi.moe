@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fushi 语言习得</title>
+<meta name="description" content="Fushi：免费开源的沉浸式语言学习应用。看番、读书、玩游戏时点一下查词，再点一下做成带原句、画面、原声的 Anki 卡。Windows / macOS / Android / iOS。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=M+PLUS+Rounded+1c:wght@500&display=swap">
 <link rel="stylesheet" href="/chrome.css">
+<script src="/site.js"></script>
 <style>
   /* token、重置、.logo、.btn、顶栏底栏样式统一在 /chrome.css，静态首页与
      VitePress 页共用同一份，样式只可能改在一处。 */
@@ -550,16 +552,39 @@
 <nav class="site-nav" id="top">
   <a class="site-nav-brand" href="/"><span class="logo" aria-hidden="true">F</span>Fushi</a>
   <div class="site-nav-right">
-    <input class="site-nav-check" type="checkbox" id="site-nav-check" aria-label="展开菜单">
+    <input class="site-nav-check" type="checkbox" id="site-nav-check" aria-label="展开菜单" data-i18n-attr="aria-label=nav.menu">
     <label class="site-nav-burger" for="site-nav-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></label>
     <span class="site-nav-links">
-      <a href="/#acgn"><span class="site-nav-word">功能</span></a>
-      <a href="/#method"><span class="site-nav-word">怎么开始</span></a>
-      <a class="site-nav-ico" href="https://qm.qq.com/q/Sx2nWTvJCw" title="QQ 群"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"/></svg><span class="site-nav-word">QQ 群</span></a>
+      <a href="/#acgn"><span class="site-nav-word" data-i18n="nav.features">功能</span></a>
+      <a href="/#method"><span class="site-nav-word" data-i18n="nav.method">怎么开始</span></a>
+      <a class="site-nav-ico" href="https://qm.qq.com/q/Sx2nWTvJCw" title="QQ 群" data-i18n-attr="title=nav.qq"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"/></svg><span class="site-nav-word" data-i18n="nav.qq">QQ 群</span></a>
       <a class="site-nav-ico" href="https://discord.gg/WhjwyGmm7f" title="Discord"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg><span class="site-nav-word">Discord</span></a>
       <a class="site-nav-ico" href="https://github.com/hajisensai/Fushi" title="GitHub"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg><span class="site-nav-word">GitHub</span></a>
     </span>
-    <a class="btn" href="/download">下载</a>
+    <label class="site-nav-lang" title="语言" data-i18n-attr="title=nav.language">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm7.93 9h-3.02a15.6 15.6 0 0 0-1.3-5.3A8.03 8.03 0 0 1 19.93 11zM12 4.04c.83 1.2 1.87 3.45 2.13 6.96H9.87c.26-3.51 1.3-5.76 2.13-6.96zM4.07 13h3.02c.12 1.94.6 3.75 1.3 5.3A8.03 8.03 0 0 1 4.07 13zm3.02-2H4.07a8.03 8.03 0 0 1 4.32-5.3c-.7 1.55-1.18 3.36-1.3 5.3zM12 19.96c-.83-1.2-1.87-3.45-2.13-6.96h4.26c-.26 3.51-1.3 5.76-2.13 6.96zm3.61-1.66c.7-1.55 1.18-3.36 1.3-5.3h3.02a8.03 8.03 0 0 1-4.32 5.3z"/></svg>
+      <select class="site-nav-lang-select" aria-label="语言" data-i18n-attr="aria-label=nav.language">
+        <option value="auto" data-i18n="nav.lang_auto">自动</option>
+        <option value="zh-CN">简体中文</option>
+        <option value="zh-HK">繁體中文</option>
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+        <option value="ko">한국어</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="it">Italiano</option>
+        <option value="nl">Nederlands</option>
+        <option value="pt-BR">Português (Brasil)</option>
+        <option value="ru">Русский</option>
+        <option value="tr">Türkçe</option>
+        <option value="vi">Tiếng Việt</option>
+        <option value="th">ไทย</option>
+        <option value="id">Bahasa Indonesia</option>
+        <option value="ar">العربية</option>
+      </select>
+    </label>
+    <a class="btn" href="/download" data-i18n="nav.download">下载</a>
   </div>
 </nav>
 
@@ -567,20 +592,20 @@
   <div class="hero-grid">
     <div class="hero-copy">
       <div class="logo" aria-hidden="true">F</div>
-      <p class="eyebrow">一站式 · 开箱即用</p>
-      <h1 class="h-hero">语言习得<br>本该如此快乐</h1>
-      <p class="copy copy-2"><b>最少的配置，干最多的事。</b>播放器、词典、查词、制卡、下载追更，过去要拼一堆工具，现在装一个 App 就够。看番、读书、玩游戏时遇到生词，点一下查释义，点加号——原句、画面、原声、释义自动填进 Anki。</p>
-      <div class="btns"><a class="btn" href="/download">立即下载</a></div>
+      <p class="eyebrow" data-i18n="home.hero.eyebrow">一站式 · 开箱即用</p>
+      <h1 class="h-hero" data-i18n="home.hero.title">语言习得<br>本该如此快乐</h1>
+      <p class="copy copy-2" data-i18n="home.hero.copy"><b>最少的配置，干最多的事。</b>播放器、词典、查词、制卡、下载追更，过去要拼一堆工具，现在装一个 App 就够。看番、读书、玩游戏时遇到生词，点一下查释义，点加号——原句、画面、原声、释义自动填进 Anki。</p>
+      <div class="btns"><a class="btn" href="/download" data-i18n="home.cta.download">立即下载</a></div>
       <p class="plats">WINDOWS · MACOS · ANDROID · IOS</p>
     </div>
     <aside class="hero-panel" id="acgn">
-      <h2 class="panel-h">你喜欢的内容，就是最好的教材。</h2>
-      <p class="panel-copy">不用专门腾出时间「学习」。看喜欢的番、读喜欢的书、玩喜欢的游戏的过程本身就是学习——遇到生词顺手查、顺手记，不用停下来，不用切应用。</p>
+      <h2 class="panel-h" data-i18n="home.acgn.title">你喜欢的内容，就是最好的教材。</h2>
+      <p class="panel-copy" data-i18n="home.acgn.copy">不用专门腾出时间「学习」。看喜欢的番、读喜欢的书、玩喜欢的游戏的过程本身就是学习——遇到生词顺手查、顺手记，不用停下来，不用切应用。</p>
       <div class="acgn-grid">
-        <a class="pcell" href="#sec-a"><img src="/demo/media/2683ce91c80903d6.jpg" alt="动漫体验区预览"><span class="tag"><b>A</b>动漫 Anime</span></a>
-        <a class="pcell" href="#sec-c"><img src="/demo/media/ac1636e0bac7e138.jpg" alt="漫画体验区预览"><span class="tag"><b>C</b>漫画 Comic</span></a>
-        <a class="pcell" href="#sec-g"><img src="/demo/media/a21a77e2153b4c46.jpg" alt="游戏体验区预览"><span class="tag"><b>G</b>游戏 Game</span></a>
-        <a class="pcell" href="#sec-n"><img src="/demo/media/e89d98ca88fc8d90.jpg" alt="小说体验区预览"><span class="tag"><b>N</b>小说 / 有声书 Novel</span></a>
+        <a class="pcell" href="#sec-a"><img src="/demo/media/2683ce91c80903d6.jpg" alt="动漫体验区预览" data-i18n-attr="alt=home.tile.anime_alt"><span class="tag" data-i18n="home.tile.anime"><b>A</b>动漫 Anime</span></a>
+        <a class="pcell" href="#sec-c"><img src="/demo/media/ac1636e0bac7e138.jpg" alt="漫画体验区预览" data-i18n-attr="alt=home.tile.comic_alt"><span class="tag" data-i18n="home.tile.comic"><b>C</b>漫画 Comic</span></a>
+        <a class="pcell" href="#sec-g"><img src="/demo/media/a21a77e2153b4c46.jpg" alt="游戏体验区预览" data-i18n-attr="alt=home.tile.game_alt"><span class="tag" data-i18n="home.tile.game"><b>G</b>游戏 Game</span></a>
+        <a class="pcell" href="#sec-n"><img src="/demo/media/e89d98ca88fc8d90.jpg" alt="小说体验区预览" data-i18n-attr="alt=home.tile.novel_alt"><span class="tag" data-i18n="home.tile.novel"><b>N</b>小说 / 有声书 Novel</span></a>
       </div>
     </aside>
   </div>
@@ -588,14 +613,14 @@
 
 <section class="black-band stats center">
   <div class="grid rev">
-    <div><div class="n">4</div><p class="cap"><b>个平台</b>，同一套体验</p><p class="sub">WIN · MAC · AND · IOS</p></div>
-    <div><div class="n">18</div><p class="cap"><b>种目标语言</b></p>
-      <details class="langs"><summary>内置词形还原 · 查看全部</summary>
-        <p>日语 · 韩语 · 英语 · 西班牙语 · 法语 · 德语 · 阿拉伯语 · 希腊语 · 古希腊语 · 拉丁语 · 世界语 · 巴斯克语 · 格鲁吉亚语 · 爱尔兰语 · 古爱尔兰语 · 阿尔巴尼亚语 · 他加禄语 · 意第绪语<br><span class="note">另可导入任意 Yomitan 格式词典查词，不限于以上语言。</span></p>
+    <div><div class="n">4</div><p class="cap" data-i18n="home.stat.platforms_cap"><b>个平台</b>，同一套体验</p><p class="sub">WIN · MAC · AND · IOS</p></div>
+    <div><div class="n">18</div><p class="cap" data-i18n="home.stat.targets_cap"><b>种目标语言</b></p>
+      <details class="langs"><summary data-i18n="home.stat.targets_more">内置词形还原 · 查看全部</summary>
+        <p data-i18n="home.stat.targets_list">日语 · 韩语 · 英语 · 西班牙语 · 法语 · 德语 · 阿拉伯语 · 希腊语 · 古希腊语 · 拉丁语 · 世界语 · 巴斯克语 · 格鲁吉亚语 · 爱尔兰语 · 古爱尔兰语 · 阿尔巴尼亚语 · 他加禄语 · 意第绪语<br><span class="note">另可导入任意 Yomitan 格式词典查词，不限于以上语言。</span></p>
       </details>
     </div>
-    <div><div class="n">17</div><p class="cap"><b>种界面语言</b></p>
-      <details class="langs"><summary>UI 本地化 · 查看全部</summary>
+    <div><div class="n">17</div><p class="cap" data-i18n="home.stat.ui_cap"><b>种界面语言</b></p>
+      <details class="langs"><summary data-i18n="home.stat.ui_more">UI 本地化 · 查看全部</summary>
         <p>简体中文 · 繁體中文 · English · 日本語 · 한국어 · Deutsch · Español · Français · Italiano · Nederlands · Português (BR) · Русский · Türkçe · Tiếng Việt · ไทย · Bahasa Indonesia · العربية</p>
       </details>
     </div>
@@ -604,16 +629,16 @@
 
 <section class="feature" id="sec-a">
   <div class="head rev">
-    <p class="eyebrow">视频</p>
-    <p class="copy copy-2">播放时点击字幕上的词即可查词，点加号制卡。</p>
+    <p class="eyebrow" data-i18n="home.sec.video">视频</p>
+    <p class="copy copy-2" data-i18n="home.sec.video_copy">播放时点击字幕上的词即可查词，点加号制卡。</p>
   </div>
   <div class="stage rev duo">
     <div class="duo-pane">
     <div class="vplayer" id="vplayer">
       <div class="vwrap">
         <video id="demo-video" playsinline preload="metadata" poster="/demo/media/bb2d8ab44d033aa2.jpg" src="/demo/media/6bfcee4444667cec.mp4"></video>
-        <div class="mediaload"><span data-fail="视频加载失败">演示视频加载中…</span></div>
-        <div class="vbig" id="vbig" role="button" aria-label="播放"><i></i></div>
+        <div class="mediaload"><span data-fail="视频加载失败" data-i18n-attr="data-fail=home.load.demo_video_fail" data-i18n="home.load.demo_video">演示视频加载中…</span></div>
+        <div class="vbig" id="vbig" role="button" aria-label="播放" data-i18n-attr="aria-label=home.a11y.play"><i></i></div>
         <p class="vsub" id="vsub" lang="ja"></p>
       </div>
       <div class="vctrl">
@@ -622,83 +647,83 @@
         <span class="vtime" id="vtime">0:00 / 0:31</span>
       </div>
     </div>
-      <p class="duo-cap">网页交互演示 · 可点字幕查词</p>
+      <p class="duo-cap" data-i18n="home.cap.demo_video">网页交互演示 · 可点字幕查词</p>
     </div>
     <div class="duo-pane">
       <div class="shotbox light">
-        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
+        <div class="mediaload"><span data-fail="录屏加载失败" data-i18n-attr="data-fail=home.load.shot_fail" data-i18n="home.load.shot">实机录屏加载中…</span></div>
         <video id="shot-a" src="/preview/video.mp4" poster="/preview/video-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
-        <button class="sndbtn" id="snd-a" type="button" aria-label="开启声音">&#128263;</button>
+        <button class="sndbtn" id="snd-a" type="button" aria-label="开启声音" data-i18n-attr="aria-label=home.a11y.sound_on">&#128263;</button>
       </div>
-      <p class="duo-cap">实机录屏 · Windows</p>
+      <p class="duo-cap" data-i18n="home.cap.shot">实机录屏 · Windows</p>
     </div>
   </div>
 </section>
 
 <section class="feature alt-band" id="sec-c">
   <div class="head rev">
-    <p class="eyebrow">漫画</p>
-    <p class="copy copy-2">点击对话框中的文字查词，点加号制卡。</p>
+    <p class="eyebrow" data-i18n="home.sec.manga">漫画</p>
+    <p class="copy copy-2" data-i18n="home.sec.manga_copy">点击对话框中的文字查词，点加号制卡。</p>
   </div>
   <div class="stage rev duo">
     <div class="duo-pane">
     <div class="manga-stage" id="manga-stage">
-      <div class="mediaload"><span data-fail="页图加载失败">演示加载中…</span></div>
-      <iframe id="manga-frame" title="漫画阅读器（app 实机代码渲染）" style="display:block;width:100%;height:100%;border:0;background:#000"></iframe>
+      <div class="mediaload"><span data-fail="页图加载失败" data-i18n-attr="data-fail=home.load.demo_page_fail" data-i18n="home.load.demo">演示加载中…</span></div>
+      <iframe id="manga-frame" title="漫画阅读器（app 实机代码渲染）" data-i18n-attr="title=home.a11y.manga_frame" style="display:block;width:100%;height:100%;border:0;background:#000"></iframe>
     </div>
-      <p class="duo-cap">网页交互演示 · 可点气泡文字</p>
+      <p class="duo-cap" data-i18n="home.cap.demo_manga">网页交互演示 · 可点气泡文字</p>
     </div>
     <div class="duo-pane">
       <div class="shotbox light">
-        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
+        <div class="mediaload"><span data-fail="录屏加载失败" data-i18n-attr="data-fail=home.load.shot_fail" data-i18n="home.load.shot">实机录屏加载中…</span></div>
         <video id="shot-c" src="/preview/manga.mp4" poster="/preview/manga-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
-        <button class="sndbtn" id="snd-c" type="button" aria-label="开启声音">&#128263;</button>
+        <button class="sndbtn" id="snd-c" type="button" aria-label="开启声音" data-i18n-attr="aria-label=home.a11y.sound_on">&#128263;</button>
       </div>
-      <p class="duo-cap">实机录屏 · Windows</p>
+      <p class="duo-cap" data-i18n="home.cap.shot">实机录屏 · Windows</p>
     </div>
   </div>
 </section>
 
 <section class="feature" id="sec-g">
   <div class="head rev">
-    <p class="eyebrow">游戏</p>
-    <p class="copy copy-2">游戏台词上点词查释义，点加号制卡。</p>
+    <p class="eyebrow" data-i18n="home.sec.game">游戏</p>
+    <p class="copy copy-2" data-i18n="home.sec.game_copy">游戏台词上点词查释义，点加号制卡。</p>
   </div>
   <div class="stage rev duo">
     <div class="duo-pane">
     <div class="gal-stage">
-      <img src="/demo/media/e6c5fafa4c001798.jpg" alt="游戏窗口" draggable="false">
-      <div class="mediaload"><span data-fail="截图加载失败">演示加载中…</span></div>
+      <img src="/demo/media/e6c5fafa4c001798.jpg" alt="游戏窗口" data-i18n-attr="alt=home.a11y.game_window" draggable="false">
+      <div class="mediaload"><span data-fail="截图加载失败" data-i18n-attr="data-fail=home.load.demo_shot_fail" data-i18n="home.load.demo">演示加载中…</span></div>
       <div class="galtext" id="gal-line" lang="ja"></div>
-      <button class="galvoice" id="gal-voice" type="button"><i></i>重播原声</button>
+      <button class="galvoice" id="gal-voice" type="button" data-i18n="home.game.replay"><i></i>重播原声</button>
     </div>
-      <p class="duo-cap">网页交互演示 · 可点游戏台词</p>
+      <p class="duo-cap" data-i18n="home.cap.demo_game">网页交互演示 · 可点游戏台词</p>
     </div>
     <div class="duo-pane">
       <div class="shotbox">
-        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
+        <div class="mediaload"><span data-fail="录屏加载失败" data-i18n-attr="data-fail=home.load.shot_fail" data-i18n="home.load.shot">实机录屏加载中…</span></div>
         <video id="shot-g" src="/preview/gal.mp4" poster="/preview/gal-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
-        <button class="sndbtn" id="snd-g" type="button" aria-label="开启声音">&#128263;</button>
+        <button class="sndbtn" id="snd-g" type="button" aria-label="开启声音" data-i18n-attr="aria-label=home.a11y.sound_on">&#128263;</button>
       </div>
-      <p class="duo-cap">实机录屏 · Windows</p>
+      <p class="duo-cap" data-i18n="home.cap.shot">实机录屏 · Windows</p>
     </div>
   </div>
 </section>
 
 <section class="feature alt-band" id="sec-n">
   <div class="head rev">
-    <p class="eyebrow">阅读</p>
-    <p class="copy copy-2">点击正文中的词即可查词，点加号制卡。</p>
+    <p class="eyebrow" data-i18n="home.sec.reading">阅读</p>
+    <p class="copy copy-2" data-i18n="home.sec.reading_copy">点击正文中的词即可查词，点加号制卡。</p>
   </div>
   <div class="stage rev duo">
     <div class="duo-pane">
     <div class="abook" id="abook">
-      <div class="abook-tabs"><button class="on" id="tab-book" type="button">正文</button><button id="tab-lyrics" type="button">歌词模式</button></div>
+      <div class="abook-tabs"><button class="on" id="tab-book" type="button" data-i18n="home.reading.tab_text">正文</button><button id="tab-lyrics" type="button" data-i18n="home.reading.tab_lyrics">歌词模式</button></div>
       <div class="bookview" id="bookview"><div class="bookpage" id="bookpage" lang="ja"></div></div>
-      <iframe id="lyrics-frame" title="歌词模式（app 实机代码渲染）" style="display:none;width:100%;height:420px;border:0;background:rgb(18,19,20)"></iframe>
+      <iframe id="lyrics-frame" title="歌词模式（app 实机代码渲染）" data-i18n-attr="title=home.a11y.lyrics_frame" style="display:none;width:100%;height:420px;border:0;background:rgb(18,19,20)"></iframe>
       <div class="actrl">
         <button class="pbtn" id="aplay" type="button">▶</button>
         <span class="track" id="atrack"><i id="aprog"></i></span>
@@ -706,43 +731,43 @@
         <audio id="demo-audio" preload="metadata" src="/demo/media/11b864252bf49442.m4a"></audio>
       </div>
     </div>
-      <p class="duo-cap">网页交互演示 · 可点正文词</p>
+      <p class="duo-cap" data-i18n="home.cap.demo_reading">网页交互演示 · 可点正文词</p>
     </div>
     <div class="duo-pane">
       <div class="shotbox light">
-        <div class="mediaload"><span data-fail="录屏加载失败">实机录屏加载中…</span></div>
+        <div class="mediaload"><span data-fail="录屏加载失败" data-i18n-attr="data-fail=home.load.shot_fail" data-i18n="home.load.shot">实机录屏加载中…</span></div>
         <video id="shot-n" src="/preview/audiobook.mp4" poster="/preview/audiobook-poster.jpg"
                muted loop playsinline autoplay preload="metadata"></video>
-        <button class="sndbtn" id="snd-n" type="button" aria-label="开启声音">&#128263;</button>
+        <button class="sndbtn" id="snd-n" type="button" aria-label="开启声音" data-i18n-attr="aria-label=home.a11y.sound_on">&#128263;</button>
       </div>
-      <p class="duo-cap">实机录屏 · Windows</p>
+      <p class="duo-cap" data-i18n="home.cap.shot">实机录屏 · Windows</p>
     </div>
   </div>
 </section>
 
 <section class="black-band center">
   <div class="tight rev">
-    <p class="eyebrow">Anki 制卡</p>
+    <p class="eyebrow" data-i18n="home.sec.anki">Anki 制卡</p>
     
-    <p class="copy copy-2" style="margin-top:22px">每张卡都带着它出生的地方：原句、动图/截图、原声音频。经 AnkiDroid / AnkiConnect 写入，内置 Lapis 模板一键建牌组。</p>
+    <p class="copy copy-2" style="margin-top:22px" data-i18n="home.sec.anki_copy">每张卡都带着它出生的地方：原句、动图/截图、原声音频。经 AnkiDroid / AnkiConnect 写入，内置 Lapis 模板一键建牌组。</p>
   </div>
   <div class="lapis-demo rev">
-    <iframe id="anki-demo-frame" title="Lapis 卡片"></iframe>
-    <button class="flipbtn" id="anki-demo-flip" type="button">显示答案</button>
+    <iframe id="anki-demo-frame" title="Lapis 卡片" data-i18n-attr="title=home.a11y.lapis_card"></iframe>
+    <button class="flipbtn" id="anki-demo-flip" type="button" data-i18n="home.card.show_answer">显示答案</button>
   </div>
 </section>
 
 <section class="feature">
   <div class="head rev">
-    <p class="eyebrow">下载 · 追更</p>
+    <p class="eyebrow" data-i18n="home.sec.downloads">下载 · 追更</p>
     
-    <p class="copy copy-2">AniList / Nyaa 应用内搜索，整季一键下载、自动入库、边下边播；订阅自动追更。内置 libtorrent。</p>
+    <p class="copy copy-2" data-i18n="home.sec.downloads_copy">AniList / Nyaa 应用内搜索，整季一键下载、自动入库、边下边播；订阅自动追更。内置 libtorrent。</p>
   </div>
   <div class="stage rev">
     <div class="stage-card"><div class="m-dl">
       <div class="tabs">
-        <span class="tab on">任务</span><span class="tab">资源</span><span class="tab">订阅</span>
-        <span class="add">＋ 添加任务</span>
+        <span class="tab on" data-i18n="home.dl.tab_tasks">任务</span><span class="tab" data-i18n="home.dl.tab_sources">资源</span><span class="tab" data-i18n="home.dl.tab_subs">订阅</span>
+        <span class="add" data-i18n="home.dl.add">＋ 添加任务</span>
       </div>
       <div class="row">
         <div class="hd">
@@ -753,9 +778,9 @@
           </div>
           <span class="chev">›</span>
         </div>
-        <div class="jtags"><span>下载中</span><span>下载</span></div>
+        <div class="jtags" data-i18n="home.dl.tags_downloading"><span>下载中</span><span>下载</span></div>
         <div class="pgrow"><span class="pg"><i style="width:64%"></i></span><span class="pct">64%</span></div>
-        <div class="acts"><span>查看详情</span><span>取消</span></div>
+        <div class="acts" data-i18n="home.dl.acts"><span>查看详情</span><span>取消</span></div>
       </div>
       <div class="row">
         <div class="hd">
@@ -766,7 +791,7 @@
           </div>
           <span class="chev">›</span>
         </div>
-        <div class="jtags"><span>已完成</span><span>入库</span></div>
+        <div class="jtags" data-i18n="home.dl.tags_done"><span>已完成</span><span>入库</span></div>
         <div class="pgrow"><span class="pg"><i style="width:100%"></i></span><span class="pct">100%</span></div>
       </div>
       <div class="row">
@@ -774,11 +799,11 @@
           <i class="ico wait">↓</i>
           <div class="tx">
             <span class="name" lang="ja">けいおん!! S02E01</span>
-            <span class="sub" lang="ja">anime · 2010 · 订阅「けいおん!!」自动入队</span>
+            <span class="sub" lang="ja" data-i18n="home.dl.sub_keion">anime · 2010 · 订阅「けいおん!!」自动入队</span>
           </div>
           <span class="chev">›</span>
         </div>
-        <div class="jtags"><span>等待资源</span><span>下载</span></div>
+        <div class="jtags" data-i18n="home.dl.tags_waiting"><span>等待资源</span><span>下载</span></div>
         <div class="pgrow"><span class="pg"><i style="width:3%"></i></span><span class="pct">3%</span></div>
       </div>
     </div></div>
@@ -789,42 +814,43 @@
 
 <section class="feature" id="method">
   <div class="head rev">
-    <p class="eyebrow">怎么开始</p>
+    <p class="eyebrow" data-i18n="home.sec.method">怎么开始</p>
     
   </div>
   <div class="method rev">
-    <p><b><a class="ilink" href="/download">下载 Fushi</a></b>，根据新手引导完成配置。</p>
-    <p>语料选择你喜欢的，这是最重要的一点。推荐从<b>动漫（首选）</b>、视觉小说或有声书开始。语料有难有易，不必勉强选择过难的内容。</p>
-    <p>遇到看不懂的词，点击查词并制卡（太难的句子或状态不好时可以跳过）。遇到一整段看不懂的时候，可以尝试查词理解，理解不了也没关系——跳过它。<b>学会忍受模糊感</b>，看不懂不要紧，随着沉浸量的积累，自然就能看懂。</p>
-    <p>学习是一个慢慢积累的过程。选择你真正喜欢的语料，<b>兴趣永远是第一位的</b>——只有喜欢，才能坚持天天沉浸。</p>
+    <p data-i18n="home.method.p1"><b><a class="ilink" href="/download">下载 Fushi</a></b>，根据新手引导完成配置。</p>
+    <p data-i18n="home.method.p2">语料选择你喜欢的，这是最重要的一点。推荐从<b>动漫（首选）</b>、视觉小说或有声书开始。语料有难有易，不必勉强选择过难的内容。</p>
+    <p data-i18n="home.method.p3">遇到看不懂的词，点击查词并制卡（太难的句子或状态不好时可以跳过）。遇到一整段看不懂的时候，可以尝试查词理解，理解不了也没关系——跳过它。<b>学会忍受模糊感</b>，看不懂不要紧，随着沉浸量的积累，自然就能看懂。</p>
+    <p data-i18n="home.method.p4">学习是一个慢慢积累的过程。选择你真正喜欢的语料，<b>兴趣永远是第一位的</b>——只有喜欢，才能坚持天天沉浸。</p>
     <div class="tips">
-      <div class="tip"><b>关于起步时机</b>不需要等词汇量很大才开始沉浸。背够 500–1000 词时就可以开始了，甚至任何你想开始的时候都可以。</div>
-      <div class="tip"><b>关于听力提升</b>当你积累到 2000–5000 词左右时，可以尝试隐藏字幕看动画，这对听力帮助非常大。</div>
-      <div class="tip"><b>关于字幕</b>字幕选用目标语言字幕，即和视频语言一致的字幕。起步阶段听不懂时可以叠加母语副字幕辅助理解，但这只是拐杖——应尽早丢掉。等词汇量积累到一定程度，可以尝试隐藏字幕。</div>
+      <div class="tip" data-i18n="home.method.tip1"><b>关于起步时机</b>不需要等词汇量很大才开始沉浸。背够 500–1000 词时就可以开始了，甚至任何你想开始的时候都可以。</div>
+      <div class="tip" data-i18n="home.method.tip2"><b>关于听力提升</b>当你积累到 2000–5000 词左右时，可以尝试隐藏字幕看动画，这对听力帮助非常大。</div>
+      <div class="tip" data-i18n="home.method.tip3"><b>关于字幕</b>字幕选用目标语言字幕，即和视频语言一致的字幕。起步阶段听不懂时可以叠加母语副字幕辅助理解，但这只是拐杖——应尽早丢掉。等词汇量积累到一定程度，可以尝试隐藏字幕。</div>
     </div>
   </div>
 </section>
 
 <section class="closing center">
   <div class="tight rev">
-    <h2 class="h-section">你已经在学了，<br>只差一个工具。</h2>
-    <p class="copy copy-2" style="margin-top:22px">下载 Fushi，从现在开始。</p>
-    <div class="btns"><a class="btn" href="/download">立即下载</a><a class="more" style="align-self:center;padding:12px 6px" href="https://github.com/hajisensai/Fushi">在 GitHub 上查看</a></div>
+    <h2 class="h-section" data-i18n="home.closing.title">你已经在学了，<br>只差一个工具。</h2>
+    <p class="copy copy-2" style="margin-top:22px" data-i18n="home.closing.copy">下载 Fushi，从现在开始。</p>
+    <div class="btns"><a class="btn" href="/download" data-i18n="home.cta.download">立即下载</a><a class="more" style="align-self:center;padding:12px 6px" href="https://github.com/hajisensai/Fushi" data-i18n="home.closing.github">在 GitHub 上查看</a></div>
   </div>
 </section>
 
 <footer class="site-footer">
   <nav class="site-footer-links">
-    <a href="/#acgn">功能</a><a href="/#method">怎么开始</a><a href="/download">下载</a><a href="https://github.com/hajisensai/Fushi">GitHub</a><a href="https://discord.gg/WhjwyGmm7f">Discord</a><a href="https://qm.qq.com/q/Sx2nWTvJCw">QQ 群</a>
+    <a href="/#acgn" data-i18n="nav.features">功能</a><a href="/#method" data-i18n="nav.method">怎么开始</a><a href="/download" data-i18n="nav.download">下载</a><a href="https://github.com/hajisensai/Fushi">GitHub</a><a href="https://discord.gg/WhjwyGmm7f">Discord</a><a href="https://qm.qq.com/q/Sx2nWTvJCw" data-i18n="nav.qq">QQ 群</a>
   </nav>
-  <p class="site-footer-legal">自由软件 · 以 <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a> 许可发布</p>
+  <p class="site-footer-legal" data-i18n="footer.legal">自由软件 · 以 <a href="https://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a> 许可发布</p>
   <p>© 2026 Fushi</p>
 </footer>
+<a class="site-totop" href="#top" aria-label="回到顶部" title="回到顶部" data-i18n-attr="aria-label=nav.totop;title=nav.totop"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></a>
 
 <div class="demo-toast" id="demo-toast" role="status"></div>
 <div class="mine-overlay" id="mine-overlay"><div class="mine-card" id="mine-card">
-  <iframe id="mine-frame" title="Lapis 卡片"></iframe>
-  <button class="flipbtn" id="mine-flip" type="button">显示答案</button>
+  <iframe id="mine-frame" title="Lapis 卡片" data-i18n-attr="title=home.a11y.lapis_card"></iframe>
+  <button class="flipbtn" id="mine-flip" type="button" data-i18n="home.card.show_answer">显示答案</button>
 </div></div>
 
 <script>
@@ -6407,6 +6433,8 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     const MEDIA = FUSHI_MEDIA;
     const EXTRA = FUSHI_EXTRA;        // {manga:{text,pos}, gal:{text,pos}}
     const SENT_AUDIO = FUSHI_SENT_AUDIO;   // 句子文本 -> 该句原声（视频/有声书逐句切割）
+    // 界面语言：字典由 /site.js 加载，键与标记上的 data-i18n 同一份；缺字典时用中文原文。
+    const T = (key, zh) => (window.fushiI18n ? window.fushiI18n.t(key, zh) : zh);
     const SENT_PIC = FUSHI_SENT_PIC;       // 视频句子文本 -> 该句画面帧（制卡配图）
     const BOOK_COVER = FUSHI_BOOK_COVER;   // 小说/有声书制卡配图 = 封面
     const MAX_NEST = 3;
@@ -6494,8 +6522,8 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         FUSHIFURIB: f.expression || '',
         FUSHIFURIR: f.reading || f.expression || '',
         FUSHIXREAD: f.reading || '',
-        FUSHIXAUDIO: (f.audio ? replayBtn('word-replay', '单词发音') : '') +
-                     (f.sentenceAudio ? replayBtn('sent-replay', '句子原声') : ''),
+        FUSHIXAUDIO: (f.audio ? replayBtn('word-replay', T('home.card.word_audio', '单词发音')) : '') +
+                     (f.sentenceAudio ? replayBtn('sent-replay', T('home.card.sentence_audio', '句子原声')) : ''),
         FUSHIXMAINDEF: f.glossaryFirst || '',
         FUSHIXGLOSS: f.glossary || '',
         FUSHIXSENT: f.sentence || '',
@@ -6535,7 +6563,15 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         '#lapis>main{margin-block:auto;}' +
         'body.card{scrollbar-width:thin;-ms-overflow-style:auto;}' +
         'body.card::-webkit-scrollbar{display:block;width:8px;}' +
-        'body.card::-webkit-scrollbar-thumb{background:rgba(128,128,128,.45);border-radius:4px;}';
+        'body.card::-webkit-scrollbar-thumb{background:rgba(128,128,128,.45);border-radius:4px;}' +
+        // Lapis 1.7.0 的 lightbox 图是 flex item 且没限 max-width：flex 自动最小尺寸
+        // = 图的原始宽（1280），比 478px 的卡窄不下去，只能从容器左缘溢出被裁；
+        // 移动端分支（卡宽 ≤512px 必命中）的 object-fit:contain 又把画面往
+        // 1280 宽盒子的正中画 —— 用户看到的就是「大图挤在右半边、左边被切」。
+        // 上游 2026-03 modal rework 后已重写；镜像钉在 1.7.0，这里在 demo 壳层
+        // 限成「不超过容器 / 视口、等比 contain」，模板本体不动。
+        '.img-popup-container{max-height:calc(100vh - 20px);}' +
+        '.img-popup-img{max-width:100%;max-height:calc(100vh - 20px);object-fit:contain;}';
       return '<!DOCTYPE html><html><head><meta charset="utf-8">' +
         '<script>window.pycmd = window.pycmd || function () {};<\/script>' +
         '<style>' + LAPIS.css + animCss + shellCss + '<\/style></head>' +
@@ -6601,7 +6637,8 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       btn.addEventListener('click', () => {
         if (!cur) return;
         side = side === 'front' ? 'back' : 'front';
-        btn.textContent = side === 'front' ? '显示答案' : '回到正面';
+        btn.setAttribute('data-side', side);
+        btn.textContent = side === 'front' ? T('home.card.show_answer', '显示答案') : T('home.card.back_front', '回到正面');
         fillCardFrame(frame, cur, side, opts);
         // 翻到答案面按 Anki 的 av 顺序自动播：先单词发音，放完接句子原声。
         if (side === 'back') playAvQueue([cur.audio, cur.sentenceAudio]);
@@ -6610,12 +6647,19 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
         reset(fields) {
           cur = fields;
           side = 'front';
-          btn.textContent = '显示答案';
+          btn.setAttribute('data-side', 'front');
+          btn.textContent = T('home.card.show_answer', '显示答案');
           fillCardFrame(frame, fields, 'front', opts);
         },
       };
     }
     const mineFlip = bindFlip('mine-frame', 'mine-flip');
+    document.addEventListener('fushi:i18n', () => {
+      document.querySelectorAll('.flipbtn').forEach((b) => {
+        const front = b.getAttribute('data-side') !== 'back';
+        b.textContent = front ? T('home.card.show_answer', '显示答案') : T('home.card.back_front', '回到正面');
+      });
+    });
     function showMineCard(p) {
       const fields = {
         expression: p.expression || '',
@@ -6672,7 +6716,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
             const k = (a && a.expression || '') + '|' + (a && a.reading || a && a.expression || '');
             const k2 = (a && a.expression || '') + '|' + (a && a.expression || '');
             const url = AUDIO[k] || AUDIO[k2] || null;
-            if (!url) toast('演示页未收录该词发音——App 可配置多个在线音源');
+            if (!url) toast(T('home.toast.no_word_audio', '演示页未收录该词发音——App 可配置多个在线音源'));
             return Promise.resolve(url);
           }
           case 'mineEntry':
@@ -6810,7 +6854,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       }
       truncateStack(parentIdx + 1);   // App prunePopupStack(index+1)：先关旧后代
       if (popupStack.length > MAX_NEST) {
-        toast('演示页最多支持三级嵌套——App 内无限制');
+        toast(T('home.toast.nest_limit', '演示页最多支持三级嵌套——App 内无限制'));
         return;
       }
       const parent = popupStack[parentIdx] || null;
@@ -7154,7 +7198,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     // av 队列，与卡内 replay 钮 / 翻面自动播同一个所有者：连按不叠、换词即掐。
     document.getElementById('gal-voice').addEventListener('click', () => {
       const u = SENT_AUDIO[EXTRA.gal.text];
-      if (u) playAvQueue([u]); else toast('演示页未收录该句语音');
+      if (u) playAvQueue([u]); else toast(T('home.toast.no_sentence_audio', '演示页未收录该句语音'));
     });
 
     // ============ 5) 有声书歌词模式 = app 原版 LyricsModeHtml 文档（iframe）+ 真 selectText 管线 ============
@@ -7300,7 +7344,7 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
           });
           v.muted = !on;
           btn.innerHTML = on ? '&#128266;' : '&#128263;';
-          btn.setAttribute('aria-label', on ? '关闭声音' : '开启声音');
+          btn.setAttribute('aria-label', on ? T('home.a11y.sound_off', '关闭声音') : T('home.a11y.sound_on', '开启声音'));
           if (on) v.play().catch(() => {});
         });
       });

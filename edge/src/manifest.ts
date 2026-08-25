@@ -6,10 +6,23 @@ export interface ReleaseAsset {
   readonly url: string;
 }
 
+/** 发布通道。update-manifest 分支按通道各放一份静态 JSON：latest-<channel>-fushi.json。 */
+export type Channel = 'stable' | 'debug' | 'beta';
+export const CHANNELS: readonly Channel[] = ['stable', 'debug', 'beta'];
+
+export function parseChannel(raw: string | null | undefined): Channel | null {
+  if (raw === null || raw === undefined || raw === '' || raw === 'latest') return 'stable';
+  return (CHANNELS as readonly string[]).includes(raw) ? (raw as Channel) : null;
+}
+
 export interface ReleaseManifest {
   readonly tag: string;
   readonly publishedAt: string;
   readonly assets: readonly ReleaseAsset[];
+  /** 静态清单里的 channel 字段；缺省按 stable。 */
+  readonly channel: Channel;
+  /** 人读的版本号（如 2.1.1 / 2.2.1-debug.12402）；缺省空串。 */
+  readonly version: string;
 }
 
 /** 稳定下载槽位 → 资产文件名判据。加平台就在这里加一行。 */
@@ -20,6 +33,8 @@ export const SLOTS: Readonly<Record<string, RegExp>> = {
   windows: /^fushi-.*-windows-setup\.exe$/,
   macos: /^fushi-.*-macos\.zip$/,
   ios: /^fushi-.*-ios\.ipa$/,
+  // 调试通道的 Android 只出一个含全部架构的通用包（名字以 -debug.apk 结尾）。
+  'android-universal': /^fushi-.*-debug\.apk$/,
   'bridge-arm64': /^bridge-.*-arm64-v8a\.apk$/,
   'bridge-arm32': /^bridge-.*-armeabi-v7a\.apk$/,
   'bridge-x64': /^bridge-.*-x86_64\.apk$/,
@@ -61,5 +76,7 @@ export function manifestFromPublished(raw: unknown): ReleaseManifest | null {
     tag,
     publishedAt: typeof rec['publishedAt'] === 'string' ? rec['publishedAt'] : '',
     assets,
+    channel: parseChannel(typeof rec['channel'] === 'string' ? rec['channel'] : 'stable') ?? 'stable',
+    version: typeof rec['version'] === 'string' ? rec['version'] : '',
   };
 }

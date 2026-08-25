@@ -12,6 +12,9 @@ export default defineConfig({
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     // 顶栏 / 底栏 / 设计 token 的唯一真相源，与手写首页 public/index.html 共用。
     ['link', { rel: 'stylesheet', href: '/chrome.css' }],
+    // 界面语言 + 顶栏语言菜单 + 回顶钮。data-manual：VitePress 页要等 hydrate 完
+    // 再由 Layout.vue 调 fushiI18n.apply()，否则 Vue 会把改过的文本按 vnode 改回去。
+    ['script', { src: '/site.js', 'data-manual': '1' }],
     // 多来源故障切换 SW：CF 线路不通时改从 GitHub 侧取内容，地址栏不变。
     ['script', { src: '/sw-register.js', defer: '' }],
   ],
