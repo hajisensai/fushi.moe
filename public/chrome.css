@@ -238,7 +238,7 @@ html.i18n-pending body { visibility: hidden; }
  *   <div class="site-nav-right">
  *     <input class="site-nav-check" type="checkbox" id="site-nav-check">
  *     <label class="site-nav-burger" for="site-nav-check">…</label>
- *     <span class="site-nav-links">…</span>
+ *     <span class="site-nav-links">…</span>   ← 只放「怎么开始」+ 三个社区图标；「功能」不进顶栏（首页本身就是功能长页）
  *     <label class="site-nav-lang"><svg/><select class="site-nav-lang-select">…</select></label>
  *     <a class="btn" href="/download">下载</a>
  *   </div>

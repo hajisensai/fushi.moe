@@ -37,6 +37,28 @@ function req(path: string, init?: RequestInit): Request {
   return new Request('https://fushi.moe' + path, init);
 }
 
+/** 模拟 Workers 全局 fetch：this 不是 undefined/globalThis 就抛 Illegal invocation。 */
+function strictThisFetch(reply: () => Response): typeof fetch {
+  return async function (this: unknown, _input: Request | string, _init?: RequestInit) {
+    if (this !== undefined && this !== globalThis) {
+      throw new TypeError('Illegal invocation: function called with incorrect `this` reference.');
+    }
+    return reply();
+  } as typeof fetch;
+}
+
+describe('proxyGithubCached 调用 fetch 的方式', () => {
+  it('以 Workers 的严格 this 语义调用也能回源，而不是落到 302 兜底', async () => {
+    const res = await handlePack(
+      req('/manifest.json'),
+      deps(strictThisFetch(() => ok('{"ok":1}', 200, { 'content-type': 'application/json' }))),
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-fushi-pack-origin')).toBe('github-workers-cache');
+    expect(await res.text()).toBe('{"ok":1}');
+  });
+});
+
 describe('handlePack', () => {
   it('manifest.json 走 GitHub 的 latest/download 稳定端点，不碰 API', async () => {
     const { fn, seen } = capturing(() => ok('{}'));
