@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 
 const TIMEOUT_MS = 20_000;
 
-async function request(url, { json = false, redirect = 'follow' } = {}) {
+async function request(url, { json = false, redirect = 'follow', logBody = false } = {}) {
   const response = await fetch(url, {
     redirect,
     signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -20,7 +20,7 @@ async function request(url, { json = false, redirect = 'follow' } = {}) {
     }
   }
   console.log(`${response.status} ${url} -> ${response.url}`);
-  if (json) console.log(JSON.stringify(body, null, 2));
+  if (json && logBody) console.log(JSON.stringify(body, null, 2));
   return { response, body };
 }
 
@@ -29,7 +29,7 @@ function check(ok, message) {
   console.log(`PASS ${message}`);
 }
 
-const health = await request('https://fushi.moe/__health', { json: true });
+const health = await request('https://fushi.moe/__health', { json: true, logBody: true });
 check(health.response.ok && health.body?.ok === true, '/__health 正常');
 check(health.body?.inSync === true, 'Worker 探测的两侧构建指纹一致');
 check(health.body?.mirror?.bound === true, '应用安装包 R2 binding 已连接');
