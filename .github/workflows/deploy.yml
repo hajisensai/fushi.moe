@@ -145,3 +145,18 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: edge
           command: deploy
+
+  verify-production:
+    needs: [deploy-github-pages, deploy-cloudflare-pages, deploy-edge-worker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Verify live site, Worker routes, manifests, and origins
+        run: node tool/verify-production.mjs
