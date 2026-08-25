@@ -173,9 +173,9 @@ describe('handleSite', () => {
   });
 });
 
-const RELEASE_JSON = JSON.stringify({
-  tag_name: 'v1.2.3',
-  published_at: '2026-01-01T00:00:00Z',
+const PUBLISHED_MANIFEST = JSON.stringify({
+  schemaVersion: 1,
+  tag: 'v1.2.3',
   assets: [
     { name: 'fushi-1.2.3-arm64-v8a.apk', size: 100, browser_download_url: 'https://github.com/owner/repo/releases/download/v1.2.3/fushi-1.2.3-arm64-v8a.apk' },
     { name: 'fushi-1.2.3-windows-setup.exe', size: 200, browser_download_url: 'https://github.com/owner/repo/releases/download/v1.2.3/fushi-1.2.3-windows-setup.exe' },
@@ -191,16 +191,16 @@ const MIRROR_MANIFEST = JSON.stringify({
 });
 
 function dlDeps(opts: {
-  ghApiUp?: boolean;
+  ghManifestUp?: boolean;
   mirror?: R2Bucket;
   health?: MemoryHealthStore;
 }) {
   const health = opts.health ?? store();
   const fetcher = fakeFetch({
-    'api.github.com': () =>
-      opts.ghApiUp === false
+    'raw.example': () =>
+      opts.ghManifestUp === false
         ? new Response('down', { status: 503 })
-        : new Response(RELEASE_JSON, { headers: { 'content-type': 'application/json' } }),
+        : new Response(PUBLISHED_MANIFEST, { headers: { 'content-type': 'application/json' } }),
   });
   return { settings: settings(), health, fetcher, mirror: opts.mirror };
 }
@@ -237,14 +237,14 @@ describe('handleDownload', () => {
     expect(res.headers.get('location')).toContain('fushi-1.2.3-windows-setup.exe');
   });
 
-  it('GitHub API 挂了就用镜像里的清单副本——这是「GitHub 挂了下载还活着」那一环', async () => {
+  it('GitHub 静态清单挂了就用 R2 清单副本', async () => {
     const mirror = fakeR2({
       'manifest.json': MIRROR_MANIFEST,
       'releases/v1.2.3/fushi-1.2.3-arm64-v8a.apk': 'APKBYTES',
     });
     const res = await handleDownload(
       new Request('https://fushi.moe/latest/android-arm64'),
-      dlDeps({ ghApiUp: false, mirror }),
+      dlDeps({ ghManifestUp: false, mirror }),
     );
     expect(res.status).toBe(200);
     expect(await res.text()).toBe('APKBYTES');
@@ -253,7 +253,7 @@ describe('handleDownload', () => {
   it('两边清单都拿不到时退回 Releases 页面，而不是报错', async () => {
     const res = await handleDownload(
       new Request('https://fushi.moe/latest/android-arm64'),
-      dlDeps({ ghApiUp: false }),
+      dlDeps({ ghManifestUp: false }),
     );
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toBe('https://github.com/owner/repo/releases/latest');
@@ -279,12 +279,14 @@ describe('handleDownload', () => {
   });
 
   it('/api/latest 给出全部槽位与版本号', async () => {
-    const res = await handleDownload(new Request('https://fushi.moe/api/latest'), dlDeps({}));
+    const deps = dlDeps({});
+    const res = await handleDownload(new Request('https://fushi.moe/api/latest'), deps);
     expect(res.status).toBe(200);
     expect(res.headers.get('access-control-allow-origin')).toBe('*');
     const body = (await res.json()) as { tag: string; slots: Record<string, unknown> };
     expect(body.tag).toBe('v1.2.3');
     expect(body.slots['android-arm64']).toBeTruthy();
+    expect(deps.fetcher.calls.some((url) => url.includes('api.github.com'))).toBe(false);
     // 这个版本没发 macOS 包，就该是 null 而不是编一个链接出来
     expect(body.slots['macos']).toBeNull();
   });

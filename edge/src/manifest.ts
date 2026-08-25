@@ -1,4 +1,4 @@
-/** 一次发布的镜像清单。GitHub API 与 R2 兜底副本共用这个形状。 */
+/** 一次发布的下载清单。GitHub 静态清单与 R2 兜底副本共用这个形状。 */
 export interface ReleaseAsset {
   readonly name: string;
   readonly size: number;
@@ -35,19 +35,19 @@ export function mirrorKey(tag: string, name: string): string {
   return `releases/${tag}/${name}`;
 }
 
-interface GithubAsset {
+interface PublishedAsset {
   name?: unknown;
   size?: unknown;
   browser_download_url?: unknown;
 }
 
-/** 把 GitHub release JSON 收敛成清单；字段缺失的资产直接丢弃，不留半个对象。 */
-export function manifestFromGithub(raw: unknown): ReleaseManifest | null {
+/** 把 update-manifest 分支的静态 JSON 收敛成清单。 */
+export function manifestFromPublished(raw: unknown): ReleaseManifest | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const rec = raw as Record<string, unknown>;
-  const tag = rec['tag_name'];
+  const tag = rec['tag'];
   if (typeof tag !== 'string' || tag === '') return null;
-  const rawAssets = Array.isArray(rec['assets']) ? (rec['assets'] as GithubAsset[]) : [];
+  const rawAssets = Array.isArray(rec['assets']) ? (rec['assets'] as PublishedAsset[]) : [];
   const assets: ReleaseAsset[] = [];
   for (const a of rawAssets) {
     if (typeof a.name !== 'string' || typeof a.browser_download_url !== 'string') continue;
@@ -59,7 +59,7 @@ export function manifestFromGithub(raw: unknown): ReleaseManifest | null {
   }
   return {
     tag,
-    publishedAt: typeof rec['published_at'] === 'string' ? rec['published_at'] : '',
+    publishedAt: typeof rec['publishedAt'] === 'string' ? rec['publishedAt'] : '',
     assets,
   };
 }

@@ -25,9 +25,11 @@ CF_WEIGHT = "100"
 ORIGIN_TIMEOUT_MS = "3000"
 BREAKER_COOLDOWN_S = "60"
 GH_REPO = "hajisensai/Fushi"
+# 发布 CI 自动更新的静态正式版清单；运行时不调用 api.github.com。
+GH_MANIFEST_URL = "https://raw.githubusercontent.com/hajisensai/Fushi/update-manifest/latest-stable-fushi.json"
 # 新手引导推荐包（约 9.5 GB）。切片放它的 release：public 仓库 release 资产不计流量，
 # 单资产上限 2 GB，所以按 256 MiB 切。/pack 路由不碰 GitHub API，也不碰 R2 ——
-# R2 免费额度只有 10 GB，塞进整包就没地方放 app 的发布镜像了。
+# 推荐包只走免费 Workers Cache，不进 R2，也不启用 Cache Reserve。
 PACK_REPO = "hajisensai/fushi-pack"
 PACK_PREFIX = "/pack"
 

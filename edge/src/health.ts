@@ -1,6 +1,6 @@
 import type { HealthStore } from './breaker';
 import type { Settings } from './config';
-import { GH_API_BREAKER, MIRROR_BREAKER } from './downloads';
+import { GH_MANIFEST_BREAKER, MIRROR_BREAKER } from './downloads';
 import type { OriginSpec } from './origins';
 import { originUrl } from './origins';
 
@@ -70,8 +70,9 @@ export async function handleHealth(deps: HealthDeps): Promise<Response> {
       bound: deps.hasMirror,
       breaker: (await deps.health.isDown(MIRROR_BREAKER)) ? 'open' : 'closed',
     },
-    githubApi: {
-      breaker: (await deps.health.isDown(GH_API_BREAKER)) ? 'open' : 'closed',
+    githubManifest: {
+      source: 'update-manifest/latest-stable-fushi.json',
+      breaker: (await deps.health.isDown(GH_MANIFEST_BREAKER)) ? 'open' : 'closed',
     },
   };
 

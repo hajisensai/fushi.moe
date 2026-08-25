@@ -1,4 +1,5 @@
 import type { Settings } from './config';
+import { proxyGithubCached } from './github-cache';
 
 /**
  * 推荐包分发路由（`/pack/*`）。
@@ -42,61 +43,34 @@ function notFound(message: string): Response {
 }
 
 /**
- * 把上游响应原样转出，只重写缓存策略。
+ * 通过普通 Workers Cache 转出上游响应。
  *
  * `immutable` 只给带 tag 的切片：滚动路径配长缓存会让同一次下载拿到新旧混合的
  * 分片，逐片 sha256 会红、9.5 GB 白下——这正是切片路径必须带 tag 的原因。
  */
-function relay(upstream: Response, cacheControl: string): Response {
-  const headers = new Headers();
-  for (const key of [
-    'content-type',
-    'content-length',
-    'content-range',
-    'accept-ranges',
-    'etag',
-    'last-modified',
-  ]) {
-    const v = upstream.headers.get(key);
-    if (v !== null) headers.set(key, v);
-  }
-  headers.set('cache-control', cacheControl);
-  headers.set('access-control-allow-origin', '*');
-  headers.set('x-fushi-pack-origin', 'github');
-  return new Response(upstream.body, {
-    status: upstream.status,
-    statusText: upstream.statusText,
-    headers,
+async function proxy(
+  url: string,
+  request: Request,
+  deps: PackDeps,
+  cacheControl: string,
+  ttlS: number,
+): Promise<Response> {
+  const cached = await proxyGithubCached({
+    url,
+    request,
+    fetcher: deps.fetcher,
+    ttlS,
+    cacheControl,
+    markerHeader: 'x-fushi-pack-origin',
+    markerValue: 'github-workers-cache',
   });
-}
-
-async function proxy(url: string, request: Request, deps: PackDeps, cacheControl: string): Promise<Response> {
-  const headers = new Headers();
-  const range = request.headers.get('range');
-  // Range 必须透传：分片下载器靠它并发取区间，吞掉就退化成整片重下。
-  if (range !== null) headers.set('range', range);
-  const ifRange = request.headers.get('if-range');
-  if (ifRange !== null) headers.set('if-range', ifRange);
-  headers.set('user-agent', 'fushi-moe-edge');
-  try {
-    const upstream = await deps.fetcher(url, {
-      method: request.method === 'HEAD' ? 'HEAD' : 'GET',
-      headers,
-      redirect: 'follow',
-    } as RequestInit);
-    if (upstream.status >= 500) {
-      return new Response('pack origin unavailable', {
-        status: 502,
-        headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
-      });
-    }
-    return relay(upstream, cacheControl);
-  } catch {
-    return new Response('pack origin unreachable', {
+  if (!cached) {
+    return new Response('pack origin unavailable', {
       status: 502,
       headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
     });
   }
+  return cached;
 }
 
 /** `/pack` 前缀已由调用方剥掉，这里拿到的是 `/manifest.json` 或 `/<tag>/<name>`。 */
@@ -111,6 +85,7 @@ export async function handlePack(request: Request, deps: PackDeps): Promise<Resp
       request,
       deps,
       'public, max-age=300, must-revalidate',
+      300,
     );
   }
 
@@ -124,6 +99,7 @@ export async function handlePack(request: Request, deps: PackDeps): Promise<Resp
       request,
       deps,
       'public, max-age=31536000, immutable',
+      31_536_000,
     );
   }
 

@@ -4,14 +4,29 @@ import { settings } from './fakes';
 
 /** 捕获 url + init 的假 fetch：Range 透传这类断言必须看到实际发出的请求头。 */
 function capturing(reply: () => Response) {
-  const seen: { url: string; headers: Record<string, string>; method: string }[] = [];
+  const seen: {
+    url: string;
+    headers: Record<string, string>;
+    method: string;
+    cacheTtl?: number;
+    cacheEverything?: boolean;
+  }[] = [];
   const fn = (async (input: Request | string, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.url;
     const headers: Record<string, string> = {};
     new Headers(init?.headers).forEach((v, k) => {
       headers[k] = v;
     });
-    seen.push({ url, headers, method: init?.method ?? 'GET' });
+    const cf = (init as RequestInit & {
+      cf?: { cacheTtl?: number; cacheEverything?: boolean };
+    } | undefined)?.cf;
+    seen.push({
+      url,
+      headers,
+      method: init?.method ?? 'GET',
+      cacheTtl: cf?.cacheTtl,
+      cacheEverything: cf?.cacheEverything,
+    });
     return reply();
   }) as typeof fetch;
   return { fn, seen };
@@ -39,6 +54,8 @@ describe('handlePack', () => {
     );
     // 不该出现任何 api.github.com 调用：少一个 API 就少一份限流与熔断负担。
     expect(seen.some((s) => s.url.includes('api.github.com'))).toBe(false);
+    expect(seen[0]!.cacheEverything).toBe(true);
+    expect(seen[0]!.cacheTtl).toBe(300);
   });
 
   it('滚动的 manifest 绝不能 immutable，带 tag 的切片才可以', async () => {
@@ -55,6 +72,8 @@ describe('handlePack', () => {
     expect(b.seen[0]!.url).toBe(
       'https://github.com/owner/pack/releases/download/pack-2026-08-14/demo.zip.000',
     );
+    expect(b.seen[0]!.cacheEverything).toBe(true);
+    expect(b.seen[0]!.cacheTtl).toBe(31_536_000);
   });
 
   it('Range 与 If-Range 原样透传', async () => {

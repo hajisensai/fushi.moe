@@ -36,18 +36,22 @@ const FAKE_RELEASE = {
   tag: 'v9.9.9',
   publishedAt: '2026-08-24T00:00:00Z',
   slots: {
-    'android-arm64': { url: '/releases/latest/android-arm64', name: 'fushi-9.9.9-arm64-v8a.apk', size: 138412032 },
-    'android-arm32': { url: '/releases/latest/android-arm32', name: 'fushi-9.9.9-armeabi-v7a.apk', size: 135266304 },
-    'android-x64': { url: '/releases/latest/android-x64', name: 'fushi-9.9.9-x86_64.apk', size: 119537664 },
-    windows: { url: '/releases/latest/windows', name: 'fushi-9.9.9-windows-setup.exe', size: 246415360 },
-    macos: { url: '/releases/latest/macos', name: 'fushi-9.9.9-macos.zip', size: 298844160 },
-    ios: { url: '/releases/latest/ios', name: 'fushi-9.9.9-ios.ipa', size: 66060288 },
+    'android-arm64': { url: '/releases/latest/android-arm64', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-arm64-v8a.apk', name: 'fushi-9.9.9-arm64-v8a.apk', size: 138412032 },
+    'android-arm32': { url: '/releases/latest/android-arm32', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-armeabi-v7a.apk', name: 'fushi-9.9.9-armeabi-v7a.apk', size: 135266304 },
+    'android-x64': { url: '/releases/latest/android-x64', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-x86_64.apk', name: 'fushi-9.9.9-x86_64.apk', size: 119537664 },
+    windows: { url: '/releases/latest/windows', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-windows-setup.exe', name: 'fushi-9.9.9-windows-setup.exe', size: 246415360 },
+    macos: { url: '/releases/latest/macos', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-macos.zip', name: 'fushi-9.9.9-macos.zip', size: 298844160 },
+    ios: { url: '/releases/latest/ios', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-ios.ipa', name: 'fushi-9.9.9-ios.ipa', size: 66060288 },
   },
 };
 
-const GH_API_RELEASE = {
-  tag_name: 'v9.9.9',
-  assets: Object.values(FAKE_RELEASE.slots).map((s) => ({ name: s.name, size: s.size })),
+const GH_STATIC_MANIFEST = {
+  tag: 'v9.9.9',
+  assets: Object.values(FAKE_RELEASE.slots).map((s) => ({
+    name: s.name,
+    size: s.size,
+    browser_download_url: s.githubUrl,
+  })),
 };
 
 function startServer() {
@@ -100,7 +104,7 @@ function installInterceptor(cdp) {
         });
         return;
       }
-      if (url.includes('api.github.com')) {
+      if (url.includes('raw.githubusercontent.com')) {
         if (!scenario.ghUp) {
           await cdp.send('Fetch.failRequest', { requestId, errorReason: 'ConnectionFailed' });
           return;
@@ -112,7 +116,7 @@ function installInterceptor(cdp) {
             { name: 'content-type', value: 'application/json' },
             { name: 'access-control-allow-origin', value: '*' },
           ],
-          body: b64(JSON.stringify(GH_API_RELEASE)),
+          body: b64(JSON.stringify(GH_STATIC_MANIFEST)),
         });
         return;
       }
@@ -208,7 +212,7 @@ async function main() {
   check('B 自动切到 GitHub 直连', (b.status ?? '').includes('GitHub 直连'), b.status);
   check('B CF 按钮标成连不上', b.buttons.some((x) => x.text.includes('Cloudflare') && x.dead), JSON.stringify(b.buttons));
   check('B 链接走 github.com 直链', (b.firstLink ?? '').includes('github.com/hajisensai/Fushi/releases/download/'), b.firstLink);
-  check('B 仍取到版本清单（走 api.github.com 兜底）', (b.status ?? '').includes('v9.9.9'), b.status);
+  check('B 仍取到版本清单（走 GitHub 静态 JSON 兜底）', (b.status ?? '').includes('v9.9.9'), b.status);
 
   console.log('\n--- 场景 C：两边都不通 ---');
   const c = await runScenario(cdp, 'C 两边都不通', { cfUp: false, ghUp: false });

@@ -1,7 +1,7 @@
 import type { HealthStore } from './breaker';
 import type { Settings } from './config';
 import {
-  manifestFromGithub,
+  manifestFromPublished,
   mirrorKey,
   resolveSlot,
   SLOTS,
@@ -21,27 +21,27 @@ export interface DownloadDeps {
 const MANIFEST_TTL_S = 600;
 const MANIFEST_CACHE_KEY = 'https://manifest.fushi.invalid/latest';
 export const MIRROR_BREAKER = 'r2';
-export const GH_API_BREAKER = 'gh-api';
+export const GH_MANIFEST_BREAKER = 'github-manifest';
 
 /**
  * 取最新发布清单。
  *
- * 顺序是有意的：GitHub API 是唯一权威（新版本先在那里出现），
- * R2 里的 manifest.json 是镜像同步时写下的副本，只在 GitHub 不可达时接管——
+ * 顺序是有意的：update-manifest 分支的静态 JSON 是发布权威，完全不碰 GitHub
+ * REST API；R2 里的 manifest.json 是镜像同步时写下的副本，只在 GitHub 不可达时接管——
  * 这正是「GitHub 挂了下载还能活」的那一环。
  */
 export async function loadManifest(deps: DownloadDeps): Promise<ReleaseManifest | null> {
   const cached = await readCachedManifest(deps);
   if (cached) return cached;
 
-  if (!(await deps.health.isDown(GH_API_BREAKER))) {
-    const fromApi = await fetchGithubManifest(deps);
-    if (fromApi) {
-      await deps.health.markUp(GH_API_BREAKER);
-      await writeCachedManifest(deps, fromApi);
-      return fromApi;
+  if (!(await deps.health.isDown(GH_MANIFEST_BREAKER))) {
+    const published = await fetchPublishedManifest(deps);
+    if (published) {
+      await deps.health.markUp(GH_MANIFEST_BREAKER);
+      await writeCachedManifest(deps, published);
+      return published;
     }
-    await deps.health.markDown(GH_API_BREAKER, deps.settings.cooldownS);
+    await deps.health.markDown(GH_MANIFEST_BREAKER, deps.settings.cooldownS);
   }
 
   const fromMirror = await readMirrorManifest(deps);
@@ -52,18 +52,17 @@ export async function loadManifest(deps: DownloadDeps): Promise<ReleaseManifest 
   return null;
 }
 
-async function fetchGithubManifest(deps: DownloadDeps): Promise<ReleaseManifest | null> {
-  const url = 'https://api.github.com/repos/' + deps.settings.ghRepo + '/releases/latest';
+async function fetchPublishedManifest(deps: DownloadDeps): Promise<ReleaseManifest | null> {
   try {
-    const res = await deps.fetcher(url, {
+    const res = await deps.fetcher(deps.settings.ghManifestUrl, {
       headers: {
-        accept: 'application/vnd.github+json',
+        accept: 'application/json',
         'user-agent': 'fushi-moe-edge',
       },
       signal: AbortSignal.timeout(deps.settings.timeoutMs),
     } as RequestInit);
     if (!res.ok) return null;
-    return manifestFromGithub(await res.json());
+    return manifestFromPublished(await res.json());
   } catch {
     return null;
   }
@@ -213,7 +212,10 @@ function latestManifestResponse(manifest: ReleaseManifest | null, deps: Download
     });
   }
 
-  const slots: Record<string, { url: string; name: string; size: number } | null> = {};
+  const slots: Record<
+    string,
+    { url: string; githubUrl: string; name: string; size: number } | null
+  > = {};
   for (const slot of Object.keys(SLOTS)) {
     const asset = resolveSlot(manifest, slot);
     slots[slot] = asset
@@ -224,6 +226,7 @@ function latestManifestResponse(manifest: ReleaseManifest | null, deps: Download
             deps.settings.downloadPrefix +
             '/latest/' +
             slot,
+          githubUrl: asset.url,
           name: asset.name,
           size: asset.size,
         }
