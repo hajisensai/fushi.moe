@@ -7,14 +7,6 @@ const FORWARDED_HEADERS = [
   'last-modified',
 ] as const;
 
-interface WorkerCacheInit extends RequestInit {
-  readonly cf: {
-    readonly cacheEverything: true;
-    readonly cacheTtl: number;
-    readonly cacheTtlByStatus: Readonly<Record<string, number>>;
-  };
-}
-
 export interface GithubCacheProxyOptions {
   readonly url: string;
   readonly request: Request;
@@ -23,17 +15,30 @@ export interface GithubCacheProxyOptions {
   readonly cacheControl: string;
   readonly markerHeader: string;
   readonly markerValue: string;
+  readonly cache?: Cache;
+  readonly waitUntil?: (promise: Promise<unknown>) => void;
 }
 
 /**
  * 通过普通 Workers Cache 代理公开 GitHub Release 资产。
  *
- * `cf.cacheEverything` 是免费计划自带的边缘缓存，不涉及 Cache Reserve。
+ * `caches.default` 是免费计划自带的边缘缓存，不涉及 Cache Reserve。
  * 调用方只可给带版本 tag 的不可变 URL 配一年 TTL。
  */
 export async function proxyGithubCached(
   options: GithubCacheProxyOptions,
 ): Promise<Response | null> {
+  const cacheKeyHeaders = new Headers();
+  for (const name of ['range', 'if-range'] as const) {
+    const value = options.request.headers.get(name);
+    if (value !== null) cacheKeyHeaders.set(name, value);
+  }
+  const cacheKey = new Request(options.url, { method: 'GET', headers: cacheKeyHeaders });
+  if (options.cache) {
+    const hit = await options.cache.match(cacheKey);
+    if (hit) return hit;
+  }
+
   const headers = new Headers();
   for (const name of ['range', 'if-range'] as const) {
     const value = options.request.headers.get(name);
@@ -42,21 +47,11 @@ export async function proxyGithubCached(
   headers.set('user-agent', 'fushi-moe-edge');
 
   try {
-    const init: WorkerCacheInit = {
+    const upstream = await options.fetcher(options.url, {
       method: options.request.method === 'HEAD' ? 'HEAD' : 'GET',
       headers,
       redirect: 'follow',
-      cf: {
-        cacheEverything: true,
-        cacheTtl: options.ttlS,
-        cacheTtlByStatus: {
-          '200-299': options.ttlS,
-          '300-399': 60,
-          '400-599': 0,
-        },
-      },
-    };
-    const upstream = await options.fetcher(options.url, init);
+    } as RequestInit);
     if (upstream.status >= 500) return null;
 
     const responseHeaders = new Headers();
@@ -67,11 +62,21 @@ export async function proxyGithubCached(
     responseHeaders.set('cache-control', options.cacheControl);
     responseHeaders.set('access-control-allow-origin', '*');
     responseHeaders.set(options.markerHeader, options.markerValue);
-    return new Response(upstream.body, {
+    const response = new Response(upstream.body, {
       status: upstream.status,
       statusText: upstream.statusText,
       headers: responseHeaders,
     });
+    if (
+      options.cache &&
+      options.request.method === 'GET' &&
+      !options.request.headers.has('range') &&
+      response.status === 200
+    ) {
+      const store = options.cache.put(new Request(options.url), response.clone());
+      options.waitUntil ? options.waitUntil(store) : await store.catch(() => {});
+    }
+    return response;
   } catch {
     return null;
   }
