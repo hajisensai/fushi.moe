@@ -190,6 +190,14 @@ function hrefFor(slot) {
   )
 }
 
+/**
+ * download 属性的值 = 文件名。同源镜像链接按它存盘；跨域 GitHub 链接浏览器会忽略该值
+ * （用对方的 Content-Disposition），但属性本身仍让 VitePress 路由放行。
+ */
+function downloadNameFor(slot) {
+  return release.value?.slots?.[slot]?.name || 'fushi'
+}
+
 function sizeFor(slot) {
   const bytes = release.value?.slots?.[slot]?.size
   if (!bytes) return ''
@@ -396,6 +404,13 @@ onMounted(async () => {
   <div class="dl-status">{{ t('dl.status_probing', '正在测试下载源…') }}</div>
 </div>
 
+<!--
+  vp-raw + download 属性：VitePress 的客户端路由会把同源、无 target/download 的 <a> 点击
+  当成站内导航（pushState 后渲染它自己的 404 页，服务器根本收不到请求）——
+  /releases/latest/<slot> 这种链接正中此坑，手机上「点下载 → 404 Page Not Found」就是它。
+  两道都加：download 在 SSR 标记里就生效（hydrate 前点也安全），vp-raw 兜底。
+-->
+<div class="vp-raw">
 <table class="dl-table">
   <thead><tr><th>{{ t('dl.th_platform', '平台') }}</th><th>{{ t('dl.th_note', '说明') }}</th><th>{{ t('dl.th_download', '下载') }}</th></tr></thead>
   <tbody>
@@ -405,7 +420,7 @@ onMounted(async () => {
       <td>
         <template v-if="!jobs[p.slot]">
           <a v-if="p.testflight && IOS_TESTFLIGHT_URL" :href="IOS_TESTFLIGHT_URL" rel="noopener" target="_blank">{{ t('dl.testflight', '加入 TestFlight') }}</a>
-          <a v-else :href="hrefFor(p.slot)" rel="noopener" @click="onDownloadClick($event, p.slot)">
+          <a v-else :href="hrefFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" @click="onDownloadClick($event, p.slot)">
             {{ t('dl.download', '下载') }}<span v-if="sizeFor(p.slot)"> · {{ sizeFor(p.slot) }}</span>
           </a>
         </template>
@@ -428,13 +443,13 @@ onMounted(async () => {
           <template v-else-if="jobs[p.slot].state === 'fallback'">
             <span>{{ t('dl.chunk_fallback', '分片来源不可用，请用普通下载。') }}</span>
             <span class="dl-job-split" v-for="r in jobs[p.slot].reasons" :key="r.id">{{ r.text }}</span>
-            <a :href="jobs[p.slot].href" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
+            <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_close', '收起') }}</button>
           </template>
           <template v-else>
             <span class="dl-job-err">{{ t('dl.chunk_failed', '分片下载失败。') }}</span>
             <span class="dl-job-split" v-if="jobs[p.slot].error">{{ jobs[p.slot].error }}</span>
-            <a :href="jobs[p.slot].href" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
+            <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_close', '收起') }}</button>
           </template>
         </div>
@@ -442,6 +457,7 @@ onMounted(async () => {
     </tr>
   </tbody>
 </table>
+</div>
 
 <p v-if="!probing && !loadingRelease && !metaSource" class="dl-warn">
   {{ t('dl.warn_no_manifest', '没能取到版本清单（两个源都没应答），上面的按钮会带你去 GitHub Releases 页面手动选择。') }}

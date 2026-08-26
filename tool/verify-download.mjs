@@ -207,11 +207,13 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
       var rows = [].slice.call(document.querySelectorAll('.dl-table tbody tr')).map(function (tr) {
         return tr.querySelector('td b') ? tr.querySelector('td b').textContent.trim() : '';
       });
+      var downloadAttrs = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a')).map(function (a) { return a.getAttribute('download'); });
       return {
         status: status ? status.textContent.replace(/\s+/g, ' ').trim() : null,
         buttons: btns,
         channels: channels,
         rows: rows,
+        downloadAttrs: downloadAttrs,
         firstLink: links[0] || null,
         allLinks: links,
         warn: warn ? warn.textContent.replace(/\s+/g, ' ').trim() : null
@@ -274,6 +276,28 @@ async function main() {
     c.firstLink,
   );
   check('C 给出了说明文案', (c.warn ?? '').length > 0, c.warn);
+
+  console.log('\n--- 场景 F：点「下载」不能被 VitePress 路由劫持成站内 404 ---');
+  // 同源 /releases/latest/<slot> 链接若没有 download 属性，VitePress 客户端路由会
+  // pushState 后渲染自己的 404 页，且服务器收不到任何请求（curl 永远复现不了）。
+  const f = await runScenario(cdp, 'F 点下载', { cfUp: true, ghUp: true });
+  check('F 下载链接带 download 属性（SSR 标记里就有，hydrate 前点也安全）', f.downloadAttrs.length > 0 && f.downloadAttrs.every((v) => v !== null), JSON.stringify(f.downloadAttrs));
+  // 跨域的 GitHub 直链路由本来就不碰；要复现劫持必须是同源链接——手动切到 Cloudflare 镜像。
+  const clickState = await cdp.send('Runtime.evaluate', {
+    expression: '(function(){ var cf = [].slice.call(document.querySelectorAll(".dl-buttons button")).find(function (b) { return /Cloudflare/.test(b.textContent); }); if (cf) cf.click(); return new Promise(function (res) { setTimeout(function () { var a = document.querySelector(".dl-table tbody tr td:last-child a"); if (!a) return res({ clicked: false }); var href = a.getAttribute("href"); a.click(); res({ clicked: true, href: href }); }, 300); }); })()',
+    returnByValue: true,
+    awaitPromise: true,
+  });
+  check('F 切到镜像后链接是同源 /releases/ 路径（劫持的前提）', /^\/releases\//.test(clickState.result.value.href || ''), clickState.result.value.href);
+  await new Promise((r) => setTimeout(r, 2500));
+  const after = await cdp.send('Runtime.evaluate', {
+    expression: '(function(){ var job = document.querySelector(".dl-job"); return { path: location.pathname, job: job ? job.className : null, text: job ? job.textContent.replace(/\\s+/g, " ").trim() : null, notFound: !!document.querySelector(".NotFound") || /page not found/i.test(document.body.textContent) }; })()',
+    returnByValue: true,
+  });
+  const a2 = after.result.value;
+  console.log('  点击后: ' + JSON.stringify(a2));
+  check('F 点击后仍在下载页，没有被路由成站内 404', clickState.result.value.clicked && a2.path === '/download.html' && !a2.notFound, JSON.stringify(a2));
+  check('F 分片来源探不到时行内给出原因并留「普通下载」，不自动跳走', a2.job !== null && /fallback/.test(a2.job) && /普通下载/.test(a2.text || ''), a2.text);
 
   console.log('\n--- 场景 D：切到调试版 ---');
   const d = await runScenario(cdp, 'D 调试版', { cfUp: true, ghUp: true, channel: '调试版' });
