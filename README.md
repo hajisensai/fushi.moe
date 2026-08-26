@@ -28,7 +28,7 @@ npm run verify         # 单测 + 首页/下载页/SW 的无头浏览器验证�
 ## 界面语言
 
 标记里写死简体中文；其它 16 种语言的文案在 `public/i18n/<code>.json`，由 `public/site.js` 按
-`data-i18n="key"` 在浏览器里替换（`?lang=ja` 可强制，选择记在 localStorage，默认按浏览器语言自动）。
+`data-i18n="key"` 在浏览器里替换（`?lang=ja` 可强制，选择记在 localStorage，默认按浏览器语言列表（Accept-Language 顺序）取第一个支持的语言，不看地区/时区；规则由 `tool/verify-i18n-detect.mjs` 守）。
 改中文文案后要同步改各语言字典里的同一键；新增可翻译元素就挂 `data-i18n`（属性用 `data-i18n-attr="alt=key"`），
 JS 里的动态文案走 `fushiI18n.t(key, '中文')`。
 

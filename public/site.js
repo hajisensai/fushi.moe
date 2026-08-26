@@ -67,15 +67,23 @@
     return null;
   }
 
+  /**
+   * 浏览器语言列表 → 站点语言：navigator.languages（= 请求头 Accept-Language 的顺序）里
+   * 第一个本站支持的语言，都不支持才退回英文。这是 Accept-Language 协商的标准做法，
+   * 不掺任何地区/时区猜测——用户的浏览器把什么语言排在第一，就给什么。
+   * 判定过程打到 console，用户核对「为什么给了我这个语言」时一眼能看到列表。
+   */
   function detect() {
     var list = navigator.languages && navigator.languages.length
       ? navigator.languages
       : [navigator.language || 'en'];
+    var code = 'en';
     for (var i = 0; i < list.length; i++) {
       var hit = matchTag(list[i]);
-      if (hit) return hit;
+      if (hit) { code = hit; break; }
     }
-    return 'en';
+    try { console.info('[fushi i18n] navigator.languages', Array.prototype.slice.call(list), '->', code); } catch (_) { /* 无 console 也无妨 */ }
+    return code;
   }
 
   function readStored() {
