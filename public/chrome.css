@@ -110,7 +110,15 @@ body {
   position: absolute; width: 1px; height: 1px;
   overflow: hidden; clip-path: inset(50%); white-space: nowrap;
 }
-.site-nav .btn { font-size: 12px; padding: 4px 11px; }
+.site-nav .btn {
+  background: var(--ink); color: var(--ground);
+  font-size: 12px; padding: 4px 11px;
+}
+.site-nav .btn:hover {
+  background: color-mix(in srgb, var(--ink) 84%, var(--ground));
+  color: var(--ground); filter: none;
+}
+.site-nav .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* 汉堡开关：纯 CSS，靠一个视觉隐藏但仍可聚焦的 checkbox 驱动兄弟选择器。
    以前窄屏是把所有导航项 display:none 掉，手机上顶栏只剩 logo 和下载按钮，
