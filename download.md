@@ -624,7 +624,7 @@ onMounted(async () => {
 <tr><td data-i18n="dl.guide_r1_a">欢迎</td><td data-i18n="dl.guide_r1_b">选界面语言和明暗主题</td></tr>
 <tr><td data-i18n="dl.guide_r2_a">功能选择</td><td data-i18n="dl.guide_r2_b">勾掉用不上的模块，它们不会出现在底栏</td></tr>
 <tr><td data-i18n="dl.guide_r3_a">推荐包</td><td data-i18n="dl.guide_r3_b">下载并导入日语词典 + 日/英发音音频库</td></tr>
-<tr><td data-i18n="dl.guide_r4_a">Anki</td><td data-i18n="dl.guide_r4_b">连上 AnkiDroid / AnkiConnect，一键创建 Lapis 牌组</td></tr>
+<tr><td data-i18n="dl.guide_r4_a">Anki</td><td data-i18n="dl.guide_r4_b">连上 AnkiDroid / AnkiMobile / AnkiConnect，一键创建 Lapis 牌组</td></tr>
 <tr><td data-i18n="dl.guide_r5_a">备份 · 互联 · 字体</td><td data-i18n="dl.guide_r5_b">按需配置，都可以跳过</td></tr>
 </tbody>
 </table>

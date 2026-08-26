@@ -92,7 +92,7 @@ async function main() {
     await cdp.send('Page.navigate', { url: 'http://127.0.0.1:' + PORT + '/' });
     // 等首页真的装好（语言选择器在、site.js 已跑完 apply）再读，最多 8s；不靠固定 sleep。
     const got = await cdp.send('Runtime.evaluate', {
-      expression: '(function(){ return new Promise(function (res) { var t0 = Date.now(); (function poll(){ var s = document.querySelector(".site-nav-lang-select"); var ready = s && !document.documentElement.classList.contains("i18n-pending"); if (ready || Date.now() - t0 > 8000) return res({ lang: document.documentElement.lang, langs: navigator.languages.join(","), tz: Intl.DateTimeFormat().resolvedOptions().timeZone, auto: s ? s.querySelector("option[value=auto]").textContent : null, url: location.href }); setTimeout(poll, 100); })(); }); })()',
+      expression: '(function(){ return new Promise(function (res) { var t0 = Date.now(); (function poll(){ var s = document.querySelector(".site-nav-lang [data-lang=auto] .site-nav-lang-sub"); var ready = s && s.textContent && !document.documentElement.classList.contains("i18n-pending"); if (ready || Date.now() - t0 > 8000) return res({ lang: document.documentElement.lang, langs: navigator.languages.join(","), tz: Intl.DateTimeFormat().resolvedOptions().timeZone, auto: s ? s.textContent : null, url: location.href }); setTimeout(poll, 100); })(); }); })()',
       returnByValue: true,
       awaitPromise: true,
     });
