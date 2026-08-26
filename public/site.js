@@ -155,7 +155,7 @@
     if (desc && typeof dict['meta.description'] === 'string') desc.setAttribute('content', dict['meta.description']);
     state.dict = dict;
     state.lang = code;
-    syncSelects();
+    syncLangMenus();
     root.classList.remove(PENDING_CLASS);
     document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: dict } }));
   }
@@ -166,7 +166,7 @@
     if (code === SOURCE && !state.dict) {
       state.lang = code;
       root.lang = code; root.dir = 'ltr';
-      syncSelects();
+      syncLangMenus();
       root.classList.remove(PENDING_CLASS);
       document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: {} } }));
       return Promise.resolve();
@@ -188,37 +188,67 @@
     return apply();
   }
 
-  /** 原生 <select> 会按最长的选项撑宽；量一下当前选中项的文字，让它只占自己那么宽。 */
-  function fitSelect(sel) {
-    var opt = sel.options[sel.selectedIndex];
-    if (!opt) return;
-    var probe = document.createElement('span');
-    probe.textContent = opt.textContent;
-    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:inherit;';
-    sel.parentNode.appendChild(probe);
-    var w = probe.getBoundingClientRect().width;
-    probe.remove();
-    var pad = 14 + 2; // 右侧留给壳上的下拉箭头
-    sel.style.width = Math.ceil(w + pad) + 'px';
+  /** 顶栏语言菜单：按钮上显示当前生效的语言，列表里标出当前选择（auto 或语言码），「自动」项带上实际检出的语言名。 */
+  function syncLangMenus() {
+    var roots = document.querySelectorAll('.site-nav-lang');
+    for (var i = 0; i < roots.length; i++) {
+      var root_ = roots[i];
+      var cur = root_.querySelector('.site-nav-lang-current');
+      if (cur) cur.textContent = nameOf(resolve(state.choice));
+      var items = root_.querySelectorAll('.site-nav-lang-menu button[data-lang]');
+      for (var j = 0; j < items.length; j++) {
+        var code = items[j].getAttribute('data-lang');
+        var on = code === state.choice;
+        items[j].classList.toggle('on', on);
+        items[j].setAttribute('aria-selected', on ? 'true' : 'false');
+        if (code === 'auto') {
+          var sub = items[j].querySelector('.site-nav-lang-sub');
+          if (sub) sub.textContent = nameOf(resolve('auto'));
+        }
+      }
+    }
   }
 
-  /** 顶栏 <select>：值 = 选择（auto 或语言码）；「自动」项带上实际检出的语言名。 */
-  function syncSelects() {
-    var sels = document.querySelectorAll('select.site-nav-lang-select');
-    for (var i = 0; i < sels.length; i++) {
-      var sel = sels[i];
-      sel.value = state.choice;
-      var auto = sel.querySelector('option[value="auto"]');
-      if (auto) auto.textContent = t('nav.lang_auto', '自动') + ' · ' + nameOf(resolve('auto'));
-      fitSelect(sel);
+  function closeLangMenus(except) {
+    var roots = document.querySelectorAll('.site-nav-lang');
+    for (var i = 0; i < roots.length; i++) {
+      if (roots[i] === except) continue;
+      var menu = roots[i].querySelector('.site-nav-lang-menu');
+      var btn = roots[i].querySelector('.site-nav-lang-btn');
+      if (menu) menu.hidden = true;
+      if (btn) btn.setAttribute('aria-expanded', 'false');
     }
+  }
+
+  function wireLangMenus() {
+    var roots = document.querySelectorAll('.site-nav-lang');
+    for (var i = 0; i < roots.length; i++) {
+      (function (root_) {
+        var btn = root_.querySelector('.site-nav-lang-btn');
+        var menu = root_.querySelector('.site-nav-lang-menu');
+        if (!btn || !menu) return;
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var open = menu.hidden;
+          closeLangMenus(root_);
+          menu.hidden = !open;
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        menu.addEventListener('click', function (e) {
+          var item = e.target.closest('button[data-lang]');
+          if (!item) return;
+          e.stopPropagation();
+          closeLangMenus();
+          set(item.getAttribute('data-lang'));
+        });
+      })(roots[i]);
+    }
+    document.addEventListener('click', function () { closeLangMenus(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLangMenus(); });
   }
 
   function wireChrome() {
-    var sels = document.querySelectorAll('select.site-nav-lang-select');
-    for (var i = 0; i < sels.length; i++) {
-      sels[i].addEventListener('change', function (e) { set(e.target.value); });
-    }
+    wireLangMenus();
     var totop = document.querySelector('.site-totop');
     if (totop) {
       var threshold = function () { return Math.max(400, window.innerHeight * 0.8); };
@@ -230,7 +260,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
-    syncSelects();
+    syncLangMenus();
   }
 
   var manual = !!(document.currentScript && document.currentScript.getAttribute('data-manual'));

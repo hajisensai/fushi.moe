@@ -173,32 +173,45 @@ body {
 .site-footer-links a.site-footer-ico svg { width: 18px; height: 18px; fill: currentColor; display: block; }
 
 /* ============================== 语言菜单 ============================== */
-/* 原生 <select> 套一层壳：无 JS 也能用、移动端有系统选择器、屏读器认得。
-   选项是各语言的自称，不随界面语言翻译——用户认得的是自己的母语字样。 */
-.site-nav-lang {
-  position: relative; display: inline-flex; align-items: center; gap: 5px;
-  color: var(--ink); cursor: pointer; font-size: 12px;
+/* 自定义菜单而不是原生 <select>：原生下拉的弹出列表是系统样式，和顶栏/汉堡面板不是一套。
+   开合由 /site.js 驱动（hidden 属性 + aria-expanded），点外面 / Esc 关闭。 */
+.site-nav-lang { position: relative; }
+.site-nav-lang-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none; border: 0; margin: 0; padding: 4px 0;
+  font: inherit; font-size: 12px; color: var(--ink); cursor: pointer;
+  white-space: nowrap;
 }
-.site-nav-lang > svg { width: 17px; height: 17px; fill: currentColor; display: block; flex: none; }
-.site-nav-lang-select {
-  appearance: none; -webkit-appearance: none;
-  background: transparent; border: 0; margin: 0;
-  font: inherit; color: inherit; cursor: pointer;
-  padding: 4px 14px 4px 0; max-width: 11em;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.site-nav-lang-btn:hover, .site-nav-lang-btn[aria-expanded="true"] { color: var(--link); }
+.site-nav-lang-btn:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 6px; }
+.site-nav-lang-btn > svg { width: 17px; height: 17px; fill: currentColor; display: block; flex: none; }
+.site-nav-lang-btn > svg.site-nav-lang-chev { width: 12px; height: 12px; fill: none; transition: transform 0.18s ease; }
+.site-nav-lang-btn[aria-expanded="true"] > svg.site-nav-lang-chev { transform: rotate(180deg); }
+.site-nav-lang-menu {
+  position: absolute; right: 0; top: calc(100% + 12px); z-index: 600;
+  margin: 0; padding: 6px; list-style: none;
+  min-width: 200px; max-height: min(70vh, 520px); overflow-y: auto;
+  background: var(--ground);
+  border: 1px solid var(--hairline);
+  border-radius: 14px; box-shadow: var(--card-shadow);
 }
-/* 宽度由 /site.js 按当前选中项量出来（原生 select 会按最长选项撑宽）；这里只兜上限。 */
-.site-nav-lang-select:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
-/* 下拉箭头画在壳上，不占 select 的文字位。 */
-.site-nav-lang::after {
-  content: ""; position: absolute; right: 2px; top: 50%;
-  width: 6px; height: 6px; margin-top: -4px;
-  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
-  transform: rotate(45deg); pointer-events: none;
+.site-nav-lang-menu[hidden] { display: none; }
+.site-nav-lang-menu li { margin: 0; padding: 0; }
+.site-nav-lang-menu button {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  width: 100%; padding: 8px 12px; border: 0; border-radius: 9px;
+  background: none; font: inherit; font-size: 14px; color: var(--ink);
+  text-align: left; cursor: pointer;
 }
-.site-nav-lang:hover { color: var(--link); }
+.site-nav-lang-menu button:hover { background: var(--alt); }
+.site-nav-lang-menu button.on { color: var(--link); font-weight: 600; }
+.site-nav-lang-menu button.on::after { content: "\2713"; font-weight: 600; }
+.site-nav-lang-menu button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+.site-nav-lang-sub { font-size: 12px; font-weight: 400; color: var(--ink-2); margin-left: auto; }
+.site-nav-lang-menu button.on .site-nav-lang-sub { color: var(--link); }
 @media (max-width: 760px) {
-  .site-nav-lang-select { max-width: 6.5em; }
+  .site-nav-lang-current { display: none; }
+  .site-nav-lang-menu { right: -8px; top: calc(var(--nav-h) / 2 + 22px); }
 }
 
 /* ============================== 回到顶部 ============================== */
@@ -226,8 +239,9 @@ body {
    避免先闪一屏中文。 */
 html.i18n-pending body { visibility: hidden; }
 /* 阿拉伯语整页镜像；顶栏的图标/文字顺序跟着 flex 自动翻转，只有绝对定位的东西要手动换边。 */
-[dir="rtl"] .site-nav-lang::after { right: auto; left: 2px; }
-[dir="rtl"] .site-nav-lang-select { padding: 4px 0 4px 14px; }
+[dir="rtl"] .site-nav-lang-menu { right: auto; left: 0; }
+[dir="rtl"] .site-nav-lang-menu button { text-align: right; }
+[dir="rtl"] .site-nav-lang-sub { margin-left: 0; margin-right: auto; }
 @media (max-width: 760px) {
   [dir="rtl"] .site-nav-links { right: auto; left: -12px; }
   [dir="rtl"] .site-nav-burger { margin-right: 0; margin-left: -6px; }
@@ -242,7 +256,7 @@ html.i18n-pending body { visibility: hidden; }
  *     <input class="site-nav-check" type="checkbox" id="site-nav-check">
  *     <label class="site-nav-burger" for="site-nav-check">…</label>
  *     <span class="site-nav-links">…</span>   ← 只放「怎么开始」+ 三个社区图标；「功能」不进顶栏（首页本身就是功能长页）
- *     <label class="site-nav-lang"><svg/><select class="site-nav-lang-select">…</select></label>
+ *     <div class="site-nav-lang"><button class="site-nav-lang-btn">🌐 当前语言 ⌄</button><ul class="site-nav-lang-menu" hidden>…</ul></div>
  *     <a class="btn" href="/download">下载</a>
  *   </div>
  * </nav>
