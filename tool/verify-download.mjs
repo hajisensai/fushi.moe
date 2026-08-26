@@ -209,6 +209,8 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
       });
       var downloadAttrs = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a')).map(function (a) { return a.getAttribute('download'); });
       var directLinks = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a.dl-direct')).map(function (a) { return a.getAttribute('href'); });
+      var fl = document.querySelector('.site-footer-links');
+      var footer = fl ? { text: fl.textContent.replace(/\s+/g, ' ').trim(), icons: fl.querySelectorAll('a.site-footer-ico svg').length } : null;
       return {
         status: status ? status.textContent.replace(/\s+/g, ' ').trim() : null,
         buttons: btns,
@@ -216,6 +218,7 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
         rows: rows,
         downloadAttrs: downloadAttrs,
         directLinks: directLinks,
+        footer: footer,
         firstLink: links[0] || null,
         allLinks: links,
         warn: warn ? warn.textContent.replace(/\s+/g, ' ').trim() : null
@@ -301,6 +304,22 @@ async function main() {
   console.log('  点击后: ' + JSON.stringify(a2));
   check('F 点击后仍在下载页，没有被路由成站内 404', clickState.result.value.clicked && a2.path === '/download.html' && !a2.notFound, JSON.stringify(a2));
   check('F 分片来源探不到时行内给出原因并留「普通下载」，不自动跳走', a2.job !== null && /fallback/.test(a2.job) && /普通下载/.test(a2.text || ''), a2.text);
+
+  console.log('\n--- 场景 G：下载页点顶栏 logo / 底栏「怎么开始」必须真正回到首页 ---');
+  // 首页是静态 index.html，不在 VitePress 路由表里；路由若劫持这些同源链接就是前端 404。
+  for (const [label, sel] of [['顶栏 logo', '.site-nav-brand'], ['底栏「怎么开始」', '.site-footer-links a[href="/#method"]']]) {
+    await runScenario(cdp, 'G ' + label, { cfUp: true, ghUp: true });
+    await cdp.send('Runtime.evaluate', { expression: '(function(){ var a = document.querySelector(' + JSON.stringify(sel) + '); if (a) a.click(); return !!a; })()', returnByValue: true });
+    await new Promise((r) => setTimeout(r, 2500));
+    const g = await cdp.send('Runtime.evaluate', {
+      expression: '(function(){ return { path: location.pathname, hero: !!document.querySelector(".hero"), notFound: !!document.querySelector(".NotFound") || /page not found/i.test(document.body.textContent) }; })()',
+      returnByValue: true,
+    });
+    const gv = g.result.value;
+    check('G ' + label + ' → 回到首页（真实导航，非站内 404）', gv.path === '/' && gv.hero && !gv.notFound, JSON.stringify(gv));
+  }
+  const footerState = await runScenario(cdp, 'G 底栏形状', { cfUp: true, ghUp: true });
+  check('G 底栏无「功能」，社区链接是图标', footerState.footer && !/功能/.test(footerState.footer.text) && footerState.footer.icons === 3, JSON.stringify(footerState.footer));
 
   console.log('\n--- 场景 D：切到调试版 ---');
   const d = await runScenario(cdp, 'D 调试版', { cfUp: true, ghUp: true, channel: '调试版' });
