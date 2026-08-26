@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "مصدر الإصدارات الرسمي",
   "dl.src_timeout": "انتهت المهلة",
   "dl.src_network_error": "خطأ في الشبكة",
-  "dl.testflight": "الانضمام إلى TestFlight"
+  "dl.testflight": "الانضمام إلى TestFlight",
+  "dl.direct_link": "رابط GitHub المباشر",
+  "dl.direct_link_hint": "يمكن لبرامج التنزيل مثل IDM / aria2 تنزيله مباشرة بعدة خيوط",
+  "dl.verifying": "جارٍ التحقق من SHA-256…",
+  "dl.verified": "تم التحقق من SHA-256",
+  "dl.verify_failed": "SHA-256 غير متطابق — الملف تالف، يرجى إعادة التنزيل.",
+  "dl.unverified": "(لم يُنشر مجموع تحقق لهذا الإصدار)"
 }

@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "공식 릴리스 소스",
   "dl.src_timeout": "시간 초과",
   "dl.src_network_error": "네트워크 오류",
-  "dl.testflight": "TestFlight 참여"
+  "dl.testflight": "TestFlight 참여",
+  "dl.direct_link": "GitHub 직접 링크",
+  "dl.direct_link_hint": "IDM / aria2 등 다운로더에서 바로 멀티스레드로 받을 수 있습니다",
+  "dl.verifying": "SHA-256 검증 중…",
+  "dl.verified": "SHA-256 검증 완료",
+  "dl.verify_failed": "SHA-256가 일치하지 않습니다. 파일이 손상되었으니 다시 다운로드하세요.",
+  "dl.unverified": "(이 버전에는 체크섬이 제공되지 않았습니다)"
 }

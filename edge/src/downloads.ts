@@ -332,7 +332,7 @@ function latestManifestResponse(
 
   const slots: Record<
     string,
-    { url: string; githubUrl: string; name: string; size: number } | null
+    { url: string; githubUrl: string; name: string; size: number; sha256: string | null } | null
   > = {};
   const channelPath = channel === 'stable' ? 'latest' : channel;
   for (const slot of Object.keys(SLOTS)) {
@@ -350,6 +350,7 @@ function latestManifestResponse(
           githubUrl: asset.url,
           name: asset.name,
           size: asset.size,
+          sha256: asset.sha256 ?? null,
         }
       : null;
   }

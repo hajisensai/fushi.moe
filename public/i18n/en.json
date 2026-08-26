@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "Official release source",
   "dl.src_timeout": "timed out",
   "dl.src_network_error": "network error",
-  "dl.testflight": "Join TestFlight"
+  "dl.testflight": "Join TestFlight",
+  "dl.direct_link": "GitHub direct link",
+  "dl.direct_link_hint": "IDM / aria2 and similar downloaders can fetch it multi-threaded",
+  "dl.verifying": "Verifying SHA-256…",
+  "dl.verified": "SHA-256 verified",
+  "dl.verify_failed": "SHA-256 mismatch — the file is corrupt, please download again.",
+  "dl.unverified": "(no checksum published for this release)"
 }

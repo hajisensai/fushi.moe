@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "Resmi yayın kaynağı",
   "dl.src_timeout": "zaman aşımı",
   "dl.src_network_error": "ağ hatası",
-  "dl.testflight": "TestFlight'a katıl"
+  "dl.testflight": "TestFlight'a katıl",
+  "dl.direct_link": "GitHub doğrudan bağlantısı",
+  "dl.direct_link_hint": "IDM / aria2 gibi indiriciler bunu doğrudan çok iş parçacıklı indirebilir",
+  "dl.verifying": "SHA-256 doğrulanıyor…",
+  "dl.verified": "SHA-256 doğrulandı",
+  "dl.verify_failed": "SHA-256 eşleşmiyor — dosya bozuk, lütfen yeniden indirin.",
+  "dl.unverified": "(bu sürüm için sağlama toplamı yayınlanmadı)"
 }

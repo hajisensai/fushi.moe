@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "官方發佈來源",
   "dl.src_timeout": "逾時",
   "dl.src_network_error": "網絡錯誤",
-  "dl.testflight": "加入 TestFlight"
+  "dl.testflight": "加入 TestFlight",
+  "dl.direct_link": "GitHub 直接連結",
+  "dl.direct_link_hint": "IDM / aria2 等下載工具可直接對它多線程下載",
+  "dl.verifying": "校驗 SHA-256…",
+  "dl.verified": "SHA-256 校驗通過",
+  "dl.verify_failed": "SHA-256 不符，檔案不完整，請重新下載。",
+  "dl.unverified": "（此版本未提供校驗值）"
 }

@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "公式リリース元",
   "dl.src_timeout": "タイムアウト",
   "dl.src_network_error": "ネットワークエラー",
-  "dl.testflight": "TestFlight に参加"
+  "dl.testflight": "TestFlight に参加",
+  "dl.direct_link": "GitHub 直リンク",
+  "dl.direct_link_hint": "IDM / aria2 などのダウンローダーでそのままマルチスレッド取得できます",
+  "dl.verifying": "SHA-256 を検証中…",
+  "dl.verified": "SHA-256 検証済み",
+  "dl.verify_failed": "SHA-256 が一致しません。ファイルが破損しています。再ダウンロードしてください。",
+  "dl.unverified": "（このバージョンにはチェックサムが公開されていません）"
 }

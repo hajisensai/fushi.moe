@@ -2,7 +2,7 @@
 // 全部用假 fetch，不联网。假来源实现真实 Range 语义并可注入各种故障。
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { randomFillSync } from 'node:crypto';
+import { createHash, randomFillSync } from 'node:crypto';
 
 import {
   DEFAULT_CHUNK_BYTES,
@@ -11,6 +11,8 @@ import {
   createBrowserSink,
   createMemorySink,
   parseContentRange,
+  sha256Hex,
+  verifySink,
 } from '../.vitepress/theme/chunked-download.mjs';
 
 const KiB = 1024;
@@ -27,7 +29,11 @@ const CHUNKS_TOTAL = Math.ceil(FILE.length / CHUNK); // 24
 /**
  * @typedef {'ok' | '500' | 'throw' | 'wrongTotal' | 'ignoreRange' | 'truncate'} Mode
  * @typedef {{ start: number, end: number, requestNo: number }} RequestInfo
- * @typedef {{ id: string, delayMs?: number, ignoresSignal?: boolean, behavior?: (req: RequestInfo) => Mode }} OriginSpec
+ * @typedef {{ pieces?: number, firstDelayMs?: number, pauseAt?: number, pauseMs?: number, hangAt?: number, onPiece?: (i: number) => void }} StreamPlan
+ *   流式响应计划：body 切成 pieces 段（默认 4）；firstDelayMs：发头后第 0 段延迟；pauseAt/pauseMs：发第 pauseAt 段前停顿；
+ *   hangAt：第 hangAt 段永远不发；onPiece：每段发出前回调（测试用来拨假时钟）。
+ * @typedef {{ id: string, delayMs?: number, ignoresSignal?: boolean, behavior?: (req: RequestInfo) => Mode, stream?: (req: RequestInfo) => StreamPlan | undefined }} OriginSpec
+ * @typedef {{ start: number, mode: Mode, requestNo: number, signal: AbortSignal | undefined, cancelled: boolean, streamed: boolean }} LogEntry
  */
 
 /** @returns {Error} */
@@ -70,12 +76,56 @@ function parseRangeHeader(header, fileLength) {
 }
 
 /**
+ * 可控的流式 body：按计划分段、延迟、停顿或永远挂住；被 reader.cancel 时记到 entry.cancelled 并清掉挂着的定时器。
+ * @param {Uint8Array} body
+ * @param {StreamPlan} plan
+ * @param {LogEntry} entry
+ * @returns {ReadableStream<Uint8Array>}
+ */
+function buildStreamingBody(body, plan, entry) {
+  const count = plan.pieces ?? 4;
+  const pieceLen = Math.ceil(body.length / count);
+  /** @type {Uint8Array[]} */
+  const pieces = [];
+  for (let i = 0; i < count; i += 1) pieces.push(body.slice(i * pieceLen, (i + 1) * pieceLen));
+  let next = 0;
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let timer;
+  /** @param {number} ms */
+  const wait = (ms) => new Promise((resolve) => {
+    timer = setTimeout(resolve, ms);
+  });
+  entry.streamed = true;
+  return new ReadableStream({
+    async pull(controller) {
+      if (next === 0 && plan.firstDelayMs) await wait(plan.firstDelayMs);
+      if (plan.hangAt === next) await new Promise(() => {});
+      if (plan.pauseAt === next && plan.pauseMs) await wait(plan.pauseMs);
+      if (entry.cancelled) return;
+      if (next >= pieces.length) {
+        controller.close();
+        return;
+      }
+      if (plan.onPiece) plan.onPiece(next);
+      controller.enqueue(pieces[next]);
+      next += 1;
+    },
+    cancel() {
+      entry.cancelled = true;
+      clearTimeout(timer);
+    },
+  });
+}
+
+/**
  * @param {Uint8Array} file
  * @param {{ start: number, end: number }} range
  * @param {Mode} mode
+ * @param {StreamPlan | undefined} plan
+ * @param {LogEntry} entry
  * @returns {Response}
  */
-function buildResponse(file, range, mode) {
+function buildResponse(file, range, mode, plan, entry) {
   if (mode === '500') return new Response('boom', { status: 500 });
   if (mode === 'throw') throw new TypeError('fetch failed');
   if (mode === 'ignoreRange') {
@@ -89,7 +139,7 @@ function buildResponse(file, range, mode) {
   const total = mode === 'wrongTotal' ? file.length + 1 : file.length;
   let body = file.slice(start, end + 1);
   if (mode === 'truncate') body = body.slice(0, body.length >> 1);
-  return new Response(body, {
+  return new Response(plan ? buildStreamingBody(body, plan, entry) : body, {
     status: 206,
     headers: {
       'content-range': `bytes ${start}-${end}/${total}`,
@@ -110,11 +160,12 @@ function createFakeWorld(file, specs) {
     delayMs: 0,
     ignoresSignal: false,
     behavior: /** @type {(req: RequestInfo) => Mode} */ (() => 'ok'),
+    stream: /** @type {(req: RequestInfo) => StreamPlan | undefined} */ (() => undefined),
     ...spec,
     url: `https://fushi.moe/releases/${spec.id}/fushi-setup.exe`,
     requests: 0,
     served: 0,
-    /** @type {{ start: number, mode: Mode }[]} */
+    /** @type {LogEntry[]} */
     log: [],
   }));
 
@@ -133,9 +184,12 @@ function createFakeWorld(file, specs) {
     try {
       await sleep(origin.delayMs, signal);
       const range = parseRangeHeader(new Headers(init.headers).get('range'), file.length);
-      const mode = origin.behavior({ ...range, requestNo });
-      const res = buildResponse(file, range, mode);
-      origin.log.push({ start: range.start, mode });
+      const req = { ...range, requestNo };
+      const mode = origin.behavior(req);
+      /** @type {LogEntry} */
+      const entry = { start: range.start, mode, requestNo, signal: init.signal ?? undefined, cancelled: false, streamed: false };
+      const res = buildResponse(file, range, mode, mode === 'ok' ? origin.stream(req) : undefined, entry);
+      origin.log.push(entry);
       if (mode === 'ok') origin.served += 1;
       return res;
     } finally {
@@ -605,6 +659,242 @@ test('createBrowserSink：showSaveFilePicker 存在时走文件系统分支；�
     g.showSaveFilePicker = async () => { throw new Error('SecurityError: needs user activation'); };
     const fallback = await createBrowserSink({ filename: 'a.apk', size: 10, save: async () => {} });
     assert.equal(fallback.kind, 'memory');
+  } finally {
+    delete g.showSaveFilePicker;
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 分片看门狗（流式读取）
+// ---------------------------------------------------------------------------
+
+test('15. 首字节超过 firstByteMs：该分片请求被 abort、放回队列，由别的来源完成', async () => {
+  const world = createFakeWorld(FILE, [
+    { id: 'A', delayMs: 2 },
+    { id: 'B', delayMs: 2, stream: ({ requestNo }) => (requestNo === 1 ? { firstDelayMs: 400 } : undefined) },
+  ]);
+  const sink = createMemorySink(FILE.length);
+  const t0 = performance.now();
+  const result = await downloadChunked(baseJob(world, { sink, firstByteMs: 80 }));
+  const elapsed = performance.now() - t0;
+
+  assert.ok(sameBytes(sink.bytes(), FILE), 'bytes differ');
+  assert.deepEqual(result.droppedSources, []);
+  assert.ok(elapsed < 350, `不该等到 400ms 的首字节延迟：elapsed ${elapsed.toFixed(0)}ms`);
+  const stalled = world.origin('B').log.find((e) => e.requestNo === 1);
+  assert.ok(stalled && stalled.streamed, 'B 的第 1 次请求应是流式响应');
+  assert.equal(stalled.cancelled, true, '假流的 cancel 应被调（请求确实被 abort）');
+  assert.equal(stalled.signal?.aborted, true, '该次请求自己的 signal 应已 aborted');
+  assert.equal(world.origin('B').log.filter((e) => e.start === stalled.start).length, 1, 'A 活着时 B 不重试自己卡住的分片');
+  assert.equal(world.origin('A').log.filter((e) => e.start === stalled.start && e.mode === 'ok').length, 1, '卡住的分片由 A 接手');
+});
+
+test('16. 中途停顿超过 stallMs：分片被 abort 重新入队并由别的来源完成', async () => {
+  const world = createFakeWorld(FILE, [
+    { id: 'A', delayMs: 2 },
+    { id: 'B', delayMs: 2, stream: ({ requestNo }) => (requestNo === 2 ? { pauseAt: 2, pauseMs: 400 } : undefined) },
+  ]);
+  const sink = createMemorySink(FILE.length);
+  const t0 = performance.now();
+  const result = await downloadChunked(baseJob(world, { sink, stallMs: 80 }));
+  const elapsed = performance.now() - t0;
+
+  assert.ok(sameBytes(sink.bytes(), FILE), 'bytes differ');
+  assert.deepEqual(result.droppedSources, []);
+  assert.ok(elapsed < 350, `不该等完 400ms 的停顿：elapsed ${elapsed.toFixed(0)}ms`);
+  const stalled = world.origin('B').log.find((e) => e.requestNo === 2);
+  assert.ok(stalled && stalled.streamed);
+  assert.equal(stalled.cancelled, true, '停顿的流应被 cancel');
+  assert.equal(stalled.signal?.aborted, true);
+  assert.equal(world.origin('B').log.filter((e) => e.start === stalled.start).length, 1);
+  assert.equal(world.origin('A').log.filter((e) => e.start === stalled.start && e.mode === 'ok').length, 1, '由 A 接手');
+});
+
+test('16b. 停顿小于 stallMs：正常完成，不算失败（maxSourceFailures=1 也不退出、无重试）', async () => {
+  const world = createFakeWorld(FILE, [
+    { id: 'A', delayMs: 1, stream: ({ requestNo }) => (requestNo === 3 ? { pauseAt: 2, pauseMs: 30 } : undefined) },
+  ]);
+  const sink = createMemorySink(FILE.length);
+  const result = await downloadChunked(baseJob(world, { sink, stallMs: 300, maxSourceFailures: 1 }));
+  assert.ok(sameBytes(sink.bytes(), FILE));
+  assert.deepEqual(result.droppedSources, []);
+  assert.equal(result.perSource.A, FILE.length);
+  const a = world.origin('A');
+  assert.equal(a.requests, CHUNKS_TOTAL, '没有任何重试');
+  assert.ok(a.log.every((e) => !e.cancelled), '没有请求被 abort');
+  assert.ok(a.log.some((e) => e.streamed), '确实走过流式响应');
+});
+
+test('17. 单来源卡住：自己重试成功不退出；连续卡住达 maxSourceFailures 才退出并 reject', async () => {
+  const world = createFakeWorld(FILE, [
+    { id: 'A', delayMs: 1, stream: ({ requestNo }) => (requestNo === 2 ? { hangAt: 1 } : undefined) },
+  ]);
+  const sink = createMemorySink(FILE.length);
+  const result = await downloadChunked(baseJob(world, { sink, stallMs: 50, maxSourceFailures: 2 }));
+  assert.ok(sameBytes(sink.bytes(), FILE));
+  assert.deepEqual(result.droppedSources, []);
+  const a = world.origin('A');
+  assert.equal(a.requests, CHUNKS_TOTAL + 1, '恰好多一次重试');
+  const hung = a.log.find((e) => e.requestNo === 2);
+  assert.ok(hung && hung.cancelled, '挂住的请求被 abort');
+  assert.equal(a.log.filter((e) => e.start === hung.start).length, 2, '同一分片由 A 自己重试');
+
+  const dead = createFakeWorld(FILE, [{ id: 'A', delayMs: 1, stream: () => ({ hangAt: 1 }) }]);
+  const sink2 = recordingSink(createMemorySink(FILE.length));
+  await assert.rejects(
+    downloadChunked(baseJob(dead, { sink: sink2, stallMs: 50, maxSourceFailures: 2 })),
+    { message: 'all sources failed' },
+  );
+  const d = dead.origin('A');
+  assert.ok(d.requests >= 2 && d.requests <= 3, `requests ${d.requests}`);
+  assert.ok(d.log.length >= 2 && d.log.every((e) => e.cancelled), '每次卡住的请求都被 abort');
+  assert.equal(sink2.log.abortCalls, 1);
+  assert.equal(sink2.log.writes, 0);
+  assert.equal(sink2.inner.closed, false);
+});
+
+test('18. 外层 signal 中止：正在流式读取的请求立刻中止，AbortError、sink.abort 被调、不再发 fetch', async () => {
+  const world = createFakeWorld(FILE, [{ id: 'A', delayMs: 1, stream: () => ({ hangAt: 1 }) }]);
+  const sink = recordingSink(createMemorySink(FILE.length));
+  const ac = new AbortController();
+  const job = downloadChunked(baseJob(world, { sink, signal: ac.signal, firstByteMs: 5000, stallMs: 5000 }));
+  await sleep(30, undefined);
+  const inflight = world.origin('A').log.slice();
+  assert.equal(inflight.length, 2, 'perSourceConcurrency=2 → 两个请求在飞');
+  assert.ok(inflight.every((e) => e.streamed && !e.cancelled && e.signal?.aborted === false), '中止前流都还挂着');
+
+  ac.abort();
+  assert.ok(inflight.every((e) => e.cancelled && e.signal?.aborted === true), 'abort() 返回时在飞请求已同步被 abort');
+  await assert.rejects(job, (err) => err.name === 'AbortError');
+  assert.equal(sink.log.abortCalls, 1);
+  assert.equal(sink.inner.aborted, true);
+  assert.equal(sink.log.writes, 0);
+  await sleep(20, undefined);
+  assert.equal(world.stats.totalRequests, 2, '中止后不得再发 fetch');
+});
+
+test('19. firstByteMs / stallMs 参数校验', async () => {
+  const world = createFakeWorld(FILE, [{ id: 'A' }]);
+  const sink = createMemorySink(FILE.length);
+  await assert.rejects(downloadChunked(baseJob(world, { sink, stallMs: 0 })), TypeError);
+  await assert.rejects(downloadChunked(baseJob(world, { sink, firstByteMs: 1.5 })), TypeError);
+  assert.equal(world.stats.totalRequests, 0);
+});
+
+test('20. bytesPerSecond 滑窗吃到分片内的字节段（假时钟：窗口只剩后两段）', async () => {
+  const small = randomFillSync(new Uint8Array(256 * KiB));
+  let clock = 1000;
+  const perf = /** @type {any} */ (globalThis.performance);
+  perf.now = () => clock;
+  try {
+    const world = createFakeWorld(small, [
+      { id: 'A', stream: () => ({ pieces: 4, onPiece: (i) => { if (i > 0) clock += 2000; } }) },
+    ]);
+    const sink = createMemorySink(small.length);
+    /** @type {import('../.vitepress/theme/chunked-download.mjs').ChunkProgress[]} */
+    const progress = [];
+    await downloadChunked(baseJob(world, {
+      sink,
+      size: small.length,
+      chunkBytes: small.length,
+      firstByteMs: 60_000,
+      stallMs: 60_000,
+      onProgress: (p) => progress.push(p),
+    }));
+    assert.ok(sameBytes(sink.bytes(), small));
+    assert.equal(progress.length, 1);
+    // 四段分别在 t=1000/3000/5000/7000 收到；快照在 t=7000，3 秒窗 [4000,7000] 只含后两段 128KiB
+    const expected = (128 * KiB * 1000) / 3000;
+    assert.ok(
+      Math.abs(progress[0].bytesPerSecond - expected) < 1,
+      `bytesPerSecond ${progress[0].bytesPerSecond} != ${expected}（按整片记样本会得到 ${(256 * KiB * 1000) / 3000}）`,
+    );
+    assert.equal(progress[0].bytesDone, small.length);
+  } finally {
+    delete perf.now;
+  }
+  assert.equal(Object.hasOwn(performance, 'now'), false, '假时钟已摘掉，回到原型上的真 performance.now');
+});
+
+// ---------------------------------------------------------------------------
+// SHA-256 校验
+// ---------------------------------------------------------------------------
+
+const SHA_EMPTY = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+const SHA_ABC = 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad';
+
+test('21. sha256Hex 已知向量；verifySink 对内存 sink 判 ok / 不 ok，大小写不敏感', async () => {
+  assert.equal(await sha256Hex(new Uint8Array(0)), SHA_EMPTY);
+  assert.equal(await sha256Hex(new ArrayBuffer(0)), SHA_EMPTY);
+  assert.equal(await sha256Hex(new Blob([])), SHA_EMPTY);
+  assert.equal(await sha256Hex(new TextEncoder().encode('abc')), SHA_ABC);
+  assert.equal(await sha256Hex(new Blob(['abc'])), SHA_ABC);
+  assert.equal(await sha256Hex(new TextEncoder().encode('xabcx').subarray(1, 4)), SHA_ABC, '带 byteOffset 的视图');
+  await assert.rejects(sha256Hex(/** @type {any} */ ('abc')), TypeError);
+
+  const sink = createMemorySink(3);
+  await sink.write(0, new TextEncoder().encode('abc'));
+  await sink.close();
+  assert.deepEqual(await verifySink(sink, SHA_ABC), { ok: true, actual: SHA_ABC });
+  assert.deepEqual(await verifySink(sink, ` ${SHA_ABC.toUpperCase()} `), { ok: true, actual: SHA_ABC });
+  assert.deepEqual(await verifySink(sink, SHA_EMPTY), { ok: false, actual: SHA_ABC });
+  await assert.rejects(verifySink(sink, /** @type {any} */ (undefined)), TypeError);
+  await assert.rejects(verifySink({ write: async () => {}, close: async () => {} }, SHA_ABC), TypeError);
+
+  // 整个下载结果与 node:crypto 交叉验证
+  const world = createFakeWorld(FILE, [{ id: 'A', delayMs: 1 }, { id: 'B', delayMs: 1 }]);
+  const full = createMemorySink(FILE.length);
+  await downloadChunked(baseJob(world, { sink: full }));
+  const expected = createHash('sha256').update(FILE).digest('hex');
+  assert.deepEqual(await verifySink(full, expected), { ok: true, actual: expected });
+  assert.equal((await verifySink(full, SHA_EMPTY)).ok, false);
+});
+
+test('22. 文件系统 sink：file() 只在 close 后可用，verifySink 走 file() 校验整个下载', async () => {
+  /** @type {{ position: number, data: Uint8Array }[]} */
+  const writes = [];
+  let size = 0;
+  const fakeHandle = {
+    async createWritable() {
+      return {
+        /** @param {number} n */
+        async truncate(n) { size = n; },
+        /** @param {{ type: string, position: number, data: Uint8Array }} chunk */
+        async write(chunk) { writes.push({ position: chunk.position, data: chunk.data.slice() }); },
+        async close() {},
+        async abort() {},
+      };
+    },
+    async getFile() {
+      const buf = new Uint8Array(size);
+      for (const w of writes) buf.set(w.data, w.position);
+      return new File([buf], 'fushi-setup.exe');
+    },
+  };
+  const g = /** @type {any} */ (globalThis);
+  g.showSaveFilePicker = async () => fakeHandle;
+  try {
+    const sink = await createBrowserSink({ filename: 'fushi-setup.exe', size: FILE.length });
+    assert.equal(sink.kind, 'filesystem');
+    assert.equal(typeof sink.file, 'function');
+    await assert.rejects(/** @type {any} */ (sink).file(), /after close/);
+
+    const world = createFakeWorld(FILE, [{ id: 'A', delayMs: 1 }, { id: 'B', delayMs: 1 }]);
+    await downloadChunked(baseJob(world, { sink }));
+    const file = await /** @type {any} */ (sink).file();
+    assert.ok(file instanceof File);
+    assert.equal(file.size, FILE.length);
+    assert.equal(writes.length, CHUNKS_TOTAL);
+
+    const expected = createHash('sha256').update(FILE).digest('hex');
+    assert.deepEqual(await verifySink(sink, expected), { ok: true, actual: expected });
+    const flipped = (expected[0] === '0' ? '1' : '0') + expected.slice(1);
+    assert.deepEqual(await verifySink(sink, flipped), { ok: false, actual: expected });
+
+    // abort 过的 sink 拿不到文件
+    const aborted = await createBrowserSink({ filename: 'x.bin', size: 4 });
+    await aborted.abort?.();
+    await assert.rejects(/** @type {any} */ (aborted).file(), /after close/);
   } finally {
     delete g.showSaveFilePicker;
   }
