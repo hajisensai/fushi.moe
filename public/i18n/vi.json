@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "Nguồn phát hành chính thức",
   "dl.src_timeout": "hết thời gian chờ",
   "dl.src_network_error": "lỗi mạng",
-  "dl.testflight": "Tham gia TestFlight"
+  "dl.testflight": "Tham gia TestFlight",
+  "dl.direct_link": "Liên kết trực tiếp GitHub",
+  "dl.direct_link_hint": "IDM / aria2 và các trình tải tương tự có thể tải nó trực tiếp đa luồng",
+  "dl.verifying": "Đang kiểm tra SHA-256…",
+  "dl.verified": "SHA-256 hợp lệ",
+  "dl.verify_failed": "SHA-256 không khớp — tệp bị hỏng, vui lòng tải lại.",
+  "dl.unverified": "(phiên bản này không công bố mã kiểm tra)"
 }

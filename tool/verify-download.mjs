@@ -208,12 +208,14 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
         return tr.querySelector('td b') ? tr.querySelector('td b').textContent.trim() : '';
       });
       var downloadAttrs = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a')).map(function (a) { return a.getAttribute('download'); });
+      var directLinks = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a.dl-direct')).map(function (a) { return a.getAttribute('href'); });
       return {
         status: status ? status.textContent.replace(/\s+/g, ' ').trim() : null,
         buttons: btns,
         channels: channels,
         rows: rows,
         downloadAttrs: downloadAttrs,
+        directLinks: directLinks,
         firstLink: links[0] || null,
         allLinks: links,
         warn: warn ? warn.textContent.replace(/\s+/g, ' ').trim() : null
@@ -259,6 +261,7 @@ async function main() {
   check('A 无源被标成连不上', !a.buttons.some((b) => b.dead));
   check('A 链接是具体安装包而非 Releases 首页', a.firstLink !== null && !a.firstLink.endsWith('/releases/latest'), a.firstLink);
   check('A 显示了版本号', (a.status ?? '').includes('v9.9.9'), a.status);
+  check('A 每行都有 GitHub 直链（给 IDM / aria2 自己多线程）', a.directLinks.length === a.rows.length && a.directLinks.every((h) => /github\.com\/hajisensai\/Fushi\/releases\/download\//.test(h)), JSON.stringify(a.directLinks));
 
   console.log('\n--- 场景 B：CF 不通 ---');
   const b = await runScenario(cdp, 'B CF 不通', { cfUp: false, ghUp: true });

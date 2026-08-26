@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "Sumber rilis resmi",
   "dl.src_timeout": "waktu habis",
   "dl.src_network_error": "kesalahan jaringan",
-  "dl.testflight": "Gabung TestFlight"
+  "dl.testflight": "Gabung TestFlight",
+  "dl.direct_link": "Tautan langsung GitHub",
+  "dl.direct_link_hint": "IDM / aria2 dan pengunduh serupa dapat mengunduhnya langsung secara multi-thread",
+  "dl.verifying": "Memverifikasi SHA-256…",
+  "dl.verified": "SHA-256 terverifikasi",
+  "dl.verify_failed": "SHA-256 tidak cocok — berkas rusak, silakan unduh ulang.",
+  "dl.unverified": "(tidak ada checksum yang dipublikasikan untuk rilis ini)"
 }

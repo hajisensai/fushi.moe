@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "Officiële releasebron",
   "dl.src_timeout": "time-out",
   "dl.src_network_error": "netwerkfout",
-  "dl.testflight": "Deelnemen aan TestFlight"
+  "dl.testflight": "Deelnemen aan TestFlight",
+  "dl.direct_link": "Directe GitHub-link",
+  "dl.direct_link_hint": "IDM / aria2 en vergelijkbare downloaders kunnen hem direct multi-threaded ophalen",
+  "dl.verifying": "SHA-256 controleren…",
+  "dl.verified": "SHA-256 gecontroleerd",
+  "dl.verify_failed": "SHA-256 komt niet overeen — het bestand is beschadigd, download het opnieuw.",
+  "dl.unverified": "(geen controlesom gepubliceerd voor deze release)"
 }

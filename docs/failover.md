@@ -279,11 +279,15 @@ colo 通过普通 Workers Cache 缓存一年，滚动 manifest 只缓存 5 分�
 
 下载页本身还有一层独立的选源：并发探测两个源，自动用通的那个，也允许手动切换（记在 localStorage）。清单三级降级：`fushi.moe/releases/api/latest` → GitHub 静态 `update-manifest` JSON → 静态表。**即使脚本完全没跑起来，SSR 产物里每一行也已经带着可用的 GitHub 链接**，下载页不会变成空壳。
 
-点「下载」时，页面先用 `?src=r2` / `?src=gh` 各发一个小 Range 探测，能用的来源按耗时排序后，
-`.vitepress/theme/chunked-download.mjs` 把文件切成 8 MiB 分片、每来源 2 条连接（全局 ≤4，同域 6 连接上限内）并发拉，
-快来源做完自己的继续从队列取（工作窃取），失败片放回队列优先让别的来源接、连续失败 3 次的来源退出。
-有 `showSaveFilePicker`（Chromium 桌面）就流式写盘；否则整包落内存再存（超过 512 MiB 不冒险）；两个同域来源都探不到就退回普通链接。
-行为由 `tool/chunked-download.test.mjs` 用假 Range 服务覆盖（双源拼接、探测剔除、中途失败换源、忽略 Range 的 200 判失败、全失败、中止、并发上限、快慢分配）。
+点「下载」时，页面先探 `?src=r2`（64 KiB Range，10s）；R2 在就只用 R2，4 条连接（同域 6 连接上限内）。
+`?src=gh` 与 R2 同在 Cloudflare 故障域、Worker 回源 GitHub→Azure 的长尾延迟实测 0.4s～25s+，
+**只在 R2 探不到（比如调试版没镜像）时才试**、探测 6s、不占常规并发——它不是第二条腿。
+`.vitepress/theme/chunked-download.mjs` 把文件切成 8 MiB 分片流式读，分片首字节 10s / 中途 8s 无进度即中止让片重排，
+失败片放回队列（单来源自己重试）、连续失败 3 次退出；拼完按清单 `sha256` 校验（老清单没有就标「未校验」）。
+有 `showSaveFilePicker`（Chromium 桌面）就流式写盘；否则等探测拿到真实大小后整包落内存再存（超过 512 MiB 不冒险）；
+来源都探不到就把每个来源的结论摆在行内 + 「普通下载」链接，不自动跳转。IDM / aria2 用户拿每行的「GitHub 直链」自己多线程。
+行为由 `tool/chunked-download.test.mjs` 覆盖（拼接、探测剔除、中途失败换源、忽略 Range 的 200 判失败、全失败、中止、并发上限、
+首字节/停顿看门狗、sha256 校验）。
 
 ---
 

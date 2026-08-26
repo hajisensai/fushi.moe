@@ -11,7 +11,8 @@
 /**
  * @typedef {{ id: string, url: string, label?: string }} DownloadSource
  * @typedef {{ bytesDone: number, bytesTotal: number, bytesPerSecond: number, perSource: Record<string, number>, activeSources: string[], chunksDone: number, chunksTotal: number }} ChunkProgress
- * @typedef {{ write(position: number, data: Uint8Array): Promise<void>, close(): Promise<void>, abort?(): Promise<void> }} ChunkSink
+ * @typedef {{ write(position: number, data: Uint8Array): Promise<void>, close(): Promise<void>, abort?(): Promise<void>, bytes?(): Uint8Array, file?(): Promise<File> }} ChunkSink
+ *   bytes() / file() 是校验用的取数口：内存 sink 有 bytes()，文件系统 sink 有 file()（close 之后才可用）
  * @typedef {{ index: number, start: number, end: number, lastFailedBy: string | null }} Chunk  start/end 都是含端点的字节下标
  * @typedef {{ id: string, url: string, bytes: number, consecutiveFailures: number, dropped: boolean, workers: number, succeed(n: number): void, fail(): void }} SourceState
  */
@@ -19,6 +20,10 @@
 export const DEFAULT_CHUNK_BYTES = 8 * 1024 * 1024;
 export const DEFAULT_PROBE_BYTES = 64 * 1024;
 export const DEFAULT_PROBE_TIMEOUT_MS = 8000;
+/** 分片看门狗：从发请求到收到首段字节的上限 */
+export const DEFAULT_FIRST_BYTE_MS = 10000;
+/** 分片看门狗：两段字节之间的上限 */
+export const DEFAULT_STALL_MS = 8000;
 /** bytesPerSecond 的滑窗宽度 */
 const SPEED_WINDOW_MS = 3000;
 
@@ -82,22 +87,158 @@ function discardBody(res) {
 }
 
 /**
+ * @param {AbortSignal} signal 已中止的 signal
+ * @returns {unknown} 中止原因（老实现没有 reason 时补一个 AbortError）
+ */
+function abortReason(signal) {
+  return signal.reason ?? createAbortError();
+}
+
+/**
+ * 把外层 signal 的中止转发到本次请求自己的 controller。返回解除转发的函数。
+ * @param {AbortSignal | undefined} outer
+ * @param {AbortController} ctrl
+ * @returns {() => void}
+ */
+function forwardAbort(outer, ctrl) {
+  if (!outer) return () => {};
+  const relay = () => ctrl.abort(abortReason(outer));
+  if (outer.aborted) {
+    relay();
+    return () => {};
+  }
+  outer.addEventListener('abort', relay, { once: true });
+  return () => outer.removeEventListener('abort', relay);
+}
+
+/**
+ * 分片看门狗：arm(ms) 重新计时，到点就中止本次请求（reason 是 name==='TimeoutError' 的 Error）。
+ * ms 为 undefined 表示不设限（probeSources 自己有 timeoutMs）。
+ * @param {AbortController} ctrl
+ * @param {string} url
+ */
+function createWatchdog(ctrl, url) {
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let timer;
+  return {
+    /**
+     * @param {number | undefined} ms
+     * @param {string} what 超时时写进错误信息的阶段名
+     * @returns {void}
+     */
+    arm(ms, what) {
+      clearTimeout(timer);
+      timer = undefined;
+      if (ms === undefined) return;
+      timer = setTimeout(() => {
+        const err = new Error(`range request to ${url}: no ${what} within ${ms}ms`);
+        err.name = 'TimeoutError';
+        ctrl.abort(err);
+      }, ms);
+    },
+    /** @returns {void} */
+    clear() {
+      clearTimeout(timer);
+    },
+  };
+}
+
+/**
+ * 流式读 body 到定长缓冲。ctrl 中止时取消 reader（让挂着的 read() 立刻返回）并抛中止原因；
+ * body 比声明长直接失败（不会为了一个坏来源把超量数据吞进内存）。
+ * @param {Response} res
+ * @param {number} wanted
+ * @param {string} url
+ * @param {AbortController} ctrl
+ * @param {(n: number) => void} onPiece 每收到一段字节调一次
+ * @returns {Promise<Uint8Array>}
+ */
+async function readBodyInto(res, wanted, url, ctrl, onPiece) {
+  if (ctrl.signal.aborted) {
+    discardBody(res);
+    throw abortReason(ctrl.signal);
+  }
+  if (!res.body || typeof res.body.getReader !== 'function') {
+    throw new Error(`range request to ${url}: response has no readable body`);
+  }
+  const data = new Uint8Array(wanted);
+  let received = 0;
+  const reader = res.body.getReader();
+  const onAbort = () => {
+    reader.cancel(abortReason(ctrl.signal)).catch(() => {});
+  };
+  ctrl.signal.addEventListener('abort', onAbort, { once: true });
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (ctrl.signal.aborted) throw abortReason(ctrl.signal);
+      if (done) break;
+      if (received + value.byteLength > wanted) {
+        throw new Error(`range request to ${url}: body longer than ${wanted} bytes`);
+      }
+      data.set(value, received);
+      received += value.byteLength;
+      onPiece(value.byteLength);
+    }
+  } catch (err) {
+    reader.cancel(err).catch(() => {});
+    throw err;
+  } finally {
+    ctrl.signal.removeEventListener('abort', onAbort);
+  }
+  if (received !== wanted) {
+    throw new Error(`range request to ${url}: body ${received} bytes != ${wanted}`);
+  }
+  return data;
+}
+
+/**
  * 发一次 Range 请求并校验：必须 206、Content-Range 与请求一致、total 与预期一致、body 长度正确。
  * 任何一条不满足都 throw（调用方据此判定「该来源此次失败」）。
+ * 每次请求有自己的 AbortController：外层 opts.signal 中止时联动中止；看门狗（firstByteMs：发请求到首段字节；
+ * stallMs：相邻两段字节之间）到点也中止，同样算本次失败。
  * @param {typeof fetch} fetchImpl
  * @param {string} url
  * @param {number} start 含
  * @param {number} end 含
- * @param {{ expectedTotal?: number, allowClampedEnd?: boolean, signal?: AbortSignal }} opts
+ * @param {{ expectedTotal?: number, allowClampedEnd?: boolean, signal?: AbortSignal, firstByteMs?: number, stallMs?: number, onBytes?: (n: number) => void }} opts
  *   allowClampedEnd：探测时文件可能比 probeBytes 还小，允许服务端把 end 夹到 total-1。
+ *   onBytes：每收到一段字节调一次（进度滑窗用）。
  * @returns {Promise<{ data: Uint8Array, total: number }>}
  */
 async function fetchRange(fetchImpl, url, start, end, opts) {
-  const res = await fetchImpl(url, {
-    headers: { Range: `bytes=${start}-${end}` },
-    signal: opts.signal,
-    cache: 'no-store',
-  });
+  const ctrl = new AbortController();
+  const unlink = forwardAbort(opts.signal, ctrl);
+  const watchdog = createWatchdog(ctrl, url);
+  try {
+    watchdog.arm(opts.firstByteMs, 'first byte');
+    const res = await fetchImpl(url, {
+      headers: { Range: `bytes=${start}-${end}` },
+      signal: ctrl.signal,
+      cache: 'no-store',
+    });
+    const range = validateRangeResponse(res, url, start, end, opts);
+    const data = await readBodyInto(res, range.end - range.start + 1, url, ctrl, (n) => {
+      watchdog.arm(opts.stallMs, 'progress');
+      if (opts.onBytes) opts.onBytes(n);
+    });
+    return { data, total: range.total };
+  } finally {
+    watchdog.clear();
+    unlink();
+  }
+}
+
+/**
+ * 校验响应头；不满足就丢弃 body 并 throw。
+ * @param {Response} res
+ * @param {string} url
+ * @param {number} start
+ * @param {number} end
+ * @param {{ expectedTotal?: number, allowClampedEnd?: boolean }} opts
+ * @returns {{ start: number, end: number, total: number }}
+ */
+function validateRangeResponse(res, url, start, end, opts) {
   if (res.status !== 206) {
     discardBody(res);
     throw new Error(`range request to ${url} got ${res.status}, expected 206`);
@@ -116,12 +257,7 @@ async function fetchRange(fetchImpl, url, start, end, opts) {
     discardBody(res);
     throw new Error(`range request to ${url}: total ${range.total} != expected ${opts.expectedTotal}`);
   }
-  const data = new Uint8Array(await res.arrayBuffer());
-  const wanted = range.end - range.start + 1;
-  if (data.byteLength !== wanted) {
-    throw new Error(`range request to ${url}: body ${data.byteLength} bytes != ${wanted}`);
-  }
-  return { data, total: range.total };
+  return range;
 }
 
 // ---------------------------------------------------------------------------
@@ -311,6 +447,8 @@ function createSourceState(source, maxFailures, onDrop) {
 
 /**
  * 进度快照 + 最近 SPEED_WINDOW_MS 的滑窗速率。
+ * 速率样本按「收到的字节段」记（sample），分片内也在动；bytesDone / chunksDone 只在分片落位后记（record）。
+ * 分片中途失败时已收到的字节留在速率窗里（那确实是吞吐），不进 bytesDone。
  * @param {number} size
  * @param {number} chunksTotal
  * @param {SourceState[]} states
@@ -337,13 +475,21 @@ function createProgressTracker(size, chunksTotal, states) {
       return bytesDone;
     },
     /**
+     * 收到一段字节：只进速率滑窗。
+     * @param {number} n
+     * @returns {void}
+     */
+    sample(n) {
+      samples.push({ t: nowMs(), bytes: n });
+    },
+    /**
+     * 一个分片落位。
      * @param {number} n
      * @returns {void}
      */
     record(n) {
       bytesDone += n;
       chunksDone += 1;
-      samples.push({ t: nowMs(), bytes: n });
     },
     /** @returns {Record<string, number>} */
     perSource() {
@@ -407,11 +553,13 @@ function createSemaphore(max) {
  * @property {SourceState[]} states
  * @property {AbortSignal} signal 内部信号：外部 signal 中止或致命错误时触发，传给每个 fetch
  * @property {boolean} aborted
+ * @property {number} firstByteMs
+ * @property {number} stallMs
  * @property {((p: ChunkProgress) => void) | undefined} onProgress
  */
 
 /**
- * 拉一个分片并落位。来源侧失败（非 206 / Content-Range 不对 / 长度不对 / 网络异常）在这里吃掉并
+ * 拉一个分片并落位。来源侧失败（非 206 / Content-Range 不对 / 长度不对 / 网络异常 / 看门狗超时）在这里吃掉并
  * 记到来源状态；sink.write 失败或 onProgress 抛错是致命错误，原样向上抛。
  * @param {JobContext} ctx
  * @param {SourceState} state
@@ -425,6 +573,9 @@ async function transferChunk(ctx, state, chunk) {
     ({ data } = await fetchRange(ctx.fetchImpl, state.url, chunk.start, chunk.end, {
       expectedTotal: ctx.size,
       signal: ctx.signal,
+      firstByteMs: ctx.firstByteMs,
+      stallMs: ctx.stallMs,
+      onBytes: (n) => ctx.progress.sample(n),
     }));
   } catch (err) {
     if (ctx.aborted) return;
@@ -518,12 +669,15 @@ async function abortSink(sink) {
  * 必须 206 且 Content-Range 与请求一致、total 等于 size、长度正确，否则视为失败：分片放回队列
  * （优先让别的来源拿）、该来源连续失败 +1，达到 maxSourceFailures（默认 3）则退出（droppedSources）；
  * 成功一次清零。所有来源都退出而分片没拿完 → reject Error('all sources failed')。
+ * 分片 body 流式读取并带看门狗：发请求到首段字节超过 firstByteMs（默认 10000）、或相邻两段字节之间超过 stallMs
+ * （默认 8000）就中止这次请求，按普通失败处理（放回队列、连续失败 +1）；卡住不是来源已死的强证据，
+ * 但连续卡住同样会达到 maxSourceFailures。
  * 数据经 sink.write(offset, data) 乱序落位，全部写完后 sink.close()。
- * signal 中止 → 停止所有 worker、sink.abort?.()、reject name==='AbortError'。
+ * signal 中止 → 停止所有 worker（正在流式读取的请求立刻中止）、sink.abort?.()、reject name==='AbortError'。
  * sink.write / onProgress 抛错属于致命错误：中止全部、sink.abort?.()、原错误 reject。
- * onProgress 在每个分片完成时调，bytesPerSecond 用最近 ~3 秒滑窗。
+ * onProgress 在每个分片完成时调，bytesPerSecond 用最近 ~3 秒滑窗（样本按收到的字节段计，分片内也在动）。
  *
- * @param {{ sources: DownloadSource[], size: number, sink: ChunkSink, chunkBytes?: number, perSourceConcurrency?: number, maxTotalConcurrency?: number, maxSourceFailures?: number, fetch?: typeof fetch, signal?: AbortSignal, onProgress?: (p: ChunkProgress) => void }} job
+ * @param {{ sources: DownloadSource[], size: number, sink: ChunkSink, chunkBytes?: number, perSourceConcurrency?: number, maxTotalConcurrency?: number, maxSourceFailures?: number, firstByteMs?: number, stallMs?: number, fetch?: typeof fetch, signal?: AbortSignal, onProgress?: (p: ChunkProgress) => void }} job
  * @returns {Promise<{ bytes: number, perSource: Record<string, number>, droppedSources: string[] }>}
  */
 export async function downloadChunked(job) {
@@ -537,6 +691,8 @@ export async function downloadChunked(job) {
   const perSourceConcurrency = requireInt(job.perSourceConcurrency ?? 2, 'perSourceConcurrency', 1);
   const maxTotalConcurrency = requireInt(job.maxTotalConcurrency ?? 4, 'maxTotalConcurrency', 1);
   const maxSourceFailures = requireInt(job.maxSourceFailures ?? 3, 'maxSourceFailures', 1);
+  const firstByteMs = requireInt(job.firstByteMs ?? DEFAULT_FIRST_BYTE_MS, 'firstByteMs', 1);
+  const stallMs = requireInt(job.stallMs ?? DEFAULT_STALL_MS, 'stallMs', 1);
   const fetchImpl = job.fetch ?? globalThis.fetch;
   if (typeof fetchImpl !== 'function') throw new TypeError('downloadChunked: no fetch implementation');
 
@@ -564,6 +720,8 @@ export async function downloadChunked(job) {
     states,
     signal: ctrl.signal,
     aborted: false,
+    firstByteMs,
+    stallMs,
     onProgress,
   };
 
@@ -697,14 +855,15 @@ export async function saveBlobViaAnchor(blob, filename) {
 /**
  * File System Access 流式落盘：createWritable → truncate(size) → write({type:'write', position, data})。
  * WritableStream 内部串行排队，乱序 position 写入是安全的。
- * @param {{ createWritable(): Promise<any> }} handle FileSystemFileHandle
+ * @param {{ createWritable(): Promise<any>, getFile(): Promise<File> }} handle FileSystemFileHandle
  * @param {number} size
- * @returns {Promise<ChunkSink & { kind: 'filesystem' }>}
+ * @returns {Promise<ChunkSink & { kind: 'filesystem', file(): Promise<File> }>}
  */
 async function createFileSystemSink(handle, size) {
   const writable = await handle.createWritable();
   await writable.truncate(size);
   let finished = false;
+  let closed = false;
   return {
     kind: 'filesystem',
     /**
@@ -720,12 +879,21 @@ async function createFileSystemSink(handle, size) {
       if (finished) return;
       finished = true;
       await writable.close();
+      closed = true;
     },
     /** @returns {Promise<void>} */
     async abort() {
       if (finished) return;
       finished = true;
       await writable.abort();
+    },
+    /**
+     * close 成功之后才有完整文件可读（写盘走 WritableStream，close 前内容未落定）。
+     * @returns {Promise<File>}
+     */
+    async file() {
+      if (!closed) throw new Error('filesystem sink: file() is only available after close()');
+      return handle.getFile();
     },
   };
 }
@@ -754,4 +922,47 @@ export async function createBrowserSink(opts) {
     if (handle) return createFileSystemSink(handle, size);
   }
   return buildMemorySink(size, (bytes) => save(new Blob([bytes]), filename));
+}
+
+// ---------------------------------------------------------------------------
+// 校验
+// ---------------------------------------------------------------------------
+
+/**
+ * SHA-256 小写 hex。走 crypto.subtle（需要安全上下文）；Blob 先整体读进内存再算——SubtleCrypto 没有增量接口。
+ * @param {ArrayBuffer | ArrayBufferView | Blob} data
+ * @returns {Promise<string>}
+ */
+export async function sha256Hex(data) {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle || typeof subtle.digest !== 'function') {
+    throw new Error('sha256Hex: crypto.subtle is unavailable (needs a secure context)');
+  }
+  const isBlob = typeof Blob !== 'undefined' && data instanceof Blob;
+  const buf = isBlob ? await data.arrayBuffer() : data;
+  if (!(buf instanceof ArrayBuffer) && !ArrayBuffer.isView(buf)) {
+    throw new TypeError('sha256Hex: data must be an ArrayBuffer, ArrayBufferView or Blob');
+  }
+  const digest = new Uint8Array(await subtle.digest('SHA-256', buf));
+  let hex = '';
+  for (const b of digest) hex += b.toString(16).padStart(2, '0');
+  return hex;
+}
+
+/**
+ * 校验 sink 里落地的完整文件：内存 sink 走 bytes()，文件系统 sink 走 file()（须在 close 之后）。
+ * expectedHex 比较不区分大小写。sink 两种取数口都没有 → throw TypeError。
+ * @param {ChunkSink} sink
+ * @param {string} expectedHex
+ * @returns {Promise<{ ok: boolean, actual: string }>}
+ */
+export async function verifySink(sink, expectedHex) {
+  if (typeof expectedHex !== 'string') throw new TypeError('verifySink: expectedHex must be a string');
+  /** @type {Uint8Array | File | null} */
+  let data = null;
+  if (typeof sink.bytes === 'function') data = sink.bytes();
+  else if (typeof sink.file === 'function') data = await sink.file();
+  if (data === null) throw new TypeError('verifySink: sink has neither bytes() nor file()');
+  const actual = await sha256Hex(data);
+  return { ok: actual === expectedHex.trim().toLowerCase(), actual };
 }

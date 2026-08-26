@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "แหล่งเผยแพร่อย่างเป็นทางการ",
   "dl.src_timeout": "หมดเวลา",
   "dl.src_network_error": "ข้อผิดพลาดของเครือข่าย",
-  "dl.testflight": "เข้าร่วม TestFlight"
+  "dl.testflight": "เข้าร่วม TestFlight",
+  "dl.direct_link": "ลิงก์ตรง GitHub",
+  "dl.direct_link_hint": "โปรแกรมดาวน์โหลดอย่าง IDM / aria2 สามารถดึงไฟล์นี้แบบหลายเธรดได้โดยตรง",
+  "dl.verifying": "กำลังตรวจสอบ SHA-256…",
+  "dl.verified": "ตรวจสอบ SHA-256 ผ่านแล้ว",
+  "dl.verify_failed": "SHA-256 ไม่ตรงกัน — ไฟล์เสียหาย กรุณาดาวน์โหลดใหม่",
+  "dl.unverified": "(รุ่นนี้ไม่มีค่าตรวจสอบเผยแพร่)"
 }

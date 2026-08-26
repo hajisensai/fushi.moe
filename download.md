@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useSiteI18n } from './.vitepress/theme/i18n.js'
-import { probeSources, downloadChunked, createBrowserSink } from './.vitepress/theme/chunked-download.mjs'
+import { probeSources, downloadChunked, createBrowserSink, verifySink } from './.vitepress/theme/chunked-download.mjs'
 
 /*
  * 下载页：发布通道 × 下载源 × 分片加速。
@@ -14,11 +14,14 @@ import { probeSources, downloadChunked, createBrowserSink } from './.vitepress/t
  * github.com 是直连。哪条通、哪条快因人而异，默认「自动」并发探一次谁先应答用谁，
  * 选择记在 localStorage。
  *
- * 分片加速（IDM 那种多线程 Range 下载）：点「下载」时浏览器把安装包切成 8 MiB 分片，
- * 同时从两个**同域**来源并发拉——`?src=r2`（R2 镜像）与 `?src=gh`（Worker 边缘代理
- * GitHub，逐字节相同）——快源抢活、失败片换源重试，拼好后保存。GitHub 直链没有 CORS，
- * 不能当 fetch 来源，所以「GitHub 直连」永远只是普通链接。分片走不通（浏览器不支持、
- * 两个同域来源都探不到、文件太大放不进内存且没有文件系统 API）就退回普通链接。
+ * 分片加速（多连接 Range 下载）：点「下载」时浏览器把安装包切成 8 MiB 分片、4 条连接
+ * 并发拉，分片首字节 / 中途无进度超时即让出重排，拼好后按清单里的 SHA-256 校验。
+ * 来源只有一个主源：`?src=r2`（R2 镜像）。`?src=gh`（Worker 边缘代理 GitHub）与 R2 同在
+ * Cloudflare 故障域、且回源 GitHub 的长尾延迟实测 0.4s～25s+，**只在 R2 探不到（比如
+ * 调试版没镜像）时作兜底**，不占常规并发。GitHub 直链没有 CORS，不能当 fetch 来源，
+ * 所以「GitHub 直连」永远只是普通链接——IDM / aria2 用户拿它自己多线程即可。
+ * 分片走不通（浏览器不支持、来源都探不到、文件太大放不进内存且没有文件系统 API）
+ * 就退回普通链接。
  *
  * 渐进增强：下面的静态表格本身就是可用的 GitHub 链接。脚本没跑起来时页面仍然是一张
  * 能点的下载表。
@@ -32,6 +35,11 @@ const GH_MANIFEST_BASE = 'https://raw.githubusercontent.com/hajisensai/Fushi/upd
 const PROBE_TIMEOUT_MS = 4000
 /** 分片来源探测（64 KiB Range）给足时间：跨境到 CF 的首包可能好几秒。 */
 const CHUNK_PROBE_TIMEOUT_MS = 10000
+/** 兜底来源（边缘代理 GitHub）的探测要短：它本来就只在主源不可用时才轮到。 */
+const FALLBACK_PROBE_TIMEOUT_MS = 6000
+/** 分片首字节 / 中途无进度的看门狗：超过就让出这片重排（单来源时自己重试）。 */
+const CHUNK_FIRST_BYTE_MS = 10000
+const CHUNK_STALL_MS = 8000
 const STORE_KEY = 'fushi-download-mirror'
 /**
  * iOS 走 TestFlight，不再直接发 ipa。填上公开邀请链接（https://testflight.apple.com/join/…）
@@ -198,6 +206,12 @@ function downloadNameFor(slot) {
   return release.value?.slots?.[slot]?.name || 'fushi'
 }
 
+/** GitHub 原始直链：给 IDM / aria2 这类自带多线程的下载器。 */
+function githubUrlFor(slot) {
+  const info = release.value?.slots?.[slot]
+  return (info && info.githubUrl) || ''
+}
+
 function sizeFor(slot) {
   const bytes = release.value?.slots?.[slot]?.size
   if (!bytes) return ''
@@ -253,14 +267,18 @@ function onDownloadClick(e, slot) {
 async function startChunked(slot, info) {
   const tag = release.value.tag
   const controller = new AbortController()
-  const job = reactive({ state: 'probing', pct: 0, speed: '', split: '', error: '', reasons: [], href: hrefFor(slot), controller })
+  const job = reactive({ state: 'probing', pct: 0, speed: '', split: '', error: '', reasons: [], verify: '', href: hrefFor(slot), controller })
   jobs[slot] = job
 
   let sink = null
   // 文件选择器必须在点击手势里同步打开（await 之后手势就没了），所以它排在探测之前。
+  // 此时文件大小可能还不知道（老清单没有 size），文件系统 sink 不在乎（按位写会自动撑大）；
+  // 但若选择器打不开（无手势 / 不安全上下文）createBrowserSink 会内部回落成内存 sink——
+  // 那个是按 size=0 分配的空壳，必须丢掉，等探测拿到真实大小后再建。
   if (typeof window.showSaveFilePicker === 'function') {
     try {
       sink = await createBrowserSink({ filename: info.name, size: info.size || 0 })
+      if (sink.kind !== 'filesystem') { await sink.abort?.().catch(() => {}); sink = null }
     } catch (err) {
       if (err && err.name === 'AbortError') { delete jobs[slot]; return }
       sink = null
@@ -268,22 +286,17 @@ async function startChunked(slot, info) {
   }
 
   const base = DL_BASE + '/v/' + encodeURIComponent(tag) + '/' + encodeURIComponent(info.name)
-  const candidates = [
-    { id: 'r2', url: base + '?src=r2', label: 'Cloudflare 镜像' },
-    { id: 'gh', url: base + '?src=gh', label: 'GitHub 边缘代理' },
-  ]
-  // 先各发一个 1 字节 Range，把每个来源的真实应答（状态码 / 超时 / 网络错）记下来：
-  // 退回普通下载时要把原因摆给用户看，而不是无声地跳走。
-  const reasons = await Promise.all(candidates.map((c) => describeSource(c)))
+  const primary = { id: 'r2', url: base + '?src=r2', label: 'Cloudflare 镜像' }
+  const fallback = { id: 'gh', url: base + '?src=gh', label: 'GitHub 边缘代理' }
+  // 先探主源；主源在就只用主源。边缘代理 GitHub 只在主源探不到时才试，且超时更短——
+  // 它和 R2 同在 Cloudflare 故障域，只是没镜像时的兜底，不是第二条腿。
+  // 每次探测的真实应答（状态码 / 超时 / 网络错）记下来：退回普通下载时把原因摆给用户看。
+  const reasons = []
+  let probedSources = await probeOne(primary, reasons, CHUNK_PROBE_TIMEOUT_MS, info.size)
+  if (!probedSources) probedSources = await probeOne(fallback, reasons, FALLBACK_PROBE_TIMEOUT_MS, info.size)
   job.reasons = reasons
   console.info('[fushi download] sources', reasons)
-  let probedSources
-  try {
-    probedSources = await probeSources(candidates, { expectedSize: info.size || undefined, timeoutMs: CHUNK_PROBE_TIMEOUT_MS })
-  } catch {
-    probedSources = { sources: [], size: 0 }
-  }
-  if (!probedSources.sources.length || !probedSources.size) {
+  if (!probedSources) {
     if (sink && sink.abort) await sink.abort().catch(() => {})
     fallbackToPlain(slot, job)
     return
@@ -306,6 +319,11 @@ async function startChunked(slot, info) {
       sources: probedSources.sources,
       size,
       sink,
+      // 单来源：4 条连接全给它（同域 6 连接上限内，留 2 条给页面自己）。
+      perSourceConcurrency: 4,
+      maxTotalConcurrency: 4,
+      firstByteMs: CHUNK_FIRST_BYTE_MS,
+      stallMs: CHUNK_STALL_MS,
       signal: controller.signal,
       onProgress: (p) => {
         job.pct = Math.floor((p.bytesDone / p.bytesTotal) * 100)
@@ -314,7 +332,20 @@ async function startChunked(slot, info) {
       },
     })
     job.pct = 100
-    job.state = 'done'
+    // 拼完按清单 SHA-256 校验；老版本清单没有校验值就如实标「未校验」。
+    if (info.sha256) {
+      job.state = 'verifying'
+      try {
+        const v = await verifySink(sink, info.sha256)
+        job.verify = v.ok ? 'ok' : 'mismatch'
+      } catch {
+        job.verify = 'unavailable'
+      }
+    } else {
+      job.verify = 'unavailable'
+    }
+    job.state = job.verify === 'mismatch' ? 'failed' : 'done'
+    if (job.verify === 'mismatch') job.error = t('dl.verify_failed', 'SHA-256 不匹配，文件不完整，请重新下载。')
   } catch (err) {
     if (err && err.name === 'AbortError') { delete jobs[slot]; return }
     job.state = 'failed'
@@ -322,13 +353,27 @@ async function startChunked(slot, info) {
   }
 }
 
+/**
+ * 探一个来源：先发 1 字节 Range 记结论（给用户看），再用 probeSources 做正式探测
+ * （64 KiB、校验 Content-Range 与总大小）。可用返回 { sources, size }，否则 null。
+ */
+async function probeOne(source, reasons, timeoutMs, expectedSize) {
+  reasons.push(await describeSource(source, timeoutMs))
+  try {
+    const r = await probeSources([source], { expectedSize: expectedSize || undefined, timeoutMs })
+    return r.sources.length && r.size ? r : null
+  } catch {
+    return null
+  }
+}
+
 /** 一个来源的探测结论，形如「Cloudflare 镜像: 206 · 1.2s」「GitHub 边缘代理: 502」「…: 超时」。 */
-async function describeSource(c) {
+async function describeSource(c, timeoutMs) {
   const t0 = performance.now()
   try {
     const res = await withTimeout(
       fetch(c.url, { headers: { Range: 'bytes=0-0' }, cache: 'no-store' }),
-      CHUNK_PROBE_TIMEOUT_MS,
+      timeoutMs,
     )
     try { await res.arrayBuffer() } catch { /* 只看状态 */ }
     const ms = Math.round(performance.now() - t0)
@@ -423,6 +468,7 @@ onMounted(async () => {
           <a v-else :href="hrefFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" @click="onDownloadClick($event, p.slot)">
             {{ t('dl.download', '下载') }}<span v-if="sizeFor(p.slot)"> · {{ sizeFor(p.slot) }}</span>
           </a>
+          <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" :title="t('dl.direct_link_hint', 'IDM / aria2 等下载器可直接对它多线程')">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
         </template>
         <div v-else class="dl-job" :class="jobs[p.slot].state">
           <template v-if="jobs[p.slot].state === 'probing'">
@@ -435,8 +481,13 @@ onMounted(async () => {
             <span class="dl-job-split" v-if="jobs[p.slot].split">{{ jobs[p.slot].split }}</span>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_cancel', '取消') }}</button>
           </template>
+          <template v-else-if="jobs[p.slot].state === 'verifying'">
+            <span class="dl-bar"><i style="width:100%"></i></span>
+            <span class="dl-job-line">{{ t('dl.verifying', '校验 SHA-256…') }}</span>
+          </template>
           <template v-else-if="jobs[p.slot].state === 'done'">
             <span class="dl-job-ok">{{ t('dl.chunk_done', '已完成，文件已保存') }}</span>
+            <span class="dl-job-split">{{ jobs[p.slot].verify === 'ok' ? t('dl.verified', 'SHA-256 校验通过') : t('dl.unverified', '（此版本未提供校验值）') }}</span>
             <span class="dl-job-split" v-if="jobs[p.slot].split">{{ jobs[p.slot].split }}</span>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_close', '收起') }}</button>
           </template>
@@ -535,6 +586,11 @@ onMounted(async () => {
   display: inline-block; white-space: nowrap;
   color: var(--link); font-weight: 500;
 }
+.dl-table td:last-child a.dl-direct {
+  display: block; margin-top: 4px;
+  font-size: 12px; font-weight: 400; color: var(--ink-2);
+}
+.dl-table td:last-child a.dl-direct:hover { color: var(--link); }
 .dl-job { display: flex; flex-direction: column; gap: 4px; min-width: 150px; font-size: 13px; }
 .dl-job button {
   align-self: flex-start;

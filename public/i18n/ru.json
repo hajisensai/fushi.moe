@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "Официальный источник релизов",
   "dl.src_timeout": "таймаут",
   "dl.src_network_error": "ошибка сети",
-  "dl.testflight": "Присоединиться к TestFlight"
+  "dl.testflight": "Присоединиться к TestFlight",
+  "dl.direct_link": "Прямая ссылка GitHub",
+  "dl.direct_link_hint": "IDM / aria2 и подобные загрузчики могут качать её напрямую в несколько потоков",
+  "dl.verifying": "Проверка SHA-256…",
+  "dl.verified": "SHA-256 совпадает",
+  "dl.verify_failed": "SHA-256 не совпадает — файл повреждён, скачайте его заново.",
+  "dl.unverified": "(для этого релиза контрольная сумма не опубликована)"
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { handleDownload, manifestUrlFor } from '../src/downloads';
-import { parseChannel, resolveSlot, manifestFromPublished } from '../src/manifest';
+import { parseChannel, resolveSlot, manifestFromPublished, normalizeSha256 } from '../src/manifest';
 import { fakeR2, settings, store } from './fakes';
 
 /*
@@ -17,7 +17,7 @@ const STABLE = JSON.stringify({
   tag: 'v1.2.3',
   channel: 'formal',
   assets: [
-    { name: 'fushi-1.2.3-windows-setup.exe', size: 10, browser_download_url: 'https://github.com/owner/repo/releases/download/v1.2.3/fushi-1.2.3-windows-setup.exe' },
+    { name: 'fushi-1.2.3-windows-setup.exe', size: 10, browser_download_url: 'https://github.com/owner/repo/releases/download/v1.2.3/fushi-1.2.3-windows-setup.exe', sha256: 'SHA256:' + 'AB'.repeat(32) },
   ],
 });
 
@@ -101,6 +101,17 @@ describe('manifestUrlFor', () => {
   });
 });
 
+describe('normalizeSha256', () => {
+  it('只认 64 位 hex，归一成小写，允许 sha256: 前缀；其它形状一律当没有', () => {
+    expect(normalizeSha256('AB'.repeat(32))).toBe('ab'.repeat(32));
+    expect(normalizeSha256('sha256:' + 'cd'.repeat(32))).toBe('cd'.repeat(32));
+    expect(normalizeSha256('not-a-hash')).toBeUndefined();
+    expect(normalizeSha256('ab'.repeat(31))).toBeUndefined();
+    expect(normalizeSha256(42)).toBeUndefined();
+    expect(normalizeSha256(undefined)).toBeUndefined();
+  });
+});
+
 describe('parseChannel / slots', () => {
   it('latest 是 stable 的别名，未知值判空而不是当 stable', () => {
     expect(parseChannel(null)).toBe('stable');
@@ -142,6 +153,16 @@ describe('handleDownload 通道', () => {
     const body = (await res.json()) as { channel: string; tag: string };
     expect(body.channel).toBe('stable');
     expect(body.tag).toBe('v1.2.3');
+  });
+
+  it('清单里的 sha256 透传到槽位（归一小写）；没有的槽位给 null 而不是漏掉字段', async () => {
+    const res = await handleDownload(new Request('https://fushi.moe/api/latest'), deps(manifests().fn));
+    const body = (await res.json()) as { slots: Record<string, { sha256: string | null } | null> };
+    expect(body.slots['windows']?.sha256).toBe('ab'.repeat(32));
+    const dbg = await handleDownload(new Request('https://fushi.moe/api/latest?channel=debug'), deps(manifests().fn));
+    const dbody = (await dbg.json()) as { slots: Record<string, { sha256: string | null } | null> };
+    expect(dbody.slots['windows']).not.toBeNull();
+    expect(dbody.slots['windows']?.sha256).toBeNull();
   });
 
   it('未知通道 404', async () => {

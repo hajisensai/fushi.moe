@@ -4,6 +4,17 @@ export interface ReleaseAsset {
   readonly size: number;
   /** GitHub 直链，永远是最后一层兜底。 */
   readonly url: string;
+  /** 发布时对产物算的 SHA-256（小写 hex）；老清单没有，下载页据此决定校不校验。 */
+  readonly sha256?: string;
+}
+
+const SHA256_HEX = /^[0-9a-f]{64}$/;
+
+/** 只认 64 位 hex；大小写归一。不合形状就当没有，别把垃圾值交给客户端去比对。 */
+export function normalizeSha256(raw: unknown): string | undefined {
+  if (typeof raw !== 'string') return undefined;
+  const lower = raw.trim().toLowerCase().replace(/^sha256:/, '');
+  return SHA256_HEX.test(lower) ? lower : undefined;
 }
 
 /** 发布通道。update-manifest 分支按通道各放一份静态 JSON：latest-<channel>-fushi.json。 */
@@ -54,6 +65,7 @@ interface PublishedAsset {
   name?: unknown;
   size?: unknown;
   browser_download_url?: unknown;
+  sha256?: unknown;
 }
 
 /** 把 update-manifest 分支的静态 JSON 收敛成清单。 */
@@ -70,6 +82,7 @@ export function manifestFromPublished(raw: unknown): ReleaseManifest | null {
       name: a.name,
       size: typeof a.size === 'number' ? a.size : 0,
       url: a.browser_download_url,
+      sha256: normalizeSha256(a.sha256),
     });
   }
   return {

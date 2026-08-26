@@ -155,5 +155,11 @@
   "dl.mirror_gh_hint": "Fonte ufficiale delle release",
   "dl.src_timeout": "tempo scaduto",
   "dl.src_network_error": "errore di rete",
-  "dl.testflight": "Unisciti a TestFlight"
+  "dl.testflight": "Unisciti a TestFlight",
+  "dl.direct_link": "Link diretto GitHub",
+  "dl.direct_link_hint": "IDM / aria2 e download manager simili possono scaricarlo direttamente in multi-thread",
+  "dl.verifying": "Verifica SHA-256 in corso…",
+  "dl.verified": "SHA-256 verificato",
+  "dl.verify_failed": "SHA-256 non corrispondente — il file è danneggiato, scaricalo di nuovo.",
+  "dl.unverified": "(nessun checksum pubblicato per questa release)"
 }
