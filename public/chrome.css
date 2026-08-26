@@ -168,6 +168,9 @@ body {
   color: var(--ink);
 }
 .site-footer-legal a { text-decoration: underline; text-underline-offset: 3px; }
+/* 底栏社区链接只放图标（与顶栏同一份 svg）；文字链保留「怎么开始」「下载」。 */
+.site-footer-links a.site-footer-ico { display: inline-flex; align-items: center; vertical-align: middle; }
+.site-footer-links a.site-footer-ico svg { width: 18px; height: 18px; fill: currentColor; display: block; }
 
 /* ============================== 语言菜单 ============================== */
 /* 原生 <select> 套一层壳：无 JS 也能用、移动端有系统选择器、屏读器认得。
@@ -245,6 +248,8 @@ html.i18n-pending body { visibility: hidden; }
  * </nav>
  * …
  * <a class="site-totop" href="#top">↑</a>   ← 页面末尾，/site.js 按滚动距离显隐
+ * 底栏：<nav class="site-footer-links">怎么开始 · 下载 · GitHub/Discord/QQ 三个图标（a.site-footer-ico）</nav>
+ * Layout.vue 里顶栏与底栏还要带 vp-raw（VitePress 路由放行，首页不在它的路由表里）。
  *
  * 注意顺序：checkbox 必须排在 .site-nav-links 前面，:checked ~ 才选得到它。
  * 可翻译文案都挂 data-i18n / data-i18n-attr，键名见 public/i18n/zh-CN.json。
