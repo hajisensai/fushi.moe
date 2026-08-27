@@ -185,6 +185,22 @@ async function main() {
   const title = await evaluate('document.title');
   check('标题非空', typeof title === 'string' && title.length > 0, JSON.stringify(title));
 
+  const gameCardImage = await evaluate(`(function(){
+    var img = document.querySelector('.pcell[href="#sec-g"] img');
+    return img ? {
+      src: img.getAttribute('src'),
+      complete: img.complete,
+      width: img.naturalWidth,
+      height: img.naturalHeight
+    } : null;
+  })()`);
+  check(
+    '游戏入口卡片使用当前 Hook 演示图且成功加载',
+    gameCardImage && gameCardImage.src === '/demo/media/e6c5fafa4c001798.jpg' &&
+      gameCardImage.complete && gameCardImage.width > 0 && gameCardImage.height > 0,
+    JSON.stringify(gameCardImage),
+  );
+
   const giftLink = await evaluate(`(function(){
     var a = document.querySelector('.site-footer-gift > a');
     var code = document.querySelector('.site-footer-gift code');
