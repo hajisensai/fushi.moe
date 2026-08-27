@@ -145,13 +145,23 @@ async function main() {
 
   const t0 = Date.now();
   await cdp.send('Page.navigate', { url: 'http://127.0.0.1:' + PORT + '/' });
-  await new Promise((resolve) => {
-    cdp.onEvent((m) => {
-      if (m.method === 'Page.loadEventFired') resolve();
-    });
-    setTimeout(resolve, 25000);
+  let pageLoaded = false;
+  cdp.onEvent((m) => {
+    if (m.method === 'Page.loadEventFired') pageLoaded = true;
   });
-  const loadMs = Date.now() - t0;
+  let interactiveReady = false;
+  while (Date.now() - t0 < 25000) {
+    const state = await cdp.send('Runtime.evaluate', {
+      expression: 'typeof FUSHI_DEMO_DATA !== "undefined" && typeof FUSHI_TERMMAP !== "undefined"',
+      returnByValue: true,
+    });
+    if (state.result?.value === true) {
+      interactiveReady = true;
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  const readyMs = Date.now() - t0;
 
   const evaluate = async (expr) => {
     const r = await cdp.send('Runtime.evaluate', {
@@ -166,7 +176,11 @@ async function main() {
   };
 
   console.log('\n--- 断言 ---');
-  check('页面 load 事件触发', true, loadMs + 'ms');
+  check(
+    '首页交互脚本就绪（不等待第三方字体）',
+    interactiveReady,
+    readyMs + 'ms' + (pageLoaded ? ' / load 已触发' : ' / load 仍等待第三方资源'),
+  );
 
   const title = await evaluate('document.title');
   check('标题非空', typeof title === 'string' && title.length > 0, JSON.stringify(title));
@@ -238,6 +252,27 @@ async function main() {
   })()`);
   check('点字符能触发查词弹窗（同步读到异步填充的词库）', lookup.ok === true, JSON.stringify(lookup).slice(0, 220));
 
+  const popupOuterScroll = await evaluate(`(function(){
+    return new Promise(function(resolve){
+      var before = window.scrollY;
+      window.dispatchEvent(new Event('scroll'));
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        resolve({
+          before: before,
+          after: window.scrollY,
+          popupCount: document.querySelectorAll('.hibiki-popup-card').length,
+          bodyOverflow: document.body.style.overflow || ''
+        });
+      }); });
+    });
+  })()`);
+  check(
+    '外层 scroll 首帧关闭查词栈且不锁 body',
+    popupOuterScroll.popupCount === 0 &&
+      popupOuterScroll.bodyOverflow !== 'hidden',
+    JSON.stringify(popupOuterScroll),
+  );
+
   const audioShape = await evaluate(
     '(function(){ var ks = Object.keys(FUSHI_AUDIO); var v = FUSHI_AUDIO[ks[0]]; return { n: ks.length, sample: String(v).slice(0, 40), isDataUri: String(v).startsWith("data:") }; })()',
   );
@@ -285,6 +320,59 @@ async function main() {
     });
   })()`);
   check('抽出的 demo 视频真能解码', videoPlayable.ok === true, JSON.stringify(videoPlayable).slice(0, 160));
+
+  const videoContinues = await evaluate(`(function(){
+    var v = document.getElementById('demo-video');
+    if (!v) return Promise.resolve({ ok: false, err: 'missing demo-video' });
+    v.currentTime = 0;
+    return v.play().then(function(){
+      return new Promise(function(resolve){
+        setTimeout(function(){
+          var r = { ok: !v.paused && v.currentTime > 2.5, paused: v.paused, currentTime: v.currentTime };
+          v.pause();
+          resolve(r);
+        }, 3200);
+      });
+    }).catch(function(e){ return { ok: false, err: String(e) }; });
+  })()`);
+  check('交互视频点击播放后持续超过 3 秒', videoContinues.ok === true, JSON.stringify(videoContinues));
+
+  const visibleShotPlays = await evaluate(`(function(){
+    var active = document.getElementById('shot-a');
+    var inactive = document.getElementById('shot-c');
+    if (!active || !inactive) return Promise.resolve({ ok: false, err: 'missing shot video' });
+    active.scrollIntoView({ block: 'center' });
+    return new Promise(function(resolve){
+      setTimeout(function(){
+        resolve({
+          ok: !active.paused && active.currentTime > 0.5 && inactive.paused,
+          activePaused: active.paused,
+          activeTime: active.currentTime,
+          activeNeedsPlay: active.closest('.shotbox').classList.contains('needs-play'),
+          inactivePaused: inactive.paused
+        });
+      }, 1800);
+    });
+  })()`);
+  check('实机录屏进入视口才播放，离屏录屏保持暂停', visibleShotPlays.ok === true, JSON.stringify(visibleShotPlays));
+
+  const shotPlayFallback = await evaluate(`(function(){
+    var v = document.getElementById('shot-a');
+    var box = v && v.closest('.shotbox');
+    var button = box && box.querySelector('.shotplay');
+    if (!v || !box || !button) return Promise.resolve({ ok: false, err: 'missing fallback control' });
+    v.pause();
+    return new Promise(function(resolve){
+      setTimeout(function(){
+        var shown = box.classList.contains('needs-play');
+        button.click();
+        setTimeout(function(){
+          resolve({ ok: shown && !v.paused, shown: shown, pausedAfterClick: v.paused });
+        }, 350);
+      }, 0);
+    });
+  })()`);
+  check('录屏暂停时显示播放按钮，点击可恢复', shotPlayFallback.ok === true, JSON.stringify(shotPlayFallback));
 
   const imgOk = await evaluate(`(function(){
     var imgs = [].slice.call(document.images).filter(function (i) { return String(i.getAttribute('src') || '').startsWith('/demo/media/'); });
