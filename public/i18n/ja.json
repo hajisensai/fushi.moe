@@ -10,6 +10,8 @@
   "nav.menu": "メニューを開く",
   "nav.totop": "トップへ戻る",
   "footer.legal": "<a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a> ライセンスで公開",
+  "footer.gift_claude": "Claude Max を贈る",
+  "footer.gift_recipient": "受取人メール：",
   "home.hero.eyebrow": "無料・オープンソース · GPLv3",
   "home.hero.title": "検索・ダウンロード・再生・読書・<br>辞書引き・カード作成まで、すべて Fushi で",
   "home.hero.copy": "アニメと漫画の検索、自動追跡とダウンロード、動画再生、漫画と小説の読書、オーディオブック同期、Galgame のテキスト・音声 Hook（Windows）。知らない単語はその場で辞書を引き、原文・画像・原音声付きの Anki カードにできます。",

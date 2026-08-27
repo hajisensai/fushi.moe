@@ -185,6 +185,24 @@ async function main() {
   const title = await evaluate('document.title');
   check('标题非空', typeof title === 'string' && title.length > 0, JSON.stringify(title));
 
+  const giftLink = await evaluate(`(function(){
+    var a = document.querySelector('.site-footer-gift > a');
+    var code = document.querySelector('.site-footer-gift code');
+    return a && code ? {
+      href: a.href,
+      target: a.target,
+      rel: a.rel,
+      recipient: code.textContent.trim()
+    } : null;
+  })()`);
+  check(
+    '首页礼赠入口只指向 Claude 官方页面并显示收件邮箱',
+    giftLink && giftLink.href === 'https://claude.ai/gift' &&
+      giftLink.target === '_blank' && giftLink.rel.includes('noopener') &&
+      giftLink.recipient === 'vw6cnhd9f7@privaterelay.appleid.com',
+    JSON.stringify(giftLink),
+  );
+
   const termmap = await evaluate(
     'FUSHI_DEMO_DATA.termmapPromise.then(function(){ return { ready: FUSHI_DEMO_DATA.termmapReady, failed: FUSHI_DEMO_DATA.termmapFailed, keys: Object.keys(FUSHI_TERMMAP).length }; })',
   );

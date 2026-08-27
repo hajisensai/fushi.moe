@@ -10,6 +10,8 @@
   "nav.menu": "展开菜单",
   "nav.totop": "回到顶部",
   "footer.legal": "以 <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a> 许可发布",
+  "footer.gift_claude": "赠送 Claude Max",
+  "footer.gift_recipient": "收件邮箱：",
   "home.hero.eyebrow": "免费开源 · GPLv3",
   "home.hero.title": "搜索、下载、播放<br>阅读、查词、制卡<br>都在 Fushi",
   "home.hero.copy": "动漫与漫画搜索、自动追更和下载，视频播放、漫画与小说阅读、有声书同步，以及 Galgame 文本与语音 Hook（Windows）。遇到生词可以直接查词，并制作带原句、画面和原声的 Anki 卡片。",

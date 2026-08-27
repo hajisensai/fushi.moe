@@ -10,6 +10,8 @@
   "nav.menu": "Ouvrir le menu",
   "nav.totop": "Retour en haut",
   "footer.legal": "Publié sous licence <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>",
+  "footer.gift_claude": "Offrir Claude Max",
+  "footer.gift_recipient": "E-mail du destinataire : ",
   "home.hero.eyebrow": "Gratuit et open source · GPLv3",
   "home.hero.title": "Rechercher, télécharger, regarder, lire,<br>consulter et créer des cartes — tout dans Fushi",
   "home.hero.copy": "Recherche d’anime et de manga, suivi et téléchargements automatiques, lecture vidéo, lecture de mangas et de romans, synchronisation des livres audio et hooks texte et voix pour Galgame (Windows). Recherchez les mots inconnus sur-le-champ et transformez-les en cartes Anki avec la phrase, l’image et l’audio d’origine.",

@@ -211,6 +211,14 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
       var directLinks = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a.dl-direct')).map(function (a) { return a.getAttribute('href'); });
       var fl = document.querySelector('.site-footer-links');
       var footer = fl ? { text: fl.textContent.replace(/\s+/g, ' ').trim(), icons: fl.querySelectorAll('a.site-footer-ico svg').length } : null;
+      var giftLink = document.querySelector('.site-footer-gift > a');
+      var giftCode = document.querySelector('.site-footer-gift code');
+      var gift = giftLink && giftCode ? {
+        href: giftLink.href,
+        target: giftLink.target,
+        rel: giftLink.rel,
+        recipient: giftCode.textContent.trim()
+      } : null;
       return {
         status: status ? status.textContent.replace(/\s+/g, ' ').trim() : null,
         buttons: btns,
@@ -219,6 +227,7 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
         downloadAttrs: downloadAttrs,
         directLinks: directLinks,
         footer: footer,
+        gift: gift,
         firstLink: links[0] || null,
         allLinks: links,
         warn: warn ? warn.textContent.replace(/\s+/g, ' ').trim() : null
@@ -320,6 +329,13 @@ async function main() {
   }
   const footerState = await runScenario(cdp, 'G 底栏形状', { cfUp: true, ghUp: true });
   check('G 底栏无「功能」，社区链接是图标', footerState.footer && !/功能/.test(footerState.footer.text) && footerState.footer.icons === 3, JSON.stringify(footerState.footer));
+  check(
+    'G 礼赠入口只指向 Claude 官方页面并显示收件邮箱',
+    footerState.gift && footerState.gift.href === 'https://claude.ai/gift' &&
+      footerState.gift.target === '_blank' && footerState.gift.rel.includes('noopener') &&
+      footerState.gift.recipient === 'vw6cnhd9f7@privaterelay.appleid.com',
+    JSON.stringify(footerState.gift),
+  );
 
   console.log('\n--- 场景 D：切到调试版 ---');
   const d = await runScenario(cdp, 'D 调试版', { cfUp: true, ghUp: true, channel: '调试版' });

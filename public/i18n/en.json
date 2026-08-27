@@ -10,6 +10,8 @@
   "nav.menu": "Open menu",
   "nav.totop": "Back to top",
   "footer.legal": "Released under the <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>",
+  "footer.gift_claude": "Gift Claude Max",
+  "footer.gift_recipient": "Recipient email: ",
   "home.hero.eyebrow": "Free & open source · GPLv3",
   "home.hero.title": "Search, download, play, read,<br>look up and make cards — all in Fushi",
   "home.hero.copy": "Anime and manga search, automatic updates and downloads, video playback, manga and novel reading, audiobook sync, and Galgame text and voice hooks (Windows). Look up unfamiliar words on the spot and turn them into Anki cards with the original sentence, image and audio.",

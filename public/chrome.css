@@ -179,6 +179,18 @@ body {
 /* 底栏社区链接只放图标（与顶栏同一份 svg）；文字链保留「怎么开始」「下载」。 */
 .site-footer-links a.site-footer-ico { display: inline-flex; align-items: center; vertical-align: middle; }
 .site-footer-links a.site-footer-ico svg { width: 18px; height: 18px; fill: currentColor; display: block; }
+.site-footer-gift {
+  display: flex; justify-content: center; align-items: center; flex-wrap: wrap;
+  gap: 6px 10px; margin: 2px 0; color: var(--ink-2);
+}
+.site-footer-gift > a { color: var(--link); font-weight: 500; }
+.site-footer-gift > a::after { content: " ↗"; }
+.site-footer-gift > a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+.site-footer-gift code {
+  padding: 3px 7px; border: 1px solid var(--hairline); border-radius: 6px;
+  background: var(--alt); color: var(--ink); font: inherit;
+  overflow-wrap: anywhere; user-select: all;
+}
 
 /* ============================== 语言菜单 ============================== */
 /* 自定义菜单而不是原生 <select>：原生下拉的弹出列表是系统样式，和顶栏/汉堡面板不是一套。
