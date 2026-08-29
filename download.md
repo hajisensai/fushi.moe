@@ -65,7 +65,6 @@ const PLATFORMS = [
   { slot: 'android-x64',       nameZh: 'Android (x86_64)',  noteKey: 'dl.p_android_x64',       noteZh: '模拟器 / x86 平板',                   channels: ['stable'] },
   { slot: 'android-universal', nameZh: 'Android',           noteKey: 'dl.p_android_universal', noteZh: '通用包，含全部架构，体积较大',         channels: ['debug'] },
   { slot: 'windows',           nameZh: 'Windows',           noteKey: 'dl.p_windows',           noteZh: '含 Galgame 语音挖掘、桌面划词',        channels: ['stable', 'debug'] },
-  { slot: 'windows-portable',  nameZh: 'Windows（免安装）',  noteKey: 'dl.p_windows_portable',  noteZh: '解压即用；不建快捷方式、不注册文件关联、不自动更新', channels: ['stable', 'debug'] },
   { slot: 'macos',             nameZh: 'macOS',             noteKey: 'dl.p_macos',             noteZh: 'Apple Silicon 与 Intel 通用',         channels: ['stable', 'debug'] },
   { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装',                 channels: ['stable', 'debug'], testflight: true },
 ]
@@ -345,8 +344,21 @@ function sourceLabel(id) {
   return id === 'r2' ? t('dl.src_r2', 'Cloudflare 镜像') : t('dl.src_gh', 'GitHub 边缘代理')
 }
 
+/**
+ * 分片必须能把片直接写进磁盘文件。没有 File System Access（Firefox / Safari /
+ * 所有移动浏览器）就只剩「整包塞进 Uint8Array、拼完再 Blob 复制一份」这一条路，
+ * 而安装包是 238～319 MB：峰值要两倍体积的内存，移动端的标签页会被系统直接杀掉，
+ * 中途关页也全白下。这种浏览器不该进分片——不拦截点击，让 <a download> 走浏览器
+ * 原生下载，那才是选源器里写的「不支持的浏览器自动退回普通下载」。
+ * @returns {boolean}
+ */
+function canStreamToDisk() {
+  return typeof window !== 'undefined' && typeof window.showSaveFilePicker === 'function'
+}
+
 function chunkSupported() {
-  return typeof window !== 'undefined' && typeof window.fetch === 'function' && typeof AbortController === 'function'
+  return typeof window !== 'undefined' && typeof window.fetch === 'function' &&
+    typeof AbortController === 'function' && canStreamToDisk()
 }
 
 /** 点击「下载」：能分片就在页内分片并发下；否则让 <a> 照常导航。 */
@@ -369,7 +381,7 @@ async function startChunked(slot, info) {
   // 此时文件大小可能还不知道（老清单没有 size），文件系统 sink 不在乎（按位写会自动撑大）；
   // 但若选择器打不开（无手势 / 不安全上下文）createBrowserSink 会内部回落成内存 sink——
   // 那个是按 size=0 分配的空壳，必须丢掉，等探测拿到真实大小后再建。
-  if (typeof window.showSaveFilePicker === 'function') {
+  if (canStreamToDisk()) {
     try {
       sink = await createBrowserSink({ filename: info.name, size: info.size || 0 })
       if (sink.kind !== 'filesystem') { await sink.abort?.().catch(() => {}); sink = null }
@@ -386,8 +398,17 @@ async function startChunked(slot, info) {
   // 它和 R2 同在 Cloudflare 故障域，只是没镜像时的兜底，不是第二条腿。
   // 每次探测的真实应答（状态码 / 超时 / 网络错）记下来：退回普通下载时把原因摆给用户看。
   const reasons = []
-  let probedSources = await probeOne(primary, reasons, CHUNK_PROBE_TIMEOUT_MS, info.size)
-  if (!probedSources) probedSources = await probeOne(fallback, reasons, FALLBACK_PROBE_TIMEOUT_MS, info.size)
+  const signal = controller.signal
+  let probedSources = await probeOne(primary, reasons, CHUNK_PROBE_TIMEOUT_MS, info.size, signal)
+  if (!probedSources && !signal.aborted) {
+    probedSources = await probeOne(fallback, reasons, FALLBACK_PROBE_TIMEOUT_MS, info.size, signal)
+  }
+  // 探测期间被取消：cancelJob 已经把这一行摘回可点的下载链接了，这里只负责收尾，
+  // 绝不能再往下走去建 sink / 开传输。
+  if (signal.aborted) {
+    if (sink && sink.abort) await sink.abort().catch(() => {})
+    return
+  }
   job.reasons = reasons
   console.info('[fushi download] sources', reasons)
   if (!probedSources) {
@@ -451,10 +472,11 @@ async function startChunked(slot, info) {
  * 探一个来源：先发 1 字节 Range 记结论（给用户看），再用 probeSources 做正式探测
  * （64 KiB、校验 Content-Range 与总大小）。可用返回 { sources, size }，否则 null。
  */
-async function probeOne(source, reasons, timeoutMs, expectedSize) {
-  reasons.push(await describeSource(source, timeoutMs))
+async function probeOne(source, reasons, timeoutMs, expectedSize, signal) {
+  reasons.push(await describeSource(source, timeoutMs, signal))
+  if (signal && signal.aborted) return null
   try {
-    const r = await probeSources([source], { expectedSize: expectedSize || undefined, timeoutMs })
+    const r = await probeSources([source], { expectedSize: expectedSize || undefined, timeoutMs, signal })
     return r.sources.length && r.size ? r : null
   } catch {
     return null
@@ -462,11 +484,11 @@ async function probeOne(source, reasons, timeoutMs, expectedSize) {
 }
 
 /** 一个来源的探测结论，形如「Cloudflare 镜像: 206 · 1.2s」「GitHub 边缘代理: 502」「…: 超时」。 */
-async function describeSource(c, timeoutMs) {
+async function describeSource(c, timeoutMs, signal) {
   const t0 = performance.now()
   try {
     const res = await withTimeout(
-      fetch(c.url, { headers: { Range: 'bytes=0-0' }, cache: 'no-store' }),
+      fetch(c.url, { headers: { Range: 'bytes=0-0' }, cache: 'no-store', signal }),
       timeoutMs,
     )
     try { await res.arrayBuffer() } catch { /* 只看状态 */ }
@@ -483,11 +505,17 @@ function fallbackToPlain(slot, job) {
   job.state = 'fallback'
 }
 
+/*
+ * 取消 = 中止在飞的请求 + 立刻把这一行摘回可点的下载链接。
+ * 以前在探测阶段只 abort 不摘行，而那时的探测请求根本没接 signal：UI 会一直停在
+ * 「正在探测来源…」，直到十几秒后探测自己跑完，才由 downloadChunked 抛 AbortError
+ * 把行删掉——用户看到的就是「点了没反应，过一会儿自己恢复原样」。
+ */
 function cancelJob(slot) {
   const job = jobs[slot]
   if (!job) return
-  if (job.state === 'downloading' || job.state === 'probing') job.controller.abort()
-  else delete jobs[slot]
+  job.controller.abort()
+  delete jobs[slot]
 }
 
 onMounted(async () => {
@@ -590,12 +618,14 @@ onMounted(async () => {
             <span>{{ t('dl.chunk_fallback', '分片来源不可用，请用普通下载。') }}</span>
             <span class="dl-job-split" v-for="r in jobs[p.slot].reasons" :key="r.id">{{ r.text }}</span>
             <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
+            <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_close', '收起') }}</button>
           </template>
           <template v-else>
             <span class="dl-job-err">{{ t('dl.chunk_failed', '分片下载失败。') }}</span>
             <span class="dl-job-split" v-if="jobs[p.slot].error">{{ jobs[p.slot].error }}</span>
             <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
+            <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_close', '收起') }}</button>
           </template>
         </div>
@@ -676,7 +706,16 @@ onMounted(async () => {
 .dl-buttons button.dead { opacity: 0.5; }
 .dl-buttons small { color: var(--ink-2); margin-left: 0.3rem; }
 .dl-chunk-note { font-size: 13px; color: var(--ink-2); margin: 12px 0 0 !important; line-height: 1.5; }
-.dl-table { display: table; width: 100%; }
+/*
+ * table-layout: fixed —— 三列宽度只由下面的百分比决定，与单元格内容无关。
+ * 以前用默认的 auto：点「下载」后第三格从一条链接变成「探测中 / 进度条 / 取消」，
+ * 宽度需求一变浏览器就重算整张表的列宽，说明列被挤窄、文字重新折行，整页跳一下
+ * （窄屏手机上最明显：说明列会从 3 行变 5 行）。
+ */
+.dl-table { display: table; width: 100%; table-layout: fixed; }
+.dl-table th:first-child, .dl-table td:first-child { width: 26%; }
+.dl-table th:last-child, .dl-table td:last-child { width: 34%; }
+.dl-table td { vertical-align: top; }
 .dl-table td:last-child a {
   display: inline-block; white-space: nowrap;
   color: var(--link); font-weight: 500;
@@ -686,7 +725,7 @@ onMounted(async () => {
   font-size: 12px; font-weight: 400; color: var(--ink-2);
 }
 .dl-table td:last-child a.dl-direct:hover { color: var(--link); }
-.dl-job { display: flex; flex-direction: column; gap: 4px; min-width: 150px; font-size: 13px; }
+.dl-job { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 13px; }
 .dl-job button {
   align-self: flex-start;
   padding: 2px 10px; border: 1px solid var(--hairline); border-radius: 980px;

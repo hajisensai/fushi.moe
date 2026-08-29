@@ -273,27 +273,46 @@ function validateRangeResponse(res, url, start, end, opts) {
  * @param {number | undefined} expectedSize
  * @returns {Promise<(DownloadSource & { probeMs: number, total: number }) | null>}
  */
-function probeOne(fetchImpl, source, probeBytes, timeoutMs, expectedSize) {
+function probeOne(fetchImpl, source, probeBytes, timeoutMs, expectedSize, signal) {
   return new Promise((resolve) => {
     const ctrl = new AbortController();
     const t0 = nowMs();
-    const timer = setTimeout(() => {
+    let settled = false;
+    /** @type {ReturnType<typeof setTimeout>} */
+    let timer;
+    /**
+     * @param {(DownloadSource & { probeMs: number, total: number }) | null} value
+     * @returns {void}
+     */
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (signal) signal.removeEventListener('abort', onAbort);
+      resolve(value);
+    };
+    /** @returns {void} */
+    const onAbort = () => {
       ctrl.abort();
-      resolve(null);
-    }, timeoutMs);
+      finish(null);
+    };
+    timer = setTimeout(onAbort, timeoutMs);
+    // 外部 signal（页面上的「取消」）必须能立刻掐断探测，否则取消之后这几个请求还在飞，
+    // 调用方只能干等它们自己超时——页面上表现为「点了取消没反应」。
+    if (signal) {
+      if (signal.aborted) {
+        onAbort();
+        return;
+      }
+      signal.addEventListener('abort', onAbort);
+    }
     fetchRange(fetchImpl, source.url, 0, Math.max(probeBytes, 1) - 1, {
       expectedTotal: expectedSize,
       allowClampedEnd: true,
       signal: ctrl.signal,
     }).then(
-      ({ total }) => {
-        clearTimeout(timer);
-        resolve({ ...source, probeMs: nowMs() - t0, total });
-      },
-      () => {
-        clearTimeout(timer);
-        resolve(null);
-      },
+      ({ total }) => finish({ ...source, probeMs: nowMs() - t0, total }),
+      () => finish(null),
     );
   });
 }
@@ -320,7 +339,7 @@ function majorityTotal(probes) {
  * expectedSize 给了则 total 不等的来源视为不可用（防两个来源指向不同文件）；没给则按多数票选 total，
  * 与之不等的来源同样剔除（调用方知道发布清单里的体积时务必传 expectedSize）。
  * @param {DownloadSource[]} sources
- * @param {{ fetch?: typeof fetch, probeBytes?: number, timeoutMs?: number, expectedSize?: number }} [opts]
+ * @param {{ fetch?: typeof fetch, probeBytes?: number, timeoutMs?: number, expectedSize?: number, signal?: AbortSignal }} [opts]
  * @returns {Promise<{ sources: (DownloadSource & { probeMs: number })[], size: number }>}
  */
 export async function probeSources(sources, opts = {}) {
@@ -329,7 +348,7 @@ export async function probeSources(sources, opts = {}) {
   const probeBytes = opts.probeBytes ?? DEFAULT_PROBE_BYTES;
   const timeoutMs = opts.timeoutMs ?? DEFAULT_PROBE_TIMEOUT_MS;
   const results = await Promise.all(
-    sources.map((s) => probeOne(fetchImpl, s, probeBytes, timeoutMs, opts.expectedSize)),
+    sources.map((s) => probeOne(fetchImpl, s, probeBytes, timeoutMs, opts.expectedSize, opts.signal)),
   );
   const ok = results
     .filter(/** @returns {r is NonNullable<typeof r>} */ (r) => r !== null)
