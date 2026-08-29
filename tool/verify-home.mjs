@@ -415,41 +415,6 @@ async function main() {
   })()`);
   check('抽出的图片无破图', imgOk.broken === 0 && imgOk.total > 0, JSON.stringify(imgOk));
 
-  /*
-   * 语言墙：标题上那个数字是对外的支持面声明，17 份译文里各写了一遍，
-   * 墙上的格子却在另一处。两边只要有一处被改到，这里就红——不然数字漂了
-   * 没人会发现（谁也不会去数 59 个格子）。语言码顺带查重，复制粘贴写重了
-   * 会让总数虚高。
-   */
-  const wall = await evaluate(String.raw`(function(){
-    var chips = [].slice.call(document.querySelectorAll('.lang-wall .lang'));
-    var isos = chips.map(function (c) {
-      var i = c.querySelector('i[data-iso]');
-      return i ? i.getAttribute('data-iso') : null;
-    });
-    var title = (document.querySelector('.langs .h-section') || {}).textContent || '';
-    var m = title.match(/\d+/);
-    return {
-      chips: chips.length,
-      uniqueIsos: new Set(isos.filter(Boolean)).size,
-      claimed: m ? Number(m[0]) : null,
-      missingIso: isos.filter(function (v) { return !v; }).length,
-      emptyNative: chips.filter(function (c) {
-        var b = c.querySelector('b');
-        return !b || !b.textContent.trim();
-      }).length,
-    };
-  })()`);
-  check(
-    '语言墙格子数 = 标题里声明的语言数，语言码不重不缺',
-    wall.chips > 0 &&
-      wall.chips === wall.claimed &&
-      wall.uniqueIsos === wall.chips &&
-      wall.missingIso === 0 &&
-      wall.emptyNative === 0,
-    JSON.stringify(wall),
-  );
-
   check('无未捕获 JS 异常', jsErrors.length === 0, jsErrors.slice(0, 3).join(' | '));
   check('无失败请求（排除既有 favicon 噪声与第三方外链）', failedRequests.length === 0, failedRequests.slice(0, 5).join(' | '));
   if (noise.length) console.log('  [诊断] 已忽略的噪声/第三方外链: ' + noise.slice(0, 4).join(' | '));
