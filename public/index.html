@@ -840,7 +840,10 @@
      （59 种具体语言 + 一条 Any / Unknown 通用项，通用项不进墙）。
      第二行的语言名不写死：只有 zh-CN 一份在标记里，其余界面语言在运行时用
      Intl.DisplayNames 按 data-iso 生成，省掉 59 x 17 条翻译；CLDR 认不出的
-     （aii / tok）回落 data-en。 -->
+     （aii / tok）回落 data-en。
+     lang 用 BCP-47、data-iso 用 Yomitan 的语言码，两者只有塞尔维亚-克罗地亚语一处不同：
+     Yomitan 用 sh（IANA 已于 2010 弃用，但 CLDR 认得，Intl.DisplayNames 要它），
+     lang 得写没被弃用的 hbs。 -->
 <section class="langs black-band center" id="languages">
   <div class="head tight rev">
     <p class="eyebrow" data-i18n="home.sec.langs">语言</p>
@@ -897,7 +900,7 @@
     <li class="lang"><b lang="ro">Română</b><i data-iso="ro" data-en="Romanian">罗马尼亚语</i></li>
     <li class="lang"><b lang="ru">Русский</b><i data-iso="ru" data-en="Russian">俄语</i></li>
     <li class="lang"><b lang="sga">Goídelc</b><i data-iso="sga" data-en="Old Irish">古爱尔兰语</i></li>
-    <li class="lang"><b lang="sh">Srpskohrvatski</b><i data-iso="sh" data-en="Serbo-Croatian">塞尔维亚-克罗地亚语</i></li>
+    <li class="lang"><b lang="hbs">Srpskohrvatski</b><i data-iso="sh" data-en="Serbo-Croatian">塞尔维亚-克罗地亚语</i></li>
     <li class="lang"><b lang="sq">Shqip</b><i data-iso="sq" data-en="Albanian">阿尔巴尼亚语</i></li>
     <li class="lang"><b lang="sv">Svenska</b><i data-iso="sv" data-en="Swedish">瑞典语</i></li>
     <li class="lang"><b lang="th">ไทย</b><i data-iso="th" data-en="Thai">泰语</i></li>

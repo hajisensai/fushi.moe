@@ -421,14 +421,14 @@ async function main() {
    * 没人会发现（谁也不会去数 59 个格子）。语言码顺带查重，复制粘贴写重了
    * 会让总数虚高。
    */
-  const wall = await evaluate(`(function(){
+  const wall = await evaluate(String.raw`(function(){
     var chips = [].slice.call(document.querySelectorAll('.lang-wall .lang'));
     var isos = chips.map(function (c) {
       var i = c.querySelector('i[data-iso]');
       return i ? i.getAttribute('data-iso') : null;
     });
     var title = (document.querySelector('.langs .h-section') || {}).textContent || '';
-    var m = title.match(/\\d+/);
+    var m = title.match(/\d+/);
     return {
       chips: chips.length,
       uniqueIsos: new Set(isos.filter(Boolean)).size,
