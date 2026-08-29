@@ -142,6 +142,7 @@
   "dl.p_android_x64": "Emulator / tablet x86",
   "dl.p_android_universal": "Paket universal berisi semua arsitektur, ukurannya lebih besar",
   "dl.p_windows": "Termasuk penambangan suara Galgame dan pencarian kata di desktop",
+  "dl.p_windows_portable": "Ekstrak dan jalankan; tanpa pintasan, asosiasi berkas, atau pembaruan otomatis",
   "dl.p_macos": "Untuk Apple Silicon maupun Intel",
   "dl.p_ios": "Pasang lewat TestFlight",
   "dl.mirror_cf": "Mirror Cloudflare",

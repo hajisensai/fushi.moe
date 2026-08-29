@@ -142,6 +142,7 @@
   "dl.p_android_x64": "อีมูเลเตอร์ / แท็บเล็ต x86",
   "dl.p_android_universal": "แพ็กเกจรวมทุกสถาปัตยกรรม ไฟล์ใหญ่กว่า",
   "dl.p_windows": "มีการดึงเสียง Galgame และค้นคำบนเดสก์ท็อป",
+  "dl.p_windows_portable": "แตกไฟล์แล้วใช้ได้ทันที ไม่สร้างทางลัด ไม่ผูกไฟล์ ไม่อัปเดตอัตโนมัติ",
   "dl.p_macos": "ใช้ได้ทั้ง Apple Silicon และ Intel",
   "dl.p_ios": "ติดตั้งผ่าน TestFlight",
   "dl.mirror_cf": "มิเรอร์ Cloudflare",

@@ -142,6 +142,7 @@
   "dl.p_android_x64": "Giả lập / máy tính bảng x86",
   "dl.p_android_universal": "Gói chung chứa mọi kiến trúc, dung lượng lớn hơn",
   "dl.p_windows": "Có thêm khai thác giọng nói Galgame và tra từ trên màn hình desktop",
+  "dl.p_windows_portable": "Giải nén là chạy; không tạo lối tắt, không liên kết tệp, không tự cập nhật",
   "dl.p_macos": "Dùng chung cho Apple Silicon và Intel",
   "dl.p_ios": "Cài qua TestFlight",
   "dl.mirror_cf": "Mirror Cloudflare",

@@ -61,6 +61,7 @@ const PLATFORMS = [
   { slot: 'android-x64',       nameZh: 'Android (x86_64)',  noteKey: 'dl.p_android_x64',       noteZh: '模拟器 / x86 平板',                   channels: ['stable'] },
   { slot: 'android-universal', nameZh: 'Android',           noteKey: 'dl.p_android_universal', noteZh: '通用包，含全部架构，体积较大',         channels: ['debug'] },
   { slot: 'windows',           nameZh: 'Windows',           noteKey: 'dl.p_windows',           noteZh: '含 Galgame 语音挖掘、桌面划词',        channels: ['stable', 'debug'] },
+  { slot: 'windows-portable',  nameZh: 'Windows（免安装）',  noteKey: 'dl.p_windows_portable',  noteZh: '解压即用；不建快捷方式、不注册文件关联、不自动更新', channels: ['stable', 'debug'] },
   { slot: 'macos',             nameZh: 'macOS',             noteKey: 'dl.p_macos',             noteZh: 'Apple Silicon 与 Intel 通用',         channels: ['stable', 'debug'] },
   { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装',                 channels: ['stable', 'debug'], testflight: true },
 ]
@@ -72,6 +73,7 @@ const SLOT_PATTERNS = {
   'android-x64':       /^fushi-.*-x86_64\.apk$/,
   'android-universal': /^fushi-.*-debug\.apk$/,
   windows:             /^fushi-.*-windows-setup\.exe$/,
+  'windows-portable':  /^fushi-.*-windows-x64\.zip$/,
   macos:               /^fushi-.*-macos\.zip$/,
   ios:                 /^fushi-.*-ios\.ipa$/,
 }
@@ -522,7 +524,7 @@ onMounted(async () => {
 <p>浏览器禁用了 JavaScript，下面是直接的 GitHub 下载入口 / JavaScript is disabled; direct GitHub links:</p>
 <ul>
 <li><a href="https://github.com/hajisensai/Fushi/releases/latest">最新 Release / Latest release</a></li>
-<li>Android → <code>arm64</code> <code>.apk</code>；Windows → <code>.exe</code>；macOS → <code>.zip</code>；iOS → <code>.ipa</code></li>
+<li>Android → <code>arm64</code> <code>.apk</code>；Windows → <code>.exe</code>（安装器）/ <code>-windows-x64.zip</code>（免安装）；macOS → <code>.zip</code>；iOS → <code>.ipa</code></li>
 </ul>
 </noscript>
 

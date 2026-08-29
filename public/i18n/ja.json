@@ -142,6 +142,7 @@
   "dl.p_android_x64": "エミュレーター / x86 タブレット向け",
   "dl.p_android_universal": "全アーキテクチャを含む汎用パッケージ。サイズは大きめ",
   "dl.p_windows": "Galgame の音声マイニングとデスクトップ上のテキスト検索を搭載",
+  "dl.p_windows_portable": "解凍してすぐ使える。ショートカット・ファイル関連付け・自動更新はなし",
   "dl.p_macos": "Apple Silicon と Intel の両対応",
   "dl.p_ios": "TestFlight 経由でインストール",
   "dl.mirror_cf": "Cloudflare ミラー",

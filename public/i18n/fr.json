@@ -142,6 +142,7 @@
   "dl.p_android_x64": "Émulateurs / tablettes x86",
   "dl.p_android_universal": "Paquet universel avec toutes les architectures ; fichier plus volumineux",
   "dl.p_windows": "Inclut l'extraction vocale Galgame et la recherche de texte sur le bureau",
+  "dl.p_windows_portable": "Décompressez et lancez ; sans raccourcis, associations de fichiers ni mise à jour auto",
   "dl.p_macos": "Apple Silicon et Intel",
   "dl.p_ios": "Installation via TestFlight",
   "dl.mirror_cf": "Miroir Cloudflare",

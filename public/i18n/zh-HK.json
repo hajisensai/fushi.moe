@@ -142,6 +142,7 @@
   "dl.p_android_x64": "模擬器 / x86 平板",
   "dl.p_android_universal": "通用版，含全部架構，檔案較大",
   "dl.p_windows": "含 Galgame 語音挖掘、桌面劃詞",
+  "dl.p_windows_portable": "解壓即用；不建捷徑、不註冊檔案關聯、不自動更新",
   "dl.p_macos": "Apple Silicon 與 Intel 通用",
   "dl.p_ios": "透過 TestFlight 安裝",
   "dl.mirror_cf": "Cloudflare 鏡像",

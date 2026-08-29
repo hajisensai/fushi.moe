@@ -42,6 +42,7 @@ const FAKE_RELEASE = {
     'android-arm32': { url: '/releases/latest/android-arm32', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-armeabi-v7a.apk', name: 'fushi-9.9.9-armeabi-v7a.apk', size: 135266304 },
     'android-x64': { url: '/releases/latest/android-x64', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-x86_64.apk', name: 'fushi-9.9.9-x86_64.apk', size: 119537664 },
     windows: { url: '/releases/latest/windows', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-windows-setup.exe', name: 'fushi-9.9.9-windows-setup.exe', size: 246415360 },
+    'windows-portable': { url: '/releases/latest/windows-portable', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-windows-x64.zip', name: 'fushi-9.9.9-windows-x64.zip', size: 402653184 },
     macos: { url: '/releases/latest/macos', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-macos.zip', name: 'fushi-9.9.9-macos.zip', size: 298844160 },
     ios: { url: '/releases/latest/ios', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-ios.ipa', name: 'fushi-9.9.9-ios.ipa', size: 66060288 },
   },
@@ -67,6 +68,7 @@ const FAKE_DEBUG_RELEASE = {
   slots: {
     'android-universal': { url: '/releases/debug/android-universal', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-abc1234-debug.apk', name: 'fushi-9.9.10-debug.123-abc1234-debug.apk', size: 0 },
     windows: { url: '/releases/debug/windows', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-windows-setup.exe', name: 'fushi-9.9.10-debug.123-windows-setup.exe', size: 0 },
+    'windows-portable': { url: '/releases/debug/windows-portable', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-windows-x64.zip', name: 'fushi-9.9.10-debug.123-windows-x64.zip', size: 0 },
     macos: { url: '/releases/debug/macos', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-macos.zip', name: 'fushi-9.9.10-debug.123-macos.zip', size: 0 },
     ios: { url: '/releases/debug/ios', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-ios.ipa', name: 'fushi-9.9.10-debug.123-ios.ipa', size: 0 },
   },

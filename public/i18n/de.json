@@ -142,6 +142,7 @@
   "dl.p_android_x64": "Emulatoren / x86-Tablets",
   "dl.p_android_universal": "Universelles Paket mit allen Architekturen; größere Datei",
   "dl.p_windows": "Mit Galgame-Sprach-Mining und Textnachschlagen auf dem Desktop",
+  "dl.p_windows_portable": "Entpacken und starten; keine Verknüpfungen, Dateizuordnungen oder Auto-Updates",
   "dl.p_macos": "Apple Silicon und Intel",
   "dl.p_ios": "Installation über TestFlight",
   "dl.mirror_cf": "Cloudflare-Mirror",
