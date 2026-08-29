@@ -7,8 +7,8 @@
 <meta name="description" content="Fushi：免费开源的沉浸式语言学习应用。看番、读书、玩游戏时点一下查词，再点一下做成带原句、画面、原声的 Anki 卡。Windows / macOS / Android / iOS。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=M+PLUS+Rounded+1c:wght@500&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=M+PLUS+Rounded+1c:wght@500&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=M+PLUS+Rounded+1c:wght@500&family=Noto+Sans+Syriac&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=M+PLUS+Rounded+1c:wght@500&family=Noto+Sans+Syriac&display=swap"></noscript>
 <link rel="stylesheet" href="/chrome.css">
 <script src="/site.js"></script>
 <style>
@@ -521,6 +521,41 @@
   .ilink { color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
   .ilink:hover { color: var(--accent); }
 
+  /* ============ 语言墙 ============ */
+  /* 59 种语言各用自己的文字写自己的名字。比国旗准确：粤语 / 古希腊语 / 世界语 /
+     Toki Pona 都没有国旗，而语言跟国家本来也不是一回事。整段没有任何截图，
+     全靠字形本身，所以放在黑底上——一面文字的墙。 */
+  .langs .head { margin: 0 auto 52px; }
+  .langs .head .h-section { margin-top: 10px; }
+  .langs .head .copy { margin-top: 18px; }
+  .lang-wall {
+    max-width: 1080px; margin: 0 auto; padding: 0; list-style: none;
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+  }
+  .lang {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 5px; min-height: 78px; padding: 13px 10px;
+    border: 1px solid var(--band-line); border-radius: 14px;
+    background: color-mix(in srgb, var(--band-ink) 4%, transparent);
+  }
+  .lang b {
+    font-size: 19px; font-weight: 500; line-height: 1.3;
+    color: var(--band-ink); text-wrap: balance;
+  }
+  /* 叙利亚文（亚述新阿拉姆语）在 Windows / macOS 上都没有随系统的字体，
+     不显式给一条就是一排豆腐块。其余脚本（希伯来 / 阿拉伯 / 天城文 / 泰文 /
+     高棉 / 老挝 / 卡纳达 / 格鲁吉亚）三大桌面平台都自带。 */
+  .lang b[lang="aii"] { font-family: "Noto Sans Syriac", "Segoe UI Historic", "Estrangelo Edessa", sans-serif; }
+  .lang i {
+    font-style: normal; font-size: 11.5px; line-height: 1.35;
+    color: var(--band-ink-2); letter-spacing: 0.01em;
+  }
+  .lang-note {
+    max-width: 760px; margin: 44px auto 0;
+    font-size: 13px; line-height: 1.6; color: var(--band-ink-2);
+  }
+
   .closing .btns { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin-top: 40px; }
 
 
@@ -532,10 +567,20 @@
 
   @media (max-width: 740px) {
     .h-hero { font-size: clamp(32px, 9.5vw, 38px); line-height: 1.08; }
+    .lang-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .lang { min-height: 70px; padding: 11px 8px; gap: 4px; }
+    .lang b { font-size: 16px; }
+    .lang i { font-size: 11px; }
+    .langs .head { margin-bottom: 40px; }
+    .lang-note { margin-top: 34px; }
     .demo-card { padding: 40px 22px 32px; }
     .manga-stage img { height: 480px; }
     .lyrics { height: 360px; }
     .lyrics-container { padding-block: 155px; }
+  }
+
+  @media (max-width: 480px) {
+    .lang-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>
 
@@ -788,6 +833,83 @@
 </section>
 
 
+
+<!-- 语言覆盖。59 种语言各用自己的文字写自己的名字——比国旗准确（粤语 / 古希腊语 /
+     世界语 / Toki Pona 都没有国旗），也正好是这个 app 的主题：一面文字的墙。
+     语言表对齐 Yomitan ext/js/language/language-descriptors.js 的 60 条描述符
+     （59 种具体语言 + 一条 Any / Unknown 通用项，通用项不进墙）。
+     第二行的语言名不写死：只有 zh-CN 一份在标记里，其余界面语言在运行时用
+     Intl.DisplayNames 按 data-iso 生成，省掉 59 x 17 条翻译；CLDR 认不出的
+     （aii / tok）回落 data-en。 -->
+<section class="langs black-band center" id="languages">
+  <div class="head tight rev">
+    <p class="eyebrow" data-i18n="home.sec.langs">语言</p>
+    <h2 class="h-section" data-i18n="home.langs.title">支持 59 种语言</h2>
+    <p class="copy copy-2" data-i18n="home.langs.copy">想学什么语言，就学什么语言。</p>
+  </div>
+  <ul class="lang-wall rev">
+    <li class="lang"><b lang="ja">日本語</b><i data-iso="ja" data-en="Japanese">日语</i></li>
+    <li class="lang"><b lang="en">English</b><i data-iso="en" data-en="English">英语</i></li>
+    <li class="lang"><b lang="zh">中文</b><i data-iso="zh" data-en="Chinese">中文</i></li>
+    <li class="lang"><b lang="yue">粵語</b><i data-iso="yue" data-en="Cantonese">粤语</i></li>
+    <li class="lang"><b lang="ko">한국어</b><i data-iso="ko" data-en="Korean">韩语</i></li>
+    <li class="lang"><b lang="aii" dir="rtl">ܣܘܪܝܬ</b><i data-iso="aii" data-en="Assyrian Neo-Aramaic">亚述新阿拉姆语</i></li>
+    <li class="lang"><b lang="ar" dir="rtl">العربية</b><i data-iso="ar" data-en="Arabic (MSA)">阿拉伯语（标准）</i></li>
+    <li class="lang"><b lang="arz" dir="rtl">مصرى</b><i data-iso="arz" data-en="Arabic (Egyptian)">阿拉伯语（埃及）</i></li>
+    <li class="lang"><b lang="be">Беларуская</b><i data-iso="be" data-en="Belarusian">白俄罗斯语</i></li>
+    <li class="lang"><b lang="bg">Български</b><i data-iso="bg" data-en="Bulgarian">保加利亚语</i></li>
+    <li class="lang"><b lang="br">Brezhoneg</b><i data-iso="br" data-en="Breton">布列塔尼语</i></li>
+    <li class="lang"><b lang="cs">Čeština</b><i data-iso="cs" data-en="Czech">捷克语</i></li>
+    <li class="lang"><b lang="cy">Cymraeg</b><i data-iso="cy" data-en="Welsh">威尔士语</i></li>
+    <li class="lang"><b lang="da">Dansk</b><i data-iso="da" data-en="Danish">丹麦语</i></li>
+    <li class="lang"><b lang="de">Deutsch</b><i data-iso="de" data-en="German">德语</i></li>
+    <li class="lang"><b lang="el">Ελληνικά</b><i data-iso="el" data-en="Greek">希腊语</i></li>
+    <li class="lang"><b lang="eo">Esperanto</b><i data-iso="eo" data-en="Esperanto">世界语</i></li>
+    <li class="lang"><b lang="es">Español</b><i data-iso="es" data-en="Spanish">西班牙语</i></li>
+    <li class="lang"><b lang="et">Eesti</b><i data-iso="et" data-en="Estonian">爱沙尼亚语</i></li>
+    <li class="lang"><b lang="eu">Euskara</b><i data-iso="eu" data-en="Basque">巴斯克语</i></li>
+    <li class="lang"><b lang="fa" dir="rtl">فارسی</b><i data-iso="fa" data-en="Persian">波斯语</i></li>
+    <li class="lang"><b lang="fi">Suomi</b><i data-iso="fi" data-en="Finnish">芬兰语</i></li>
+    <li class="lang"><b lang="fr">Français</b><i data-iso="fr" data-en="French">法语</i></li>
+    <li class="lang"><b lang="ga">Gaeilge</b><i data-iso="ga" data-en="Irish">爱尔兰语</i></li>
+    <li class="lang"><b lang="gd">Gàidhlig</b><i data-iso="gd" data-en="Scottish Gaelic">苏格兰盖尔语</i></li>
+    <li class="lang"><b lang="grc">Ἑλληνική</b><i data-iso="grc" data-en="Ancient Greek">古希腊语</i></li>
+    <li class="lang"><b lang="gv">Gaelg</b><i data-iso="gv" data-en="Manx">马恩语</i></li>
+    <li class="lang"><b lang="haw">ʻŌlelo Hawaiʻi</b><i data-iso="haw" data-en="Hawaiian">夏威夷语</i></li>
+    <li class="lang"><b lang="he" dir="rtl">עברית</b><i data-iso="he" data-en="Hebrew">希伯来语</i></li>
+    <li class="lang"><b lang="hi">हिन्दी</b><i data-iso="hi" data-en="Hindi">印地语</i></li>
+    <li class="lang"><b lang="hu">Magyar</b><i data-iso="hu" data-en="Hungarian">匈牙利语</i></li>
+    <li class="lang"><b lang="id">Bahasa Indonesia</b><i data-iso="id" data-en="Indonesian">印尼语</i></li>
+    <li class="lang"><b lang="it">Italiano</b><i data-iso="it" data-en="Italian">意大利语</i></li>
+    <li class="lang"><b lang="ka">ქართული</b><i data-iso="ka" data-en="Georgian">格鲁吉亚语</i></li>
+    <li class="lang"><b lang="km">ខ្មែរ</b><i data-iso="km" data-en="Khmer">高棉语</i></li>
+    <li class="lang"><b lang="kn">ಕನ್ನಡ</b><i data-iso="kn" data-en="Kannada">坎纳达语</i></li>
+    <li class="lang"><b lang="kw">Kernewek</b><i data-iso="kw" data-en="Cornish">康沃尔语</i></li>
+    <li class="lang"><b lang="la">Latina</b><i data-iso="la" data-en="Latin">拉丁语</i></li>
+    <li class="lang"><b lang="lo">ລາວ</b><i data-iso="lo" data-en="Lao">老挝语</i></li>
+    <li class="lang"><b lang="lv">Latviešu</b><i data-iso="lv" data-en="Latvian">拉脱维亚语</i></li>
+    <li class="lang"><b lang="mn">Монгол</b><i data-iso="mn" data-en="Mongolian">蒙古语</i></li>
+    <li class="lang"><b lang="mt">Malti</b><i data-iso="mt" data-en="Maltese">马耳他语</i></li>
+    <li class="lang"><b lang="nl">Nederlands</b><i data-iso="nl" data-en="Dutch">荷兰语</i></li>
+    <li class="lang"><b lang="no">Norsk</b><i data-iso="no" data-en="Norwegian">挪威语</i></li>
+    <li class="lang"><b lang="pl">Polski</b><i data-iso="pl" data-en="Polish">波兰语</i></li>
+    <li class="lang"><b lang="pt">Português</b><i data-iso="pt" data-en="Portuguese">葡萄牙语</i></li>
+    <li class="lang"><b lang="ro">Română</b><i data-iso="ro" data-en="Romanian">罗马尼亚语</i></li>
+    <li class="lang"><b lang="ru">Русский</b><i data-iso="ru" data-en="Russian">俄语</i></li>
+    <li class="lang"><b lang="sga">Goídelc</b><i data-iso="sga" data-en="Old Irish">古爱尔兰语</i></li>
+    <li class="lang"><b lang="sh">Srpskohrvatski</b><i data-iso="sh" data-en="Serbo-Croatian">塞尔维亚-克罗地亚语</i></li>
+    <li class="lang"><b lang="sq">Shqip</b><i data-iso="sq" data-en="Albanian">阿尔巴尼亚语</i></li>
+    <li class="lang"><b lang="sv">Svenska</b><i data-iso="sv" data-en="Swedish">瑞典语</i></li>
+    <li class="lang"><b lang="th">ไทย</b><i data-iso="th" data-en="Thai">泰语</i></li>
+    <li class="lang"><b lang="tl">Tagalog</b><i data-iso="tl" data-en="Tagalog">他加禄语</i></li>
+    <li class="lang"><b lang="tok">toki pona</b><i data-iso="tok" data-en="Toki Pona">Toki Pona</i></li>
+    <li class="lang"><b lang="tr">Türkçe</b><i data-iso="tr" data-en="Turkish">土耳其语</i></li>
+    <li class="lang"><b lang="uk">Українська</b><i data-iso="uk" data-en="Ukrainian">乌克兰语</i></li>
+    <li class="lang"><b lang="vi">Tiếng Việt</b><i data-iso="vi" data-en="Vietnamese">越南语</i></li>
+    <li class="lang"><b lang="yi" dir="rtl">ייִדיש</b><i data-iso="yi" data-en="Yiddish">意第绪语</i></li>
+  </ul>
+  <p class="lang-note rev" data-i18n="home.langs.note">查词引擎按 Yomitan 词典格式实现，任何一种语言只要装上对应词典就能查。其中 18 种内置词形还原规则，能把变位、变格还原回词典形；23 种学习语言可以在 app 内一键下载词典。</p>
+</section>
 
 <section class="feature" id="method">
   <div class="head rev">
@@ -7412,6 +7534,29 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
     }
 
   })();
+
+  /* 语言墙第二行的语言名按界面语言现算：Intl.DisplayNames 覆盖 CLDR 认识的绝大多数
+     语言码，认不出的（aii / tok）回落 data-en 的英文名。标记里那份是 zh-CN 源语言，
+     切回中文时用开页时抓下来的原文还原，不能靠再算一次。 */
+  const langWall = Array.from(
+    document.querySelectorAll('.lang-wall i[data-iso]'),
+    (el) => ({ el, zh: el.textContent })
+  );
+  const localizeLangWall = (lang) => {
+    if (!langWall.length) return;
+    let names = null;
+    if (lang && lang !== 'zh-CN') {
+      try { names = new Intl.DisplayNames([lang], { type: 'language', fallback: 'none' }); }
+      catch { names = null; }
+    }
+    for (const { el, zh } of langWall) {
+      if (!names) { el.textContent = zh; continue; }
+      let name;
+      try { name = names.of(el.dataset.iso); } catch { name = undefined; }
+      el.textContent = name || el.dataset.en;
+    }
+  };
+  document.addEventListener('fushi:i18n', (e) => localizeLangWall(e.detail && e.detail.lang));
 
   const io = new IntersectionObserver(entries => {
     entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
