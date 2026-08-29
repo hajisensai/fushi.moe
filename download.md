@@ -647,7 +647,7 @@ onMounted(async () => {
 <p>浏览器禁用了 JavaScript，下面是直接的 GitHub 下载入口 / JavaScript is disabled; direct GitHub links:</p>
 <ul>
 <li><a href="https://github.com/hajisensai/Fushi/releases/latest">最新 Release / Latest release</a></li>
-<li>Android → <code>arm64</code> <code>.apk</code>；Windows → <code>.exe</code>（安装器）/ <code>-windows-x64.zip</code>（免安装）；macOS → <code>.zip</code>；iOS → <code>.ipa</code></li>
+<li>Android → <code>arm64</code> <code>.apk</code>；Windows → <code>.exe</code>；macOS → <code>.zip</code>；iOS → <code>.ipa</code></li>
 </ul>
 </noscript>
 
