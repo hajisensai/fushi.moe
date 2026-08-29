@@ -142,6 +142,7 @@
   "dl.p_android_x64": "Emülatörler / x86 tabletler",
   "dl.p_android_universal": "Tüm mimarileri içeren evrensel paket; dosya daha büyük",
   "dl.p_windows": "Galgame ses madenciliği ve masaüstü kelime arama içerir",
+  "dl.p_windows_portable": "Çıkarın ve çalıştırın; kısayol, dosya ilişkilendirme ve otomatik güncelleme yok",
   "dl.p_macos": "Apple Silicon ve Intel",
   "dl.p_ios": "TestFlight ile kurulum",
   "dl.mirror_cf": "Cloudflare yansısı",

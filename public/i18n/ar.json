@@ -142,6 +142,7 @@
   "dl.p_android_x64": "المحاكيات / أجهزة x86 اللوحية",
   "dl.p_android_universal": "حزمة شاملة تضم كل المعماريات؛ حجم أكبر",
   "dl.p_windows": "يتضمن استخراج أصوات Galgame والبحث عن الكلمات على سطح المكتب",
+  "dl.p_windows_portable": "فك الضغط وشغّل مباشرة؛ بدون اختصارات أو ارتباط بالملفات أو تحديث تلقائي",
   "dl.p_macos": "Apple Silicon وIntel",
   "dl.p_ios": "التثبيت عبر TestFlight",
   "dl.mirror_cf": "مرآة Cloudflare",

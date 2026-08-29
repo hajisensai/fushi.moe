@@ -142,6 +142,7 @@
   "dl.p_android_x64": "Emulators / x86-tablets",
   "dl.p_android_universal": "Universeel pakket met alle architecturen; groter bestand",
   "dl.p_windows": "Inclusief Galgame-stemmining en tekst opzoeken op het bureaublad",
+  "dl.p_windows_portable": "Uitpakken en starten; geen snelkoppelingen, bestandskoppelingen of auto-update",
   "dl.p_macos": "Apple Silicon en Intel",
   "dl.p_ios": "Installeren via TestFlight",
   "dl.mirror_cf": "Cloudflare-mirror",

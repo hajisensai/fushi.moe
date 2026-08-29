@@ -42,6 +42,10 @@ export const SLOTS: Readonly<Record<string, RegExp>> = {
   'android-arm32': /^fushi-.*-armeabi-v7a\.apk$/,
   'android-x64': /^fushi-.*-x86_64\.apk$/,
   windows: /^fushi-.*-windows-setup\.exe$/,
+  // 免安装 zip：与 installer 同一次构建的第二种形态，解压即用。
+  // 它**不进 R2 镜像**（主仓 mirror-releases.yml 显式跳过，桶预算撑不住两版翻倍），
+  // 所以分片下载器探 ?src=r2 会 404、按既有逻辑回落 ?src=gh 边缘代理。
+  'windows-portable': /^fushi-.*-windows-x64\.zip$/,
   macos: /^fushi-.*-macos\.zip$/,
   ios: /^fushi-.*-ios\.ipa$/,
   // 调试通道的 Android 只出一个含全部架构的通用包（名字以 -debug.apk 结尾）。

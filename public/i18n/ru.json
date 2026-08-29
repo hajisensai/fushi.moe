@@ -142,6 +142,7 @@
   "dl.p_android_x64": "Эмуляторы / планшеты на x86",
   "dl.p_android_universal": "Универсальный пакет со всеми архитектурами; файл больше",
   "dl.p_windows": "Включает добычу озвучки из Galgame и поиск слов на рабочем столе",
+  "dl.p_windows_portable": "Распакуйте и запускайте; без ярлыков, ассоциаций файлов и автообновления",
   "dl.p_macos": "Apple Silicon и Intel",
   "dl.p_ios": "Установка через TestFlight",
   "dl.mirror_cf": "Зеркало Cloudflare",
