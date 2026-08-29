@@ -211,6 +211,15 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
       });
       var downloadAttrs = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a')).map(function (a) { return a.getAttribute('download'); });
       var directLinks = [].slice.call(document.querySelectorAll('.dl-table tbody tr td:last-child a.dl-direct')).map(function (a) { return a.getAttribute('href'); });
+      var packBtn = document.querySelector('.pack-dl-btn');
+      var packLinkEls = [].slice.call(document.querySelectorAll('.pack-dl-links a'));
+      var pack = {
+        btn: packBtn ? packBtn.textContent.replace(/\s+/g, ' ').trim() : null,
+        links: packLinkEls.map(function (a) { return a.getAttribute('href'); }),
+        // 同源链接必须落在 .vp-raw 里，否则 VitePress 的客户端路由会把它劫持成站内 404
+        rawWrapped: packLinkEls.every(function (a) { return !!a.closest('.vp-raw'); }),
+        note: (function () { var n = document.querySelector('.pack-dl-note'); return n ? n.textContent.replace(/\s+/g, ' ').trim() : null; })()
+      };
       var fl = document.querySelector('.site-footer-links');
       var footer = fl ? { text: fl.textContent.replace(/\s+/g, ' ').trim(), icons: fl.querySelectorAll('a.site-footer-ico svg').length } : null;
       var giftLink = document.querySelector('.site-footer-gift > a');
@@ -230,6 +239,7 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
         directLinks: directLinks,
         footer: footer,
         gift: gift,
+        pack: pack,
         firstLink: links[0] || null,
         allLinks: links,
         warn: warn ? warn.textContent.replace(/\s+/g, ' ').trim() : null
@@ -276,6 +286,16 @@ async function main() {
   check('A 链接是具体安装包而非 Releases 首页', a.firstLink !== null && !a.firstLink.endsWith('/releases/latest'), a.firstLink);
   check('A 显示了版本号', (a.status ?? '').includes('v9.9.9'), a.status);
   check('A 每行都有 GitHub 直链（给 IDM / aria2 自己多线程）', a.directLinks.length === a.rows.length && a.directLinks.every((h) => /github\.com\/hajisensai\/Fushi\/releases\/download\//.test(h)), JSON.stringify(a.directLinks));
+
+  check('A 推荐包有网页端下载按钮', (a.pack.btn ?? '').length > 0, a.pack.btn);
+  check('A 推荐包说明写了浏览器要求 / 不能续传', (a.pack.note ?? '').length > 0, a.pack.note);
+  check(
+    'A 推荐包给了下载器兜底入口（GitHub 分片 + 分片清单）',
+    a.pack.links.some((h) => /github\.com\/hajisensai\/fushi-pack\/releases/.test(h)) &&
+      a.pack.links.includes('/pack/manifest.json'),
+    JSON.stringify(a.pack.links),
+  );
+  check('A 推荐包的同源链接包在 .vp-raw 里（否则被 VitePress 路由劫持成 404）', a.pack.rawWrapped);
 
   console.log('\n--- 场景 B：CF 不通 ---');
   const b = await runScenario(cdp, 'B CF 不通', { cfUp: false, ghUp: true });

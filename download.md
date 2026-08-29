@@ -2,6 +2,7 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useSiteI18n } from './.vitepress/theme/i18n.js'
 import { probeSources, downloadChunked, createBrowserSink, verifySink } from './.vitepress/theme/chunked-download.mjs'
+import { PACK_FILENAME, downloadPack, fetchPackManifest, preferredPartBaseUrl } from './.vitepress/theme/pack-download.mjs'
 
 /*
  * 下载页：发布通道 × 下载源 × 分片加速。
@@ -48,6 +49,9 @@ const STORE_KEY = 'fushi-download-mirror'
 const IOS_TESTFLIGHT_URL = ''
 /** 没有文件系统写入 API 时整包先落内存再存盘；超过这个体积不冒险，退回普通链接。 */
 const MEMORY_SINK_LIMIT = 512 * 1024 * 1024
+/** 推荐包（约 9.5 GB）的分片仓库；页面拿不到清单时这个页面仍然可点。 */
+const PACK_RELEASE_URL = 'https://github.com/hajisensai/fushi-pack/releases/latest'
+const PACK_MANIFEST_URL = '/pack/manifest.json'
 
 const CHANNELS = [
   { id: 'stable', path: 'latest', manifest: 'latest-stable-fushi.json' },
@@ -231,6 +235,94 @@ function pickChannel(id) {
   loadRelease()
 }
 
+/* ---------------- 推荐包 ---------------- */
+
+/*
+ * 推荐包 = 词典 + 日/英发音音频库的备份 zip，约 9.5 GB。服务端它是 39 个 256 MiB
+ * 的分片（GitHub Release 单资产上限 2 GB），拼装与逐片校验在 pack-download.mjs 里。
+ *
+ * 这里只做三件事：同步开保存对话框（await 之后手势就没了，与安装包那条路一样）、
+ * 把进度喂给 UI、失败时把兜底入口摆出来。**没有跨刷新续传**：文件句柄是用户在对话框里
+ * 给的，页面一关就没了；要断点续传就走 app 引导里的下载器，那条路进度绑 sha256。
+ */
+const pack = reactive({ state: 'idle', pct: 0, speed: '', part: '', error: '', version: '', wholeUrl: '', controller: null })
+/** 挂载时取一次分片清单（8 KB）：Drive 整包这个兜底入口写在清单里，不预取的话
+    要点过按钮才会出现，而点不了按钮的人（Firefox / Safari）恰恰最需要它。 */
+const packManifest = ref(null)
+
+async function loadPackManifest() {
+  try {
+    const m = await fetchPackManifest({ url: PACK_MANIFEST_URL })
+    packManifest.value = m
+    pack.version = m.version
+    pack.wholeUrl = m.wholeUrl || ''
+  } catch {
+    /* 清单拿不到不影响页面：GitHub 分片与清单两个静态入口照样可点 */
+  }
+}
+
+function packSupported() {
+  return typeof window !== 'undefined' && typeof window.showSaveFilePicker === 'function'
+}
+
+async function startPackDownload() {
+  if (pack.state === 'downloading' || pack.state === 'preparing') return
+  if (!packSupported()) { pack.state = 'unsupported'; return }
+
+  let sink = null
+  try {
+    // 必须排在任何 await 之前：文件选择器只在用户手势里能开。整包大小这时还不知道
+    // （清单还没拉），文件系统 sink 不在乎——它按位写，会自动撑大。
+    sink = await createBrowserSink({ filename: PACK_FILENAME, size: 0 })
+  } catch (err) {
+    if (err && err.name === 'AbortError') return
+    pack.state = 'unsupported'
+    return
+  }
+  if (sink.kind !== 'filesystem') {
+    // 内存 sink 装不下 9.5 GB，宁可什么都不做也别让浏览器 OOM。
+    await sink.abort?.().catch(() => {})
+    pack.state = 'unsupported'
+    return
+  }
+
+  const controller = new AbortController()
+  Object.assign(pack, { state: 'preparing', pct: 0, speed: '', part: '', error: '', controller })
+
+  try {
+    const manifest = packManifest.value ?? await fetchPackManifest({ url: PACK_MANIFEST_URL, signal: controller.signal })
+    packManifest.value = manifest
+    pack.version = manifest.version
+    pack.wholeUrl = manifest.wholeUrl || ''
+    pack.state = 'downloading'
+    await downloadPack({
+      manifest,
+      sink,
+      baseUrl: preferredPartBaseUrl(manifest, location.origin),
+      signal: controller.signal,
+      onProgress: (p) => {
+        pack.pct = Math.floor((p.bytesDone / p.bytesTotal) * 100)
+        pack.speed = formatSpeed(p.bytesPerSecond)
+        pack.part = p.partsDone + '/' + p.partsTotal
+      },
+    })
+    pack.pct = 100
+    pack.state = 'done'
+  } catch (err) {
+    await sink.abort?.().catch(() => {})
+    if (err && err.name === 'AbortError') { pack.state = 'idle'; return }
+    pack.state = 'failed'
+    pack.error = String((err && err.message) || err)
+  } finally {
+    pack.controller = null
+  }
+}
+
+function cancelPack() {
+  if (pack.controller) pack.controller.abort()
+  else pack.state = 'idle'
+}
+
 /* ---------------- 分片加速 ---------------- */
 
 function formatSpeed(bps) {
@@ -405,6 +497,7 @@ onMounted(async () => {
   } catch { /* 读不到就用默认的自动 */ }
 
   await Promise.all([
+    loadPackManifest(),
     probe('cf', DL_BASE + '/api/latest'),
     // GitHub 不给我们 CORS，用 no-cors 只看连不连得上，不读内容
     probe('gh', 'https://github.com/' + GH_REPO + '/releases/latest', { mode: 'no-cors' }),
@@ -610,6 +703,36 @@ onMounted(async () => {
 .dl-job-ok { color: #1a7f37; }
 .dl-job-err { color: #b25000; }
 .dl-warn { color: var(--ink-2); font-size: 14px; }
+
+/* 推荐包下载块：用站点自己的 token（chrome.css 的 --ground / --ink / --hairline /
+   --link），按钮沿用页面既有的胶囊形，不引入第二种按钮语言与第二套配色。 */
+.pack-dl { margin: 16px 0 20px; }
+.pack-dl-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pack-dl-btn {
+  font: inherit; font-size: 15px; font-weight: 500;
+  background: var(--link); color: var(--link-ink);
+  border: 1px solid transparent; border-radius: 980px;
+  padding: 8px 20px; cursor: pointer;
+}
+.pack-dl-btn:hover { filter: brightness(1.07); }
+.pack-dl-cancel {
+  font: inherit; font-size: 12px;
+  background: var(--ground); color: var(--ink-2);
+  border: 1px solid var(--hairline); border-radius: 980px;
+  padding: 2px 10px; cursor: pointer;
+}
+.pack-dl-cancel:hover { border-color: var(--ink-2); color: var(--ink); }
+.pack-dl-bar {
+  flex: 1 1 180px; max-width: 320px;
+  height: 6px; border-radius: 3px; overflow: hidden;
+  background: var(--hairline);
+}
+.pack-dl-bar span { display: block; height: 100%; background: var(--link); transition: width 0.2s linear; }
+.pack-dl-meta { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.pack-dl-note { font-size: 13px; color: var(--ink-2); margin: 8px 0 0 !important; line-height: 1.5; }
+.pack-dl-ok { color: #1a7f37; }
+.pack-dl-bad { color: #b25000; }
+.pack-dl-links { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0 0 !important; font-size: 13px; }
 </style>
 
 <hr>
@@ -634,6 +757,35 @@ onMounted(async () => {
 <h2 data-i18n="dl.pack_title">推荐包：不用一本一本挑词典</h2>
 
 <p data-i18n="dl.pack_p1">推荐包里是<strong>日语单词、音调、词频词典</strong>，外加<strong>日语 / 英语本地发音音频库</strong>，约 9.5 GB。在引导的「安装推荐包」那一步里直接下载并导入。</p>
+
+<div class="vp-raw pack-dl">
+  <div class="pack-dl-row">
+    <button v-if="pack.state !== 'downloading' && pack.state !== 'preparing'" class="pack-dl-btn" type="button" @click="startPackDownload">
+      {{ t('dl.pack_btn', '在浏览器里下载整包') }} · 9.5 GB
+    </button>
+    <template v-else>
+      <div class="pack-dl-bar"><span :style="{ width: pack.pct + '%' }"></span></div>
+      <span class="pack-dl-meta">
+        {{ pack.state === 'preparing' ? t('dl.pack_preparing', '正在取分片清单…') : pack.pct + '%' }}
+        <template v-if="pack.part"> · {{ t('dl.pack_parts', '分片') }} {{ pack.part }}</template>
+        <template v-if="pack.speed"> · {{ pack.speed }}</template>
+      </span>
+      <button class="pack-dl-cancel" type="button" @click="cancelPack">{{ t('dl.chunk_cancel', '取消') }}</button>
+    </template>
+  </div>
+
+  <p v-if="pack.state === 'done'" class="pack-dl-note pack-dl-ok">{{ t('dl.pack_done', '整包已保存，逐片 SHA-256 校验通过。在 app 里用「备份导入」选它，确认框选「合并到现有库」。') }}</p>
+  <p v-else-if="pack.state === 'failed'" class="pack-dl-note pack-dl-bad">{{ t('dl.pack_failed', '下载中断：') }}{{ pack.error }}</p>
+  <p v-else-if="pack.state === 'unsupported'" class="pack-dl-note">{{ t('dl.pack_unsupported', '这个浏览器不支持直接写盘（需要桌面版 Chrome / Edge）。用下面的方式下载，或者直接在 app 引导里下。') }}</p>
+  <p v-else class="pack-dl-note">{{ t('dl.pack_hint', '会先问你存到哪，然后按 39 个分片顺序下载并逐片校验 SHA-256。页面要一直开着——网页端没有断点续传；想续传就在 app 的新手引导里下。') }}</p>
+
+  <p class="pack-dl-links">
+    <a :href="PACK_RELEASE_URL" rel="noopener" target="_blank">{{ t('dl.pack_parts_link', 'GitHub 分片直链（IDM / aria2）') }}</a>
+    <a :href="PACK_MANIFEST_URL" rel="noopener" target="_blank">{{ t('dl.pack_manifest_link', '分片清单 JSON') }}</a>
+    <a v-if="pack.wholeUrl" :href="pack.wholeUrl" rel="noopener" target="_blank">{{ t('dl.pack_drive_link', 'Google Drive 整包（部分地区需代理）') }}</a>
+  </p>
+  <p class="pack-dl-note">{{ t('dl.pack_merge_hint', '用下载器拿分片的话，下完按序号合并成一个文件：Windows 用 copy /b 分片名.000+分片名.001+… 整包名，macOS / Linux 用 cat 分片名.* > 整包名。') }}</p>
+</div>
 
 <div class="custom-block tip">
 <p class="custom-block-title" data-i18n="dl.pack_warn_title">导入方式选「合并」</p>
