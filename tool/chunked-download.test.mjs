@@ -337,6 +337,29 @@ test('probeSources 探测小文件：服务端把 end 夹到 total-1 也算可�
   assert.deepEqual(probed.sources.map((s) => s.id), ['A']);
 });
 
+test('probeSources 接外部 signal：中途取消立刻返回，已取消则一个请求都不发', async () => {
+  // 下载页的「取消」按钮要能当场掐断探测。signal 不透传下来的话，取消之后这几个探测
+  // 请求还在飞，调用方只能干等到 timeoutMs——页面上就是「点了取消没反应，过一会儿
+  // 自己恢复原样」。
+  const world = createFakeWorld(FILE, [{ id: 'stuck', delayMs: 3000 }]);
+  const ctrl = new AbortController();
+  const t0 = Date.now();
+  const pending = probeSources(world.sources, { fetch: world.fetch, timeoutMs: 3000, signal: ctrl.signal });
+  setTimeout(() => ctrl.abort(), 30);
+  assert.deepEqual(await pending, { sources: [], size: 0 });
+  const elapsed = Date.now() - t0;
+  assert.ok(elapsed < 1000, '取消后应当立刻返回，实测 ' + elapsed + 'ms');
+
+  const world2 = createFakeWorld(FILE, [{ id: 'A', delayMs: 2 }]);
+  const aborted = new AbortController();
+  aborted.abort();
+  assert.deepEqual(
+    await probeSources(world2.sources, { fetch: world2.fetch, signal: aborted.signal }),
+    { sources: [], size: 0 },
+  );
+  assert.equal(world2.origin('A').requests, 0, '已经取消了就不该再发探测请求');
+});
+
 test('3. 一个来源中途永久失败：分片被另一来源接管，结果正确，该来源进 droppedSources', async () => {
   const world = createFakeWorld(FILE, [
     { id: 'A', delayMs: 3 },

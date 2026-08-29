@@ -5,10 +5,16 @@
  * 用 CDP 请求拦截构造确定性场景，不碰真实网络——否则「CF 通不通」
  * 取决于跑测试那台机器当时的网络，测不出结论。
  *
- * 三个场景对应三条必须成立的性质：
+ * 场景与它们各自守住的性质：
  *   A. 两边都通    -> 自动挑更快的那个，链接指向它
  *   B. CF 不通     -> 自动切到 GitHub，且 CF 按钮标成连不上
  *   C. 两边都不通  -> 不能变成空壳，链接退回 GitHub Releases 页面并给出说明
+ *   D/E. 调试版通道 -> 换槽位、换清单来源
+ *   F. 点「下载」  -> 不被 VitePress 路由劫持成站内 404
+ *   G. 顶栏/底栏   -> 真正导航回首页
+ *   H. 点「下载」  -> 不改变表格列宽（table-layout: fixed，与单元格内容脱钩）
+ *   I. 无 File System Access -> 不拦截点击，退回浏览器原生下载
+ *   J. 探测阶段取消 -> 立刻摘回可点的下载链接
  */
 
 import { spawn } from 'node:child_process';
@@ -110,7 +116,7 @@ const b64 = (s) => Buffer.from(s, 'utf8').toString('base64');
 /* 拦截器只装一次，读这个可变状态。
    每个场景各装一个 onEvent 的话，先注册的那个会一直抢先应答请求，
    后面的场景就永远是第一个场景的结果——第一版就是这么假绿的。 */
-const scenario = { cfUp: true, ghUp: true };
+const scenario = { cfUp: true, ghUp: true, hangChunkProbe: false };
 
 function installInterceptor(cdp) {
   cdp.onEvent(async (msg) => {
@@ -135,6 +141,13 @@ function installInterceptor(cdp) {
           ],
           body: b64(JSON.stringify(debug ? FAKE_DEBUG_RELEASE : FAKE_RELEASE)),
         });
+        return;
+      }
+      // 分片探测：/releases/v/<tag>/<name>?src=r2|gh。默认明确失败（页面应退回普通下载）；
+      // hangChunkProbe 时挂住不应答，好让页面停在「正在探测来源…」，用来测取消。
+      if (parsed.pathname.startsWith('/releases/v/')) {
+        if (scenario.hangChunkProbe) return;
+        await cdp.send('Fetch.failRequest', { requestId, errorReason: 'ConnectionFailed' });
         return;
       }
       if (url.includes('raw.githubusercontent.com')) {
@@ -335,6 +348,130 @@ async function main() {
   console.log('  点击后: ' + JSON.stringify(a2));
   check('F 点击后仍在下载页，没有被路由成站内 404', clickState.result.value.clicked && a2.path === '/download.html' && !a2.notFound, JSON.stringify(a2));
   check('F 分片来源探不到时行内给出原因并留「普通下载」，不自动跳走', a2.job !== null && /fallback/.test(a2.job) && /普通下载/.test(a2.text || ''), a2.text);
+
+  console.log('\n--- 场景 H：点「下载」不能改变表格列宽 ---');
+  // 用户报的「点击下载会改变排版」：第三格从一条链接变成「探测中 / 进度条 / 取消」，
+  // 表格若是默认的 table-layout: auto 就会重算所有列宽——说明列被挤窄、文字重新折行、
+  // 整页跳一下。窄屏手机上最明显（说明列 3 行变 5 行），所以这里按手机尺寸量。
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: 393, height: 852, deviceScaleFactor: 3, mobile: true });
+  await runScenario(cdp, 'H 列宽', { cfUp: true, ghUp: true });
+  const widths = await cdp.send('Runtime.evaluate', {
+    expression: `(function(){
+      function measure() {
+        return [].slice.call(document.querySelectorAll('.dl-table tbody tr:first-child td'))
+          .map(function (td) { return Math.round(td.getBoundingClientRect().width * 10) / 10; });
+      }
+      var cf = [].slice.call(document.querySelectorAll('.dl-buttons button')).find(function (b) { return /Cloudflare/.test(b.textContent); });
+      if (cf) cf.click();
+      return new Promise(function (res) {
+        setTimeout(function () {
+          var before = measure();
+          var a = document.querySelector('.dl-table tbody tr:first-child td:last-child a');
+          if (!a) return res({ error: 'no link' });
+          a.click();
+          setTimeout(function () {
+            res({ before: before, after: measure(), job: !!document.querySelector('.dl-table tbody tr:first-child .dl-job') });
+          }, 500);
+        }, 400);
+      });
+    })()`,
+    returnByValue: true,
+    awaitPromise: true,
+  });
+  const w = widths.result.value;
+  console.log('  列宽 before -> after: ' + JSON.stringify(w));
+  check('H 点击后确实进入了分片任务 UI（否则这条什么都没测到）', w.job === true, JSON.stringify(w));
+  check(
+    'H 三列宽度点击前后完全不变',
+    Array.isArray(w.before) && w.before.length === 3 && Array.isArray(w.after) &&
+      w.before.every((x, i) => Math.abs(x - w.after[i]) < 0.5),
+    JSON.stringify(w),
+  );
+  await cdp.send('Emulation.clearDeviceMetricsOverride', {});
+
+  console.log('\n--- 场景 I：没有 File System Access 的浏览器必须退回浏览器原生下载 ---');
+  // 没有 showSaveFilePicker（Firefox / Safari / 所有移动浏览器）时，分片只能把整包塞进
+  // 内存再 Blob 复制一份，安装包 238～319 MB 的峰值内存会让移动端标签页被系统杀掉。
+  // 这种浏览器不该拦截点击——放行 <a download>，让浏览器自己下，这才是页面上写的
+  // 「不支持的浏览器自动退回普通下载」。
+  const injected = await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
+    source: 'try { delete window.showSaveFilePicker; } catch (e) { window.showSaveFilePicker = undefined; }',
+  });
+  await runScenario(cdp, 'I 无 File System Access', { cfUp: true, ghUp: true });
+  const noFs = await cdp.send('Runtime.evaluate', {
+    expression: `(function(){
+      var cf = [].slice.call(document.querySelectorAll('.dl-buttons button')).find(function (b) { return /Cloudflare/.test(b.textContent); });
+      if (cf) cf.click();
+      return new Promise(function (res) {
+        setTimeout(function () {
+          var a = document.querySelector('.dl-table tbody tr:first-child td:last-child a');
+          if (!a) return res({ error: 'no link' });
+          var prevented = null;
+          a.addEventListener('click', function (e) { prevented = e.defaultPrevented; }, { once: true });
+          a.click();
+          setTimeout(function () {
+            res({
+              hasApi: typeof window.showSaveFilePicker,
+              prevented: prevented,
+              job: !!document.querySelector('.dl-job'),
+              href: a.getAttribute('href'),
+              download: a.getAttribute('download'),
+            });
+          }, 800);
+        }, 400);
+      });
+    })()`,
+    returnByValue: true,
+    awaitPromise: true,
+  });
+  const nf = noFs.result.value;
+  console.log('  无 FSA 点击结果: ' + JSON.stringify(nf));
+  check('I 前提成立：该上下文里确实没有 showSaveFilePicker', nf.hasApi === 'undefined', JSON.stringify(nf));
+  check('I 点「下载」不被拦截，交给浏览器原生下载（不进分片、不出任务行）', nf.prevented === false && nf.job === false, JSON.stringify(nf));
+  check('I 放行的那条链接仍带 download 属性（否则被 VitePress 路由劫持成 404）', nf.download !== null && /^\/releases\//.test(nf.href || ''), JSON.stringify(nf));
+  await cdp.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injected.identifier ?? injected.result?.identifier });
+
+  console.log('\n--- 场景 J：探测阶段点「取消」必须立刻生效 ---');
+  // 取消以前只 abort 不摘行，而探测请求根本没接 signal：UI 会一直停在「正在探测来源…」，
+  // 直到十几秒后探测自己跑完才由 downloadChunked 抛 AbortError 把行删掉——
+  // 用户看到的就是「点了没反应，过一会儿自己恢复原样」。
+  scenario.hangChunkProbe = true;
+  await runScenario(cdp, 'J 探测中取消', { cfUp: true, ghUp: true });
+  const cancelled = await cdp.send('Runtime.evaluate', {
+    expression: `(function(){
+      var cf = [].slice.call(document.querySelectorAll('.dl-buttons button')).find(function (b) { return /Cloudflare/.test(b.textContent); });
+      if (cf) cf.click();
+      return new Promise(function (res) {
+        setTimeout(function () {
+          var a = document.querySelector('.dl-table tbody tr:first-child td:last-child a');
+          if (!a) return res({ error: 'no link' });
+          a.click();
+          setTimeout(function () {
+            var job = document.querySelector('.dl-table tbody tr:first-child .dl-job');
+            var probing = job ? job.className : null;
+            var btn = job ? job.querySelector('button') : null;
+            if (!btn) return res({ probing: probing, error: 'no cancel button' });
+            btn.click();
+            setTimeout(function () {
+              var row = document.querySelector('.dl-table tbody tr:first-child');
+              res({
+                probing: probing,
+                jobAfterCancel: !!row.querySelector('.dl-job'),
+                linkAfterCancel: !!row.querySelector('td:last-child a'),
+              });
+            }, 300);
+          }, 900);
+        }, 400);
+      });
+    })()`,
+    returnByValue: true,
+    awaitPromise: true,
+  });
+  const cj = cancelled.result.value;
+  console.log('  取消结果: ' + JSON.stringify(cj));
+  check('J 前提成立：点下载后停在探测中', /probing/.test(cj.probing || ''), JSON.stringify(cj));
+  check('J 点「取消」后 300ms 内任务行就消失、下载链接回来', cj.jobAfterCancel === false && cj.linkAfterCancel === true, JSON.stringify(cj));
+  scenario.hangChunkProbe = false;
 
   console.log('\n--- 场景 G：下载页点顶栏 logo / 底栏「怎么开始」必须真正回到首页 ---');
   // 首页是静态 index.html，不在 VitePress 路由表里；路由若劫持这些同源链接就是前端 404。
