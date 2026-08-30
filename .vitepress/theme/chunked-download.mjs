@@ -14,7 +14,7 @@
  * @typedef {{ write(position: number, data: Uint8Array): Promise<void>, close(): Promise<void>, abort?(): Promise<void>, bytes?(): Uint8Array, file?(): Promise<File> }} ChunkSink
  *   bytes() / file() 是校验用的取数口：内存 sink 有 bytes()，文件系统 sink 有 file()（close 之后才可用）
  * @typedef {{ index: number, start: number, end: number, lastFailedBy: string | null }} Chunk  start/end 都是含端点的字节下标
- * @typedef {{ id: string, url: string, bytes: number, consecutiveFailures: number, dropped: boolean, workers: number, succeed(n: number): void, fail(): void }} SourceState
+ * @typedef {{ id: string, url: string, bytes: number, consecutiveFailures: number, dropped: boolean, workers: number, succeed(n: number): void, fail(): void, reset(): void }} SourceState
  */
 
 export const DEFAULT_CHUNK_BYTES = 8 * 1024 * 1024;
@@ -24,8 +24,39 @@ export const DEFAULT_PROBE_TIMEOUT_MS = 8000;
 export const DEFAULT_FIRST_BYTE_MS = 10000;
 /** 分片看门狗：两段字节之间的上限 */
 export const DEFAULT_STALL_MS = 8000;
+/**
+ * 所有来源都退出后，整轮重开的次数上限。
+ *
+ * 为什么必须有：maxSourceFailures 表达的是「这个镜像不行了，换别的镜像」——只有在
+ * 真有别的镜像时才成立。推荐包每片只有一个来源（清单里的 GitHub 直链没有 CORS 头，
+ * 页面里 fetch 不了，只能当 IDM/aria2 的入口），此时「丢弃唯一来源」等于「整包判死」。
+ * 更糟的是 perSourceConcurrency 条 worker 共享同一个 consecutiveFailures 计数，且只有
+ * 成功才清零：开局 4 条连接同时建连超时，一轮就把 3 次配额烧光，连一次重试都没有。
+ * 实测 fushi.moe/pack 的一个 256 MiB 分片，开头 4 个 chunk 连续 CONNECT_TIMEOUT，
+ * 而同一次里其余 26 个 chunk 的首字节中位数只有 213ms——是瞬时抖动，不是来源已死。
+ */
+export const DEFAULT_MAX_RETRIES = 3;
+/** 第 n 次重开前的退避基数，实际等待 DEFAULT_RETRY_BACKOFF_MS * 2^n */
+export const DEFAULT_RETRY_BACKOFF_MS = 1000;
 /** bytesPerSecond 的滑窗宽度 */
 const SPEED_WINDOW_MS = 3000;
+
+/**
+ * 可被 signal 提前唤醒的等待（唤醒即 resolve，取消由调用方自己判）。
+ * @param {number} ms
+ * @param {AbortSignal} [signal]
+ * @returns {Promise<void>}
+ */
+function delay(ms, signal) {
+  if (ms <= 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timer);
+      resolve();
+    }, { once: true });
+  });
+}
 
 // ---------------------------------------------------------------------------
 // 通用小工具
@@ -460,6 +491,11 @@ function createSourceState(source, maxFailures, onDrop) {
         onDrop(state.id);
       }
     },
+    // 退避后整轮重开时把来源放回可用：队列里已完成的分片不会重下，所以这不是「从头再来」。
+    reset() {
+      state.consecutiveFailures = 0;
+      state.dropped = false;
+    },
   };
   return state;
 }
@@ -687,7 +723,9 @@ async function abortSink(sink) {
  * 全局并发不超过 maxTotalConcurrency（默认 4）；worker 从共享队列取下一个未完成分片，
  * 必须 206 且 Content-Range 与请求一致、total 等于 size、长度正确，否则视为失败：分片放回队列
  * （优先让别的来源拿）、该来源连续失败 +1，达到 maxSourceFailures（默认 3）则退出（droppedSources）；
- * 成功一次清零。所有来源都退出而分片没拿完 → reject Error('all sources failed')。
+ * 成功一次清零。所有来源都退出而分片没拿完 → 退避 retryBackoffMs * 2^n 后把所有来源放回可用、整轮重开，
+ * 最多 maxRetries 次（默认 3）；队列是共享的，已落位的分片不会重下。重开次数用尽仍没拿完
+ * → reject Error('all sources failed')。maxRetries: 0 即旧行为（来源退完立刻失败）。
  * 分片 body 流式读取并带看门狗：发请求到首段字节超过 firstByteMs（默认 10000）、或相邻两段字节之间超过 stallMs
  * （默认 8000）就中止这次请求，按普通失败处理（放回队列、连续失败 +1）；卡住不是来源已死的强证据，
  * 但连续卡住同样会达到 maxSourceFailures。
@@ -696,7 +734,7 @@ async function abortSink(sink) {
  * sink.write / onProgress 抛错属于致命错误：中止全部、sink.abort?.()、原错误 reject。
  * onProgress 在每个分片完成时调，bytesPerSecond 用最近 ~3 秒滑窗（样本按收到的字节段计，分片内也在动）。
  *
- * @param {{ sources: DownloadSource[], size: number, sink: ChunkSink, chunkBytes?: number, perSourceConcurrency?: number, maxTotalConcurrency?: number, maxSourceFailures?: number, firstByteMs?: number, stallMs?: number, fetch?: typeof fetch, signal?: AbortSignal, onProgress?: (p: ChunkProgress) => void }} job
+ * @param {{ sources: DownloadSource[], size: number, sink: ChunkSink, chunkBytes?: number, perSourceConcurrency?: number, maxTotalConcurrency?: number, maxSourceFailures?: number, maxRetries?: number, retryBackoffMs?: number, firstByteMs?: number, stallMs?: number, fetch?: typeof fetch, signal?: AbortSignal, onProgress?: (p: ChunkProgress) => void }} job
  * @returns {Promise<{ bytes: number, perSource: Record<string, number>, droppedSources: string[] }>}
  */
 export async function downloadChunked(job) {
@@ -710,6 +748,8 @@ export async function downloadChunked(job) {
   const perSourceConcurrency = requireInt(job.perSourceConcurrency ?? 2, 'perSourceConcurrency', 1);
   const maxTotalConcurrency = requireInt(job.maxTotalConcurrency ?? 4, 'maxTotalConcurrency', 1);
   const maxSourceFailures = requireInt(job.maxSourceFailures ?? 3, 'maxSourceFailures', 1);
+  const maxRetries = requireInt(job.maxRetries ?? DEFAULT_MAX_RETRIES, 'maxRetries', 0);
+  const retryBackoffMs = requireInt(job.retryBackoffMs ?? DEFAULT_RETRY_BACKOFF_MS, 'retryBackoffMs', 0);
   const firstByteMs = requireInt(job.firstByteMs ?? DEFAULT_FIRST_BYTE_MS, 'firstByteMs', 1);
   const stallMs = requireInt(job.stallMs ?? DEFAULT_STALL_MS, 'stallMs', 1);
   const fetchImpl = job.fetch ?? globalThis.fetch;
@@ -722,10 +762,12 @@ export async function downloadChunked(job) {
 
   /** @type {string[]} */
   const droppedSources = [];
-  const ctrl = new AbortController();
+  // 每轮重开换一个新的：上一轮结束时它可能已经 abort 过（看门狗、来源退出），
+  // 复用会让新一轮的请求一发出去就被中止。
+  let ctrl = new AbortController();
   const queue = createChunkQueue(size, chunkBytes);
   const states = sources.map((s) => createSourceState(s, maxSourceFailures, (id) => {
-    droppedSources.push(id);
+    if (!droppedSources.includes(id)) droppedSources.push(id);
     queue.notify();
   }));
   /** @type {JobContext} */
@@ -768,8 +810,17 @@ export async function downloadChunked(job) {
   signal?.addEventListener('abort', onSignalAbort, { once: true });
 
   try {
-    const workers = states.flatMap((state) => Array.from({ length: perSourceConcurrency }, () => runWorker(ctx, state)));
-    await Promise.race([Promise.all(workers), abortedPromise]);
+    for (let attempt = 0; ; attempt += 1) {
+      const workers = states.flatMap((state) => Array.from({ length: perSourceConcurrency }, () => runWorker(ctx, state)));
+      await Promise.race([Promise.all(workers), abortedPromise]);
+      if (queue.isComplete || attempt >= maxRetries) break;
+      // 退避期间外部取消要立刻生效，所以和 abortedPromise 竞速。
+      await Promise.race([delay(retryBackoffMs * 2 ** attempt, signal), abortedPromise]);
+      ctrl = new AbortController();
+      ctx.signal = ctrl.signal;
+      for (const state of states) state.reset();
+      queue.notify();
+    }
   } catch (err) {
     stopEverything();
     await abortSink(sink);

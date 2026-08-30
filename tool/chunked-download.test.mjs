@@ -412,13 +412,16 @@ test('4. 来源返回 200 忽略 Range → 视为失败，整文件绝不会当�
   assert.equal(world.origin('B').served, 0);
 });
 
-test('5. 全部来源失败 → reject all sources failed，sink 未 close', async () => {
+test('5. 全部来源失败且不重开（maxRetries: 0）→ reject all sources failed，sink 未 close', async () => {
   const world = createFakeWorld(FILE, [
     { id: 'A', delayMs: 1, behavior: () => '500' },
     { id: 'B', delayMs: 1, behavior: () => 'throw' },
   ]);
   const sink = recordingSink(createMemorySink(FILE.length));
-  await assert.rejects(downloadChunked(baseJob(world, { sink, maxSourceFailures: 3 })), { message: 'all sources failed' });
+  await assert.rejects(
+    downloadChunked(baseJob(world, { sink, maxSourceFailures: 3, maxRetries: 0 })),
+    { message: 'all sources failed' },
+  );
   assert.equal(sink.inner.closed, false);
   assert.equal(sink.log.writes, 0);
   for (const id of ['A', 'B']) {
@@ -451,6 +454,56 @@ for (const ignoresSignal of [false, true]) {
     assert.equal(sink.log.writes, 0, '中止后不得再写 sink');
   });
 }
+
+test('5b. 单来源开局连续失败：不判死，退避后整轮重开并拿完（推荐包分片的真实形状）', async () => {
+  // 推荐包每片只有一个来源——清单里的 GitHub 直链没有 CORS 头，页面里 fetch 不了，
+  // 只能当 IDM/aria2 的入口。旧行为里 perSourceConcurrency 条 worker 共享同一个
+  // consecutiveFailures 且只有成功才清零，于是开局并发建连一抖动就一轮烧光 3 次配额、
+  // 丢掉唯一来源 = 整包判死。线上实测 fushi.moe/pack 的一个 256 MiB 分片，开头 4 个
+  // chunk 连续 CONNECT_TIMEOUT，而同一次里其余 26 个 chunk 首字节中位数只有 213ms：
+  // 这是瞬时抖动，不是来源已死。
+  const world = createFakeWorld(FILE, [
+    { id: 'A', delayMs: 1, behavior: ({ requestNo }) => (requestNo < 4 ? 'throw' : 'ok') },
+  ]);
+  const sink = createMemorySink(FILE.length);
+  const result = await downloadChunked(baseJob(world, { sink, maxSourceFailures: 3, retryBackoffMs: 1 }));
+  assert.ok(sameBytes(sink.bytes(), FILE), '重开之后拿到完整文件');
+  assert.deepEqual(result.droppedSources, ['A'], '第一轮确实丢过唯一来源，且去重后只记一次');
+  assert.ok(world.origin('A').requests > CHUNKS_TOTAL, `开头失败之外确实重发过，requests=${world.origin('A').requests}`);
+});
+
+test('5c. 重开次数用尽仍拿不到 → 依旧 reject all sources failed，且恰好重开 maxRetries 次', async () => {
+  const world = createFakeWorld(FILE, [{ id: 'A', delayMs: 1, behavior: () => 'throw' }]);
+  const sink = recordingSink(createMemorySink(FILE.length));
+  await assert.rejects(
+    downloadChunked(baseJob(world, { sink, maxSourceFailures: 3, maxRetries: 2, retryBackoffMs: 1 })),
+    { message: 'all sources failed' },
+  );
+  // 每轮把 3 次配额烧光（并发下可能多发一个），共 1 + maxRetries = 3 轮。
+  const requests = world.origin('A').requests;
+  assert.ok(requests >= 9 && requests <= 12, `requests = ${requests}`);
+  assert.equal(sink.inner.closed, false);
+  assert.equal(sink.log.writes, 0);
+});
+
+test('5d. 退避等待期间取消：立刻 AbortError，之后不再重开', async () => {
+  // 重开引入了一段新的 await。取消要在每个 await 段都可观测，否则用户点了取消
+  // 还要干等一整个退避窗口。
+  const world = createFakeWorld(FILE, [{ id: 'A', delayMs: 1, behavior: () => 'throw' }]);
+  const sink = recordingSink(createMemorySink(FILE.length));
+  const ctrl = new AbortController();
+  const t0 = Date.now();
+  const pending = downloadChunked(
+    baseJob(world, { sink, maxSourceFailures: 3, maxRetries: 5, retryBackoffMs: 3000, signal: ctrl.signal }),
+  );
+  setTimeout(() => ctrl.abort(), 120);
+  await assert.rejects(pending, (err) => err.name === 'AbortError');
+  const elapsed = Date.now() - t0;
+  assert.ok(elapsed < 2000, `退避里也要能立刻取消，实测 ${elapsed}ms`);
+  const after = world.origin('A').requests;
+  await sleep(300);
+  assert.equal(world.origin('A').requests, after, '取消之后不该再重开');
+});
 
 test('6b. 传入时已中止的 signal → 立即 AbortError，一个 fetch 都不发', async () => {
   const world = createFakeWorld(FILE, [{ id: 'A' }]);
@@ -765,7 +818,7 @@ test('17. 单来源卡住：自己重试成功不退出；连续卡住达 maxSou
   const dead = createFakeWorld(FILE, [{ id: 'A', delayMs: 1, stream: () => ({ hangAt: 1 }) }]);
   const sink2 = recordingSink(createMemorySink(FILE.length));
   await assert.rejects(
-    downloadChunked(baseJob(dead, { sink: sink2, stallMs: 50, maxSourceFailures: 2 })),
+    downloadChunked(baseJob(dead, { sink: sink2, stallMs: 50, maxSourceFailures: 2, maxRetries: 0 })),
     { message: 'all sources failed' },
   );
   const d = dead.origin('A');
