@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Se baixar as partes com um gerenciador, junte-as depois na ordem: Windows copy /b name.000+name.001+… pack.zip; macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Escolha “Mesclar” ao importar",
   "dl.pack_warn_body": "A importação do pacote passa pelo fluxo de importação de backup. Na caixa de confirmação, <strong>“Mesclar na biblioteca atual”</strong> só adiciona os dicionários e o áudio, sem mexer nos seus dados existentes; <strong>“Sobrescrever biblioteca inteira”</strong> substitui a biblioteca inteira pelo pacote.",
-  "dl.pack_p2": "Está estudando outro idioma? Pule esta etapa e importe qualquer dicionário nos formatos Yomitan / MDX (MDict) / DSL / Migaku pelo gerenciador de dicionários. Os idiomas que você pode consultar dependem dos dicionários importados.",
+  "dl.pack_p2": "Está estudando outro idioma? Pule esta etapa e importe qualquer dicionário nos formatos Yomitan / MDX (MDict) / DSL pelo gerenciador de dicionários. Os idiomas que você pode consultar dependem dos dicionários importados.",
   "dl.mirror_unknown": "Desconhecido",
   "dl.src_r2": "Espelho Cloudflare",
   "dl.src_gh": "Proxy de borda do GitHub",

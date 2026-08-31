@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "If you fetch the parts with a download manager, join them in order afterwards: Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Choose “Merge” when importing",
   "dl.pack_warn_body": "The pack goes through the backup-import flow. In the confirmation dialog, <strong>“Merge into existing library”</strong> only adds the dictionaries and audio and leaves your existing data untouched; <strong>“Overwrite whole library”</strong> replaces the entire library with the pack.",
-  "dl.pack_p2": "Learning another language? Skip this step and import any Yomitan / MDX (MDict) / DSL / Migaku dictionary through dictionary management. The languages you can look up depend on the dictionaries you import.",
+  "dl.pack_p2": "Learning another language? Skip this step and import any Yomitan / MDX (MDict) / DSL dictionary through dictionary management. The languages you can look up depend on the dictionaries you import.",
   "dl.mirror_unknown": "Unknown",
   "dl.src_r2": "Cloudflare mirror",
   "dl.src_gh": "GitHub edge proxy",

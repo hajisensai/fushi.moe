@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Wenn du die Teile mit einem Downloader holst, füge sie danach der Reihe nach zusammen: Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Beim Import „Zusammenführen“ wählen",
   "dl.pack_warn_body": "Der Import des Pakets läuft über den Backup-Import. Im Bestätigungsdialog fügt <strong>„In aktuelle Bibliothek zusammenführen“</strong> nur die Wörterbücher und Audios hinzu und lässt deine vorhandenen Daten unangetastet; <strong>„Gesamte Bibliothek überschreiben“</strong> ersetzt die komplette Bibliothek durch das Paket.",
-  "dl.pack_p2": "Du lernst eine andere Sprache? Überspring diesen Schritt und importiere in der Wörterbuchverwaltung beliebige Wörterbücher im Yomitan- / MDX- (MDict) / DSL- / Migaku-Format. Welche Sprachen du nachschlagen kannst, hängt von den importierten Wörterbüchern ab.",
+  "dl.pack_p2": "Du lernst eine andere Sprache? Überspring diesen Schritt und importiere in der Wörterbuchverwaltung beliebige Wörterbücher im Yomitan-, MDX- (MDict)- oder DSL-Format. Welche Sprachen du nachschlagen kannst, hängt von den importierten Wörterbüchern ab.",
   "dl.mirror_unknown": "Unbekannt",
   "dl.src_r2": "Cloudflare-Mirror",
   "dl.src_gh": "GitHub-Edge-Proxy",

@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Si vous récupérez les parties avec un gestionnaire de téléchargement, assemblez-les ensuite dans l’ordre : Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Choisissez « Fusionner » à l'import",
   "dl.pack_warn_body": "L'import du pack passe par l'import de sauvegarde. Dans la boîte de confirmation, <strong>« Fusionner avec la bibliothèque actuelle »</strong> ajoute seulement les dictionnaires et les audios sans toucher à vos données existantes ; <strong>« Écraser toute la bibliothèque »</strong> remplace la bibliothèque entière par le pack.",
-  "dl.pack_p2": "Vous apprenez une autre langue ? Passez cette étape et importez n'importe quel dictionnaire Yomitan / MDX (MDict) / DSL / Migaku via la gestion des dictionnaires. Les langues que vous pouvez chercher dépendent des dictionnaires importés.",
+  "dl.pack_p2": "Vous apprenez une autre langue ? Passez cette étape et importez n'importe quel dictionnaire Yomitan / MDX (MDict) / DSL via la gestion des dictionnaires. Les langues que vous pouvez chercher dépendent des dictionnaires importés.",
   "dl.mirror_unknown": "Inconnu",
   "dl.src_r2": "Miroir Cloudflare",
   "dl.src_gh": "Proxy edge GitHub",

@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "다운로드 관리자로 분할을 받았다면 번호 순서대로 합치세요: Windows는 copy /b name.000+name.001+… pack.zip, macOS / Linux는 cat name.* > pack.zip.",
   "dl.pack_warn_title": "가져오기 방식은 “병합”을 선택하세요",
   "dl.pack_warn_body": "추천 팩 가져오기는 백업 가져오기 과정을 거칩니다. 확인 창에서 <strong>“현재 라이브러리에 병합”</strong>을 고르면 사전과 발음 음성만 추가되고 기존 데이터는 그대로 유지됩니다. <strong>“전체 라이브러리 덮어쓰기”</strong>는 라이브러리 전체를 추천 팩으로 교체합니다.",
-  "dl.pack_p2": "다른 언어를 배우시나요? 이 단계는 건너뛰고 사전 관리에서 Yomitan / MDX (MDict) / DSL / Migaku 형식의 사전을 자유롭게 가져오세요. 검색 가능한 언어는 가져온 사전에 따라 정해집니다.",
+  "dl.pack_p2": "다른 언어를 배우시나요? 이 단계는 건너뛰고 사전 관리에서 Yomitan / MDX (MDict) / DSL 형식의 사전을 자유롭게 가져오세요. 검색 가능한 언어는 가져온 사전에 따라 정해집니다.",
   "dl.mirror_unknown": "알 수 없음",
   "dl.src_r2": "Cloudflare 미러",
   "dl.src_gh": "GitHub 엣지 프록시",

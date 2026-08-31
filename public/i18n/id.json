@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Kalau mengambil bagian dengan pengelola unduhan, gabungkan sesuai urutan: Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Pilih “Gabung” saat mengimpor",
   "dl.pack_warn_body": "Impor paket rekomendasi berjalan lewat alur impor cadangan. Di kotak konfirmasi, <strong>“Gabung ke pustaka saat ini”</strong> hanya menambahkan kamus dan audio tanpa menyentuh data yang sudah ada; <strong>“Timpa seluruh pustaka”</strong> mengganti seluruh pustaka dengan paket ini.",
-  "dl.pack_p2": "Belajar bahasa lain? Lewati langkah ini dan impor kamus berformat Yomitan / MDX (MDict) / DSL / Migaku apa pun lewat manajemen kamus. Bahasa yang bisa dicari ditentukan oleh kamus yang kamu impor.",
+  "dl.pack_p2": "Belajar bahasa lain? Lewati langkah ini dan impor kamus berformat Yomitan / MDX (MDict) / DSL apa pun lewat manajemen kamus. Bahasa yang bisa dicari ditentukan oleh kamus yang kamu impor.",
   "dl.mirror_unknown": "Tidak diketahui",
   "dl.src_r2": "Mirror Cloudflare",
   "dl.src_gh": "Proksi edge GitHub",

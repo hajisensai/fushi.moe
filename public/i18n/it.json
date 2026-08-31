@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Se scarichi le parti con un download manager, uniscile poi in ordine: Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Scegli «Unisci» durante l'importazione",
   "dl.pack_warn_body": "L'importazione del pacchetto passa dal flusso di importazione dei backup. Nella finestra di conferma, <strong>«Unisci alla libreria corrente»</strong> aggiunge solo dizionari e audio senza toccare i dati esistenti; <strong>«Sovrascrivi l'intera libreria»</strong> sostituisce tutta la libreria con il pacchetto.",
-  "dl.pack_p2": "Studi un'altra lingua? Salta questo passaggio e importa qualsiasi dizionario in formato Yomitan / MDX (MDict) / DSL / Migaku dalla gestione dei dizionari. Le lingue che puoi cercare dipendono dai dizionari che importi.",
+  "dl.pack_p2": "Studi un'altra lingua? Salta questo passaggio e importa qualsiasi dizionario in formato Yomitan / MDX (MDict) / DSL dalla gestione dei dizionari. Le lingue che puoi cercare dipendono dai dizionari che importi.",
   "dl.mirror_unknown": "Sconosciuto",
   "dl.src_r2": "Mirror Cloudflare",
   "dl.src_gh": "Proxy edge GitHub",

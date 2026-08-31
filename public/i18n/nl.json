@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Haal je de delen met een downloadmanager op, voeg ze daarna op volgorde samen: Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Kies ‘Samenvoegen’ bij het importeren",
   "dl.pack_warn_body": "Het importeren van het pakket loopt via het importeren van een back-up. In het bevestigingsvenster voegt <strong>‘Samenvoegen met huidige bibliotheek’</strong> alleen de woordenboeken en audio toe en blijven je bestaande gegevens onaangeroerd; <strong>‘Gehele bibliotheek overschrijven’</strong> vervangt de volledige bibliotheek door het pakket.",
-  "dl.pack_p2": "Leer je een andere taal? Sla deze stap over en importeer via woordenboekbeheer elk woordenboek in Yomitan- / MDX- (MDict) / DSL- / Migaku-formaat. Welke talen je kunt opzoeken hangt af van de woordenboeken die je importeert.",
+  "dl.pack_p2": "Leer je een andere taal? Sla deze stap over en importeer via woordenboekbeheer elk woordenboek in Yomitan-, MDX- (MDict)- of DSL-formaat. Welke talen je kunt opzoeken hangt af van de woordenboeken die je importeert.",
   "dl.mirror_unknown": "Onbekend",
   "dl.src_r2": "Cloudflare-mirror",
   "dl.src_gh": "GitHub-edgeproxy",

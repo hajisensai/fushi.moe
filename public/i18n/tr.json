@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Parçaları bir indirme yöneticisiyle aldıysanız sonra sırayla birleştirin: Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "İçe aktarırken “Birleştir”i seçin",
   "dl.pack_warn_body": "Paketin içe aktarımı yedek içe aktarma akışından geçer. Onay penceresinde <strong>“Mevcut kütüphaneyle birleştir”</strong> yalnızca sözlükleri ve sesleri ekler, mevcut verilerinize dokunmaz; <strong>“Tüm kütüphanenin üzerine yaz”</strong> ise kütüphanenin tamamını paketle değiştirir.",
-  "dl.pack_p2": "Başka bir dil mi öğreniyorsunuz? Bu adımı atlayın ve sözlük yönetiminden Yomitan / MDX (MDict) / DSL / Migaku biçimindeki herhangi bir sözlüğü içe aktarın. Hangi dillerde arama yapabileceğinizi içe aktardığınız sözlükler belirler.",
+  "dl.pack_p2": "Başka bir dil mi öğreniyorsunuz? Bu adımı atlayın ve sözlük yönetiminden Yomitan / MDX (MDict) / DSL biçimindeki herhangi bir sözlüğü içe aktarın. Hangi dillerde arama yapabileceğinizi içe aktardığınız sözlükler belirler.",
   "dl.mirror_unknown": "Bilinmiyor",
   "dl.src_r2": "Cloudflare yansısı",
   "dl.src_gh": "GitHub edge proxy'si",

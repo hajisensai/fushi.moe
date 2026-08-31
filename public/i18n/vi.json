@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "Nếu tải các phần bằng trình quản lý tải, sau đó hãy ghép theo thứ tự: Windows copy /b name.000+name.001+… pack.zip, macOS / Linux cat name.* > pack.zip.",
   "dl.pack_warn_title": "Khi nhập hãy chọn “Hợp nhất”",
   "dl.pack_warn_body": "Nhập gói khuyên dùng đi qua luồng nhập sao lưu. Trong hộp xác nhận, <strong>“Hợp nhất vào thư viện hiện tại”</strong> chỉ thêm từ điển và kho phát âm, không động đến dữ liệu hiện có của bạn; <strong>“Ghi đè toàn bộ thư viện”</strong> sẽ thay toàn bộ thư viện bằng gói khuyên dùng.",
-  "dl.pack_p2": "Học ngôn ngữ khác? Bỏ qua bước này và dùng Quản lý từ điển để nhập bất kỳ từ điển định dạng Yomitan / MDX (MDict) / DSL / Migaku nào. Ngôn ngữ tra được phụ thuộc vào từ điển bạn nhập.",
+  "dl.pack_p2": "Học ngôn ngữ khác? Bỏ qua bước này và dùng Quản lý từ điển để nhập bất kỳ từ điển định dạng Yomitan / MDX (MDict) / DSL nào. Ngôn ngữ tra được phụ thuộc vào từ điển bạn nhập.",
   "dl.mirror_unknown": "Không rõ",
   "dl.src_r2": "Mirror Cloudflare",
   "dl.src_gh": "Proxy biên GitHub",

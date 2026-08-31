@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "用下載器攞分片嘅話，下完按編號合併成一個檔案：Windows 用 copy /b 分片名.000+分片名.001+… 整包名，macOS / Linux 用 cat 分片名.* > 整包名。",
   "dl.pack_warn_title": "匯入方式選「合併」",
   "dl.pack_warn_body": "推薦包走的是備份匯入流程，確認框裡選<strong>「合併到現有庫」</strong>只會加入辭典和發音庫，不動你已有的資料；<strong>「覆蓋整庫」</strong>會用推薦包替換整個庫。",
-  "dl.pack_p2": "學其他語言？跳過這一步，用辭典管理匯入任何 Yomitan / MDX (MDict) / DSL / Migaku 格式的辭典即可。可查的語言由你匯入的辭典決定。",
+  "dl.pack_p2": "學其他語言？跳過這一步，用辭典管理匯入任何 Yomitan / MDX (MDict) / DSL 格式的辭典即可。可查的語言由你匯入的辭典決定。",
   "dl.mirror_unknown": "未知",
   "dl.src_r2": "Cloudflare 鏡像",
   "dl.src_gh": "GitHub 邊緣代理",

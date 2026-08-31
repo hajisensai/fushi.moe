@@ -120,7 +120,7 @@
   "dl.pack_merge_hint": "ダウンローダーで分割を取得した場合は、番号順に結合してください：Windows は copy /b name.000+name.001+… pack.zip、macOS / Linux は cat name.* > pack.zip。",
   "dl.pack_warn_title": "インポート方法は「マージ」を選択",
   "dl.pack_warn_body": "推奨パックのインポートはバックアップ取り込みの流れで行われます。確認ダイアログで<strong>「現在のライブラリにマージ」</strong>を選ぶと辞書と発音音声が追加されるだけで、既存のデータには触れません。<strong>「ライブラリ全体を上書き」</strong>はライブラリ全体を推奨パックで置き換えます。",
-  "dl.pack_p2": "他の言語を学ぶなら、このステップは飛ばして、辞書管理から Yomitan / MDX (MDict) / DSL / Migaku 形式の辞書を自由にインポートしてください。検索できる言語はインポートした辞書で決まります。",
+  "dl.pack_p2": "他の言語を学ぶなら、このステップは飛ばして、辞書管理から Yomitan / MDX (MDict) / DSL 形式の辞書を自由にインポートしてください。検索できる言語はインポートした辞書で決まります。",
   "dl.mirror_unknown": "不明",
   "dl.src_r2": "Cloudflare ミラー",
   "dl.src_gh": "GitHub エッジプロキシ",

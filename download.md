@@ -831,4 +831,4 @@ onMounted(async () => {
 <p data-i18n="dl.pack_warn_body">推荐包走的是备份导入流程，确认框里选<strong>「合并到现有库」</strong>只会加进词典和发音库，不动你已有的数据；<strong>「覆盖整库」</strong>会用推荐包替换整个库。</p>
 </div>
 
-<p data-i18n="dl.pack_p2">学别的语言？跳过这一步，用词典管理导入任意 Yomitan / MDX (MDict) / DSL / Migaku 格式的词典即可。可查语言由你导入的词典决定。</p>
+<p data-i18n="dl.pack_p2">学别的语言？跳过这一步，用词典管理导入任意 Yomitan / MDX (MDict) / DSL 格式的词典即可。可查语言由你导入的词典决定。</p>
