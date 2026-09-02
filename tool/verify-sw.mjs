@@ -192,6 +192,24 @@ async function main() {
   check('主线路断开后内容改由备线路提供', whichAfter === 'secondary', whichAfter);
   check('备线路确实被打到了', secondary.state.hits > hitsAtOutage, secondary.state.hits - hitsAtOutage + ' 次');
 
+  /*
+   * /api/* 只存在于边缘 Worker，两个 Pages 源站上都没有。放行它是有意的：
+   * 不放行的话主线路一断，SW 就会去备线路要一份根本不存在的 JSON，
+   * 拿回一份 404 HTML——跟 /releases 是同一类错误映射。
+   */
+  const pathsBeforeStars = secondary.state.paths.length;
+  const starsWhileDown = await evaluate(
+    "fetch('/api/stars', { cache: 'no-store' }).then(function (r) { return 'got:' + r.status; }).catch(function () { return 'threw'; })",
+  );
+  const starsHitSecondary = secondary.state.paths
+    .slice(pathsBeforeStars)
+    .some(function (p) { return p.indexOf('/api/stars') >= 0; });
+  check(
+    'SW 放行 /api/*：主线路断开时不去备线路要 star 数',
+    starsWhileDown === 'threw' && !starsHitSecondary,
+    starsWhileDown + ' / 备线路命中 ' + starsHitSecondary,
+  );
+
   const subresource = await evaluate(
     "fetch('/download.html', { cache: 'no-store' }).then(function (r) { return r.status + ':' + r.headers.get('content-type'); }).catch(function (e) { return 'ERR:' + e; })",
   );
@@ -265,6 +283,10 @@ async function main() {
     'sw.js 里的生产来源是主域 + GitHub 自带域',
     swText.includes("origin: 'https://fushi.moe', basePath: ''") &&
       swText.includes("origin: 'https://hajisensai.github.io', basePath: '/fushi.moe'"),
+  );
+  check(
+    'sw.js 放行 /api/* （Worker 独有端点，不能跨源 failover）',
+    swText.includes("url.pathname.startsWith('/api/')"),
   );
 
   const failed = results.filter((r) => !r.ok);

@@ -2,6 +2,7 @@ import { CacheHealthStore } from './breaker';
 import { settingsFrom, type Env } from './config';
 import { handleDownload } from './downloads';
 import { handleHealth } from './health';
+import { handleStars } from './stars';
 import { handleSite } from './site';
 import { handlePack } from './pack';
 import { originUrl } from './origins';
@@ -61,6 +62,17 @@ export default {
           health,
           fetcher: fetch,
           hasMirror: env.MIRROR !== undefined,
+        });
+      }
+
+      // GitHub star 数：同域端点 + 边缘缓存，一次回源服务所有访客。
+      // 让浏览器自己打 api.github.com 会按访客 IP 限流，大陆网络还常常不可达。
+      if (url.hostname === settings.canonicalHost && url.pathname === '/api/stars') {
+        return await handleStars({
+          settings,
+          fetcher: fetch,
+          cache: caches.default,
+          waitUntil,
         });
       }
 
