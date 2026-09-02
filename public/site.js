@@ -247,6 +247,84 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLangMenus(); });
   }
 
+  /* --------------------------- GitHub star 数 --------------------------- */
+  /*
+   * 数据走同域 /api/stars（Worker 侧边缘缓存 15 分钟，一次回源服务所有访客）。
+   * 让浏览器直接打 api.github.com 会按访客 IP 限流，大陆网络也常常连不上——
+   * 那个地址只在同域端点不存在时兜底（本地 dev、GitHub Pages 直连这类没有 Worker 的场景）。
+   *
+   * 本地缓存只为「不闪」：进站先用上次的数字把徽章画出来，拿到新值再覆盖。
+   * 一次都没成功过就什么都不显示——显示一个假的 star 数比不显示更糟。
+   */
+  var STAR_KEY = 'fushi-stars';
+  var STAR_TTL_MS = 6 * 60 * 60 * 1000;
+  var STAR_ENDPOINT = '/api/stars';
+  var STAR_FALLBACK = 'https://api.github.com/repos/hajisensai/Fushi';
+  var starCount = null;
+
+  function readStars() {
+    try {
+      var v = JSON.parse(localStorage.getItem(STAR_KEY));
+      if (!v || typeof v.n !== 'number' || !isFinite(v.n) || typeof v.at !== 'number') return null;
+      return v;
+    } catch (e) { return null; }
+  }
+
+  function writeStars(n) {
+    try { localStorage.setItem(STAR_KEY, JSON.stringify({ n: n, at: Date.now() })); } catch (e) {}
+  }
+
+  /* 顶栏窄，用当前语言的紧凑写法（1234 → 1.2K / 1.2万）；卡片宽，给完整数字。 */
+  function formatStars(n, mode) {
+    try {
+      if (mode === 'full') return new Intl.NumberFormat(state.lang).format(n);
+      return new Intl.NumberFormat(state.lang, { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+    } catch (e) { return String(n); }
+  }
+
+  function renderStars() {
+    if (starCount === null) return;
+    var els = document.querySelectorAll('[data-fushi-stars]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].textContent = formatStars(starCount, els[i].getAttribute('data-fushi-stars'));
+      els[i].classList.add('on');
+      var host = els[i].closest && els[i].closest('[data-fushi-stars-host]');
+      if (host) host.classList.add('on');
+    }
+  }
+
+  /* 两个来源的字段名不同：自家端点给 stars，GitHub 原样给 stargazers_count。 */
+  function starsFrom(url, init) {
+    return fetch(url, init)
+      .then(function (r) { if (!r.ok) throw new Error('stars ' + r.status); return r.json(); })
+      .then(function (j) {
+        var n = j && typeof j.stars === 'number' ? j.stars : j && j.stargazers_count;
+        if (typeof n !== 'number' || !isFinite(n) || n < 0) throw new Error('stars payload');
+        return Math.floor(n);
+      });
+  }
+
+  function refreshStars() {
+    return starsFrom(STAR_ENDPOINT, { cache: 'default' })
+      .catch(function () {
+        return starsFrom(STAR_FALLBACK, { cache: 'default', headers: { accept: 'application/vnd.github+json' } });
+      })
+      .then(function (n) { starCount = n; writeStars(n); renderStars(); }, function () {});
+  }
+
+  /* wire 是公开 API，可能被页壳再调；重复注册监听或重复回源都没有意义。 */
+  var starsWired = false;
+  function wireStars() {
+    if (starsWired) return;
+    if (!document.querySelector('[data-fushi-stars]')) return;
+    starsWired = true;
+    // 换语言要重排数字格式（1,234 / 1234 / 1.2万）。
+    document.addEventListener('fushi:i18n', renderStars);
+    var cached = readStars();
+    if (cached) { starCount = cached.n; renderStars(); }
+    if (!cached || Date.now() - cached.at > STAR_TTL_MS) refreshStars();
+  }
+
   function wireChrome() {
     wireLangMenus();
     var totop = document.querySelector('.site-totop');
@@ -261,6 +339,7 @@
       });
     }
     syncLangMenus();
+    wireStars();
   }
 
   var manual = !!(document.currentScript && document.currentScript.getAttribute('data-manual'));
@@ -286,5 +365,12 @@
     apply: function () { state.ready = apply(); return state.ready; },
     wire: wireChrome,
     detect: detect,
+  };
+
+  window.fushiStars = {
+    get count() { return starCount; },
+    format: formatStars,
+    render: renderStars,
+    refresh: refreshStars,
   };
 })();

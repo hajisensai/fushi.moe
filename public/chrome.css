@@ -105,6 +105,12 @@ body {
 .site-nav-links a { display: inline-flex; align-items: center; gap: 8px; }
 .site-nav-links a:hover { color: var(--link); }
 .site-nav-links svg { width: 17px; height: 17px; fill: currentColor; display: block; }
+/* GitHub star 数徽章：数字由 /site.js 填，同时加 .on。
+   拿不到 star 数就整块不显示——顶栏宁可少一个数字，也不能挂一个占位的 0。 */
+.site-nav-star { display: none; align-items: center; gap: 3px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.site-nav-star.on { display: inline-flex; }
+.site-nav-links .site-nav-star svg { width: 11px; height: 11px; }
+.site-nav-links a:hover .site-nav-star { color: inherit; }
 /* 宽屏下社交入口只留图标，标题字留给屏读器和窄屏面板。 */
 .site-nav-ico .site-nav-word {
   position: absolute; width: 1px; height: 1px;
@@ -276,6 +282,8 @@ html.i18n-pending body { visibility: hidden; }
  *     <input class="site-nav-check" type="checkbox" id="site-nav-check">
  *     <label class="site-nav-burger" for="site-nav-check">…</label>
  *     <span class="site-nav-links">…</span>   ← 只放「怎么开始」+ 三个社区图标；「功能」不进顶栏（首页本身就是功能长页）
+ *       └ GitHub 那一项末尾带 <span class="site-nav-star" data-fushi-stars-host><svg/><span data-fushi-stars="compact"></span></span>
+ *         —— /site.js 拉到 star 数才给它加 .on；首页引导卡片用同一组 data-fushi-stars* 属性。
  *     <div class="site-nav-lang"><button class="site-nav-lang-btn">🌐 当前语言 ⌄</button><ul class="site-nav-lang-menu" hidden>…</ul></div>
  *     <a class="btn" href="/download">下载</a>
  *   </div>
