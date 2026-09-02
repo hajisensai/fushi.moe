@@ -69,7 +69,7 @@ function isNoise(text) {
  * 不能取决于这台机器能不能连上 api.github.com。
  */
 const STARS_FIXTURE = 1234;
-const starsMode = { fail: true };
+const starsMode = { fail: true, stars: STARS_FIXTURE };
 
 function startServer() {
   const requested = [];
@@ -80,14 +80,16 @@ function startServer() {
 
     if (path === '/__set-stars') {
       starsMode.fail = url.searchParams.get('mode') === 'fail';
+      const value = Number(url.searchParams.get('value'));
+      if (Number.isFinite(value) && value > 0) starsMode.stars = value;
       res.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' });
-      res.end(starsMode.fail ? 'fail' : 'ok');
+      res.end(starsMode.fail ? 'fail' : String(starsMode.stars));
       return;
     }
     if (path === '/api/stars') {
       const body = starsMode.fail
         ? JSON.stringify({ error: 'stars unavailable' })
-        : JSON.stringify({ repo: 'hajisensai/Fushi', stars: STARS_FIXTURE });
+        : JSON.stringify({ repo: 'hajisensai/Fushi', stars: starsMode.stars });
       res.writeHead(starsMode.fail ? 503 : 200, {
         'content-type': 'application/json; charset=utf-8',
         'cache-control': 'no-store',
@@ -553,6 +555,44 @@ async function main() {
   console.log(
     '\n首屏共请求 ' + requested.length + ' 个资源；忽略的既有噪声 ' + noise.length + ' 条' +
       (noise.length ? '（' + noise[0].slice(0, 60) + '）' : ''),
+  );
+
+  /*
+   * 回访路径：localStorage 里已经有上次的数字。它只是首帧种子，不是缓存——
+   * 重新进站必须照常刷一遍并覆盖掉。上一版在这里压了 6 小时 TTL，结果用户刷新
+   * 多少次都还是旧值，服务端明明早就更新了。这条断言钉住这个不变式。
+   * 放在最后：它要重新加载页面，不能扰动前面那些按首屏请求计数的断言。
+   */
+  const errorsBeforeReload = jsErrors.length;
+  await evaluate("fetch('/__set-stars?mode=ok&value=4321').then(function(r){return r.text();})");
+  await cdp.send('Page.navigate', { url: 'http://127.0.0.1:' + PORT + '/' });
+  const tReload = Date.now();
+  let revisit = null;
+  while (Date.now() - tReload < 15000) {
+    try {
+      revisit = await evaluate(`(function(){
+        if (!window.fushiStars) return null;
+        var num = document.querySelector('.star-box-num');
+        return {
+          count: window.fushiStars.count,
+          numText: num ? num.textContent : null,
+          stored: localStorage.getItem('fushi-stars')
+        };
+      })()`);
+    } catch { revisit = null; }
+    if (revisit && revisit.count === 4321) break;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  check(
+    '回访时本地旧值只当首帧种子，仍会刷到服务端的新值',
+    revisit !== null && revisit.count === 4321 && revisit.numText === '4,321' &&
+      typeof revisit.stored === 'string' && JSON.parse(revisit.stored).n === 4321,
+    JSON.stringify(revisit),
+  );
+  check(
+    '回访这一趟没有新增 JS 异常',
+    jsErrors.length === errorsBeforeReload,
+    jsErrors.slice(errorsBeforeReload, errorsBeforeReload + 2).join(' | '),
   );
 
   ws.close();

@@ -253,11 +253,13 @@
    * 让浏览器直接打 api.github.com 会按访客 IP 限流，大陆网络也常常连不上——
    * 那个地址只在同域端点不存在时兜底（本地 dev、GitHub Pages 直连这类没有 Worker 的场景）。
    *
-   * 本地缓存只为「不闪」：进站先用上次的数字把徽章画出来，拿到新值再覆盖。
+   * 本地存的那个数只是「首帧种子」：进站先用上次的数字把徽章画出来，不闪空位，
+   * 然后每次访问都照常刷一遍。它不是缓存，所以没有 TTL——限流该由服务端那 15 分钟
+   * 边缘缓存负责，客户端再自作主张压一层，只会让页面上的数字锁死好几个小时
+   * （上一版就是这样：localStorage 压 6 小时，用户刷新多少次都还是旧值）。
    * 一次都没成功过就什么都不显示——显示一个假的 star 数比不显示更糟。
    */
   var STAR_KEY = 'fushi-stars';
-  var STAR_TTL_MS = 6 * 60 * 60 * 1000;
   var STAR_ENDPOINT = '/api/stars';
   var STAR_FALLBACK = 'https://api.github.com/repos/hajisensai/Fushi';
   var starCount = null;
@@ -265,13 +267,13 @@
   function readStars() {
     try {
       var v = JSON.parse(localStorage.getItem(STAR_KEY));
-      if (!v || typeof v.n !== 'number' || !isFinite(v.n) || typeof v.at !== 'number') return null;
+      if (!v || typeof v.n !== 'number' || !isFinite(v.n)) return null;
       return v;
     } catch (e) { return null; }
   }
 
   function writeStars(n) {
-    try { localStorage.setItem(STAR_KEY, JSON.stringify({ n: n, at: Date.now() })); } catch (e) {}
+    try { localStorage.setItem(STAR_KEY, JSON.stringify({ n: n })); } catch (e) {}
   }
 
   /* 顶栏窄，用当前语言的紧凑写法（1234 → 1.2K / 1.2万）；卡片宽，给完整数字。 */
@@ -305,9 +307,11 @@
   }
 
   function refreshStars() {
-    return starsFrom(STAR_ENDPOINT, { cache: 'default' })
+    // no-cache 不是 no-store：照样发条件请求、照样吃 Worker 那层边缘缓存，
+    // 只是不认浏览器本地那份被 zone 改写成 4 小时的副本。
+    return starsFrom(STAR_ENDPOINT, { cache: 'no-cache' })
       .catch(function () {
-        return starsFrom(STAR_FALLBACK, { cache: 'default', headers: { accept: 'application/vnd.github+json' } });
+        return starsFrom(STAR_FALLBACK, { cache: 'no-cache', headers: { accept: 'application/vnd.github+json' } });
       })
       .then(function (n) { starCount = n; writeStars(n); renderStars(); }, function () {});
   }
@@ -322,7 +326,8 @@
     document.addEventListener('fushi:i18n', renderStars);
     var cached = readStars();
     if (cached) { starCount = cached.n; renderStars(); }
-    if (!cached || Date.now() - cached.at > STAR_TTL_MS) refreshStars();
+    // 每次访问都刷：服务端 15 分钟的边缘缓存已经是限流那一层，这里再压就是把数字锁死。
+    refreshStars();
   }
 
   function wireChrome() {
