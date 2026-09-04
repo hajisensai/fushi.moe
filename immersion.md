@@ -147,8 +147,10 @@ title: 沉浸学习
 
 > 每天新卡 5–20 张就够，可以把<span class="term" tabindex="0" data-tip="Anki 里 FSRS 算法的「期望记忆保留率」，默认 90%。调低到 70–80% 会明显减少每天的复习量，代价是忘得多一点——前期有沉浸兜底，这笔账划算。">保留率</span>改成 70–80%。Anki 的复习量会在两三周后堆起来，新卡开太多是绝大多数人放弃 Anki 的原因。
 
-- <span class="term" tabindex="0" data-tip="面向零基础的 Anki 单词卡组：按词频挑出约 1500 个日语高频词，每张卡带例句、发音和音调，由 The Moe Way 社区制作。Kaishi 就是「開始」。">**Kaishi 1.5k**</span>[中文版](https://github.com/maimemo/kaishi-zh-cn/)（[原版仓库](https://github.com/donkuri/Kaishi)）。
-- <span class="term" tabindex="0" data-tip="基于 aiueo.cc（饭团君日语发音教室）语法专题制作的 Anki 卡组，收 N5～N1 共 757 条语法，每条配日语老师真人录制的例句音频。">**おにぎり文法**</span>[中文版](https://ankiweb.net/shared/info/1567144169)，背到 <span class="term" tabindex="0" data-tip="JLPT（日本语能力测试）的等级，N5 最易、N1 最难。初级语法大致对应 N5～N4，N3 是中级的门槛；沉浸起步有 N4 上下的语法框架就够。">N3/N4</span> 即可。
+这里推荐使用 Anki 卡组：
+
+- <span class="term" tabindex="0" data-tip="面向零基础的 Anki 单词卡组：按词频挑出约 1500 个日语高频词，每张卡带例句、发音和音调，由 The Moe Way 社区制作。Kaishi 就是「開始」。">**Kaishi 1.5k**</span>：[中文版](https://github.com/maimemo/kaishi-zh-cn/)（[原版仓库](https://github.com/donkuri/Kaishi)）。
+- <span class="term" tabindex="0" data-tip="基于 aiueo.cc（饭团君日语发音教室）语法专题制作的 Anki 卡组，收 N5～N1 共 757 条语法，每条配日语老师真人录制的例句音频。">**おにぎり文法**</span>：[中文版](https://ankiweb.net/shared/info/1567144169)，背到 <span class="term" tabindex="0" data-tip="JLPT（日本语能力测试）的等级，N5 最易、N1 最难。初级语法大致对应 N5～N4，N3 是中级的门槛；沉浸起步有 N4 上下的语法框架就够。">N3/N4</span> 即可。
 
 在你背单词的时候，同时开始下一步：沉浸。
 
