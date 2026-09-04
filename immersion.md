@@ -141,7 +141,7 @@ title: 沉浸学习
 
 > 每天新卡 5–20 张就够，可以把保留率改成 70–80%。Anki 的复习量会在两三周后堆起来，新卡开太多是绝大多数人放弃 Anki 的原因。
 
-- **Kaishi 1.5k**：[中文版](https://github.com/maimemo/kaishi-zh-cn/)（[原版仓库](https://github.com/donkuri/Kaishi)）。另有俄、印尼、越南、乌克兰、巴西葡、西、法、阿拉伯、德语版，见原版仓库的 [Translation of the deck](https://github.com/donkuri/Kaishi#translation-of-the-deck)。
+- **Kaishi 1.5k**：[中文版](https://github.com/maimemo/kaishi-zh-cn/)（[原版仓库](https://github.com/donkuri/Kaishi)）。
 - **おにぎり文法**：[中文版](https://ankiweb.net/shared/info/1567144169)，背到 N3/N4 即可。
 
 在你背单词的时候，同时开始下一步：沉浸。
@@ -187,7 +187,7 @@ title: 沉浸学习
 
 </aside>
 
-刚开始建议从轻松的内容入手——日常番比战斗番好懂，轻小说比纯文学好读。难度会随着你的积累自然往上走。
+刚开始建议从轻松的内容入手——日常番比战斗番好懂，轻小说比纯文学好读。
 
 看你喜欢的内容，遇到不认识的单词点击查词，并在你觉得有必要时制卡。
 
