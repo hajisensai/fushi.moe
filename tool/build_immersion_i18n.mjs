@@ -22,7 +22,7 @@ const kanabrUrl = (c) => 'https://kanabr.vercel.app/' + (c.startsWith('zh') ? 'z
 
 /* 有独立静态路由的语言：分享链接时爬虫不跑 JS，预览要靠烤在 HTML 里的那份语言。
    其余语言的正文本来就是英文占位，统一指到 /en/。 */
-const ROUTES = { 'zh-CN': '/immersion', en: '/en/immersion', ja: '/ja/immersion', ko: '/ko/immersion', 'zh-HK': '/zh-hk/immersion' };
+const ROUTES = { en: '/immersion', 'zh-CN': '/zh-cn/immersion', 'zh-HK': '/zh-hk/immersion', ja: '/ja/immersion', ko: '/ko/immersion' };
 const routeOf = (c) => ROUTES[c] || ROUTES.en;
 const OG_LOCALE = { 'zh-CN': 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', 'zh-HK': 'zh_HK' };
 const SITE = 'https://fushi.moe';
@@ -464,7 +464,7 @@ ${el('p', 's3_p3')}
 </div>
 `; };
 
-// 1. 页面：immersion.md 是 zh-CN 版，<style> 块只在这里维护；其余语言路由页复用同一段样式，
+// 1. 页面：immersion.md 是英文版（默认路由），<style> 块只在这里维护；其余语言路由页复用同一段样式，
 //    正文默认文本换成该语言，data-i18n 键相同。每页自带标题 / 描述 / og / hreflang，
 //    这些是给不跑 JS 的链接预览爬虫看的。
 const yamlHead = (items) => 'head:\n' + items.map(([tag, attrs]) => {
@@ -480,7 +480,7 @@ const frontMatter = (c, t) => {
     ['meta', { property: 'og:locale', content: OG_LOCALE[c] }],
     ['meta', { name: 'twitter:card', content: 'summary' }],
     ...Object.entries(ROUTES).map(([lc, path]) => ['link', { rel: 'alternate', hreflang: lc, href: SITE + path }]),
-    ['link', { rel: 'alternate', hreflang: 'x-default', href: SITE + ROUTES['zh-CN'] }],
+    ['link', { rel: 'alternate', hreflang: 'x-default', href: SITE + ROUTES.en }],
   ];
   return '---\ntitle: ' + JSON.stringify(t.title) + '\ndescription: ' + JSON.stringify(t.meta_desc) + '\n' + yamlHead(items) + '\n---\n\n';
 };
@@ -494,13 +494,15 @@ const frontMatter = (c, t) => {
   if (a < 0 || b < 0) throw new Error('style block not found in immersion.md');
   const style = s.slice(a, b + '</style>'.length).replace(
     ' * 侧注折回正文流，变成段落之间的浅灰卡片。\n */',
-    ' * 侧注折回正文流，变成段落之间的浅灰卡片。\n *\n * 正文是带 data-i18n 键的 HTML，不是 markdown：站点语言切换靠 site.js 按键换 innerHTML。\n * 本文件是 zh-CN 版；en/ ja/ ko/ zh-hk/ 下的同名页是各语言的静态版（给链接预览爬虫看），\n * 五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。\n * 样式只在本文件维护；别手改任何一页的段落，改内容对象后重新生成。\n */');
+    ' * 侧注折回正文流，变成段落之间的浅灰卡片。\n *\n * 正文是带 data-i18n 键的 HTML，不是 markdown：站点语言切换靠 site.js 按键换 innerHTML。\n * 本文件是英文版（默认路由 /immersion）；zh-cn/ zh-hk/ ja/ ko/ 下的同名页是各语言的静态版\n * （给链接预览爬虫看），五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。\n * 样式只在本文件维护；别手改任何一页的段落，改内容对象后重新生成。\n */')
+    .replace(' * 本文件是 zh-CN 版；en/ ja/ ko/ zh-hk/ 下的同名页是各语言的静态版（给链接预览爬虫看），\n * 五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。',
+      ' * 本文件是英文版（默认路由 /immersion）；zh-cn/ zh-hk/ ja/ ko/ 下的同名页是各语言的静态版\n * （给链接预览爬虫看），五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。');
   for (const c of Object.keys(ROUTES)) {
     const t = contentOf(c);
     const out = frontMatter(c, t) + style + '\n\n' + bodyFor(render(c));
     const rel = routeOf(c).slice(1) + '.md';
     mkdirSync(dirname(W + rel), { recursive: true });
-    writeFileSync(W + rel, c === 'zh-CN' && crlf ? out.split('\n').join(CR + '\n') : out);
+    writeFileSync(W + rel, rel === 'immersion.md' && crlf ? out.split('\n').join(CR + '\n') : out);
   }
 }
 

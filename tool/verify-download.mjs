@@ -480,7 +480,7 @@ async function main() {
   // 底栏「怎么开始」现在指向沉浸页 /immersion（VitePress 页），同样必须真到那页而不是 404。
   for (const [label, sel, path, mark] of [
     ['顶栏 logo', '.site-nav-brand', '/', '.hero'],
-    ['底栏「怎么开始」', '.site-footer-links a[href="/immersion"]', '/immersion', '.immersion'],
+    ['底栏「怎么开始」', '.site-footer-links a[href="/zh-cn/immersion"]', '/zh-cn/immersion', '.immersion'],
   ]) {
     await runScenario(cdp, 'G ' + label, { cfUp: true, ghUp: true });
     await cdp.send('Runtime.evaluate', { expression: '(function(){ var a = document.querySelector(' + JSON.stringify(sel) + '); if (a) a.click(); return !!a; })()', returnByValue: true });

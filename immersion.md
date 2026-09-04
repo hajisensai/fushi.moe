@@ -1,33 +1,37 @@
 ---
-title: "沉浸学习"
-description: "沉浸式学外语的完整起步路线：为什么选沉浸、什么是沉浸，以及从五十音、Anki 卡组到边看番边制卡的第 0～3 步。"
+title: "Immersion learning"
+description: "A complete starter guide to learning a language through immersion: why immersion, what it is, and steps 0–3 from kana and Anki decks to mining cards while you watch."
 head:
   - - meta
     - property: "og:type"
       content: "article"
   - - meta
     - property: "og:title"
-      content: "沉浸学习"
+      content: "Immersion learning"
   - - meta
     - property: "og:description"
-      content: "沉浸式学外语的完整起步路线：为什么选沉浸、什么是沉浸，以及从五十音、Anki 卡组到边看番边制卡的第 0～3 步。"
+      content: "A complete starter guide to learning a language through immersion: why immersion, what it is, and steps 0–3 from kana and Anki decks to mining cards while you watch."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/immersion"
   - - meta
     - property: "og:locale"
-      content: "zh_CN"
+      content: "en_US"
   - - meta
     - name: "twitter:card"
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "zh-CN"
+      hreflang: "en"
       href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/en/immersion"
+      hreflang: "zh-CN"
+      href: "https://fushi.moe/zh-cn/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "zh-HK"
+      href: "https://fushi.moe/zh-hk/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -36,10 +40,6 @@ head:
     - rel: "alternate"
       hreflang: "ko"
       href: "https://fushi.moe/ko/immersion"
-  - - link
-    - rel: "alternate"
-      hreflang: "zh-HK"
-      href: "https://fushi.moe/zh-hk/immersion"
   - - link
     - rel: "alternate"
       hreflang: "x-default"
@@ -142,74 +142,74 @@ head:
 
 <div class="immersion" dir="auto">
 
-<h1 data-i18n="imm.title">沉浸学习</h1>
-<p class="note" data-i18n="imm.note">本文以日语为例，其他语言同理。</p>
+<h1 data-i18n="imm.title">Immersion learning</h1>
+<p class="note" data-i18n="imm.note">This guide uses Japanese as the example; the same approach works for any language.</p>
 
-<h2 data-i18n="imm.fit.h">我适合沉浸吗？</h2>
-<p data-i18n="imm.fit.p1">看教材、做题——我猜没几个人真心喜欢这些事。对一件不喜欢的事，动力从哪来？能坚持多久？</p>
-<p data-i18n="imm.fit.p2"><b>但沉浸不一样。它只需要满足一个条件：你对相关的内容——动画、综艺、电影、小说、游戏、漫画，任何你喜欢的内容——有真实的兴趣。</b></p>
-<p data-i18n="imm.fit.p3">不需要任何基础，不需要天赋，甚至不需要「下决心」。你只需要愿意去接触这些内容。</p>
-<p data-i18n="imm.fit.p4">选择你喜欢的内容，这比什么都重要。</p>
+<h2 data-i18n="imm.fit.h">Is immersion for me?</h2>
+<p data-i18n="imm.fit.p1">Textbooks and drills — I doubt many people genuinely enjoy them. Where does the motivation come from for something you dislike, and how long can it last?</p>
+<p data-i18n="imm.fit.p2"><b>Immersion is different. It has exactly one requirement: a genuine interest in the content — anime, variety shows, films, novels, games, manga, anything you enjoy.</b></p>
+<p data-i18n="imm.fit.p3">No prior knowledge, no talent, not even “resolve” needed. All it takes is a willingness to engage with the content.</p>
+<p data-i18n="imm.fit.p4">Pick content you love. Nothing matters more.</p>
 
-<h2 data-i18n="imm.what.h">什么是沉浸？</h2>
-<p data-i18n="imm.what.p1">去听、去读母语者给母语者做的内容：动画、小说、游戏、综艺这些面向母语者的东西。你现在看的每一部番、玩的每一款游戏，都算沉浸。</p>
-<p data-i18n="imm.what.p2">和「先学会再用」相反，沉浸是在用的过程中自然学会。</p>
-<p data-i18n="imm.what.p3">沉浸是语言习得的必经之路。背单词、学语法、做题能给你入门基础，但语言太浩瀚了，远不是教材能覆盖的。你之所以能毫不费力地读完这段话，不是因为背过什么语法规则，而是你的大脑在过去十几年的海量中文输入中自然积累了无数语言直觉。学外语也一样，这种直觉只能从大量真实输入中来。</p>
-<p data-i18n="imm.what.p4">沉浸在最开始会很痛苦，你几乎什么都听不懂、看不懂。这很正常，每个人都是这样过来的。但一旦过了那个阶段，你会开始不知不觉地听懂整句话、不查词典也能读下去。那种「突然就懂了」的瞬间，会让之前所有的挣扎都值得。而且因为你选的是自己喜欢的内容，这个过程本身就是娱乐。</p>
+<h2 data-i18n="imm.what.h">What is immersion?</h2>
+<p data-i18n="imm.what.p1">Listening to and reading things made by native speakers for native speakers: anime, novels, games, variety shows — things made for a native audience. Every show you watch and every game you play already counts.</p>
+<p data-i18n="imm.what.p2">Instead of “learn first, use later”, immersion lets you learn naturally by using.</p>
+<p data-i18n="imm.what.p3">Immersion is the road every language learner has to walk eventually. Vocabulary drills, grammar study and exercises give you a foundation, but a language is far too vast for any textbook to cover. You can read this paragraph effortlessly not because you memorised grammar rules, but because more than a decade of massive input in your native language built countless intuitions in your brain. A foreign language works the same way: that intuition only comes from large amounts of real input.</p>
+<p data-i18n="imm.what.p4">Immersion hurts at first: you understand almost nothing you hear or read. That is normal — everyone goes through it. But once you are past that stage, you start catching whole sentences without noticing and reading on without a dictionary. Those “it just clicked” moments make every earlier struggle worth it. And because you chose content you love, the process itself is entertainment.</p>
 
 <details class="theory">
-<summary data-i18n="imm.theory.summary">沉浸学习的原理是什么？</summary>
-<p data-i18n="imm.theory.p1">语言不是「学」会的，是「习得」的。你小时候没背过母语的语法表，却能把话说得比任何语法书都自然，靠的只有一件事：海量的、听得懂大半的输入。</p>
-<blockquote><p data-i18n="imm.theory.quote">「我们习得语言的原理别无二致：通过理解信息。」</p><cite data-i18n="imm.theory.cite">—— 斯蒂芬·克拉申</cite></blockquote>
-<p data-i18n="imm.theory.p2">掌握单词的含义，只是习得这一单词的第一步。若要习得运用这一单词的「直觉」，你需要在大量不同的场景下多次遇见这个单词并理解它。</p>
-<p data-i18n="imm.theory.p3">在沉浸学习的过程中会接触各种各样的场景。每次你看到一个单词并成功理解，你的直觉就得到了锤炼。最终，你建立起了很清晰的直觉，便能自然而然地知道单词如何使用了。</p>
+<summary data-i18n="imm.theory.summary">How does immersion learning work?</summary>
+<p data-i18n="imm.theory.p1">Language isn’t “learned”, it’s acquired. You never memorised grammar tables for your mother tongue, yet you speak it more naturally than any grammar book could teach — thanks to one thing only: massive amounts of input you mostly understood.</p>
+<blockquote><p data-i18n="imm.theory.quote">“We acquire language in only one way: by understanding messages.”</p><cite data-i18n="imm.theory.cite">— Stephen Krashen</cite></blockquote>
+<p data-i18n="imm.theory.p2">Knowing a word’s meaning is only the first step. To acquire an intuition for how the word is used, you have to meet it — and understand it — many times across many different contexts.</p>
+<p data-i18n="imm.theory.p3">Immersion exposes you to exactly that variety. Every time you see a word and understand it, your intuition sharpens. Eventually it becomes clear enough that you simply know how the word is used.</p>
 </details>
 
-<h2 data-i18n="imm.start.h">开始</h2>
+<h2 data-i18n="imm.start.h">Getting started</h2>
 
-<h3 data-i18n="imm.s0.h">第 0 步：使用 Fushi</h3>
-<blockquote><p data-i18n="imm.s0.side">新手引导里的推荐包已经把常用词典和音频库打包好了，不需要自己到处找资源。</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">下载 Fushi</a>，根据新手引导完成配置：词典、单词音频数据库、下载并连接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span>。配好之后，看动画、读小说时点一下就能查词，再点一下就是一张带原句、音频和配图的 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span> 卡。</p>
+<h3 data-i18n="imm.s0.h">Step 0: Set up Fushi</h3>
+<blockquote><p data-i18n="imm.s0.side">The recommended pack in the onboarding guide already bundles the common dictionaries and audio libraries — no need to hunt for resources yourself.</p></blockquote>
+<p data-i18n="imm.s0.p"><a href="/download">Download Fushi</a> and follow the onboarding guide: dictionaries, word-audio database, then install and connect <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, named after 暗記 (anki, “memorisation”), is the most widely used <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition system (SRS)</a> in the world and the tool Fushi integrates with by default. Hand it anything you want to remember and it schedules reviews so you get the best retention for the least study time.</span></span>. From then on, one tap looks a word up while you watch or read, and another tap makes an <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, named after 暗記 (anki, “memorisation”), is the most widely used <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition system (SRS)</a> in the world and the tool Fushi integrates with by default. Hand it anything you want to remember and it schedules reviews so you get the best retention for the least study time.</span></span> card with the sentence, audio and screenshot.</p>
 
-<h3 data-i18n="imm.s1.h">第 1 步：背<span class="term" tabindex="0" data-tip="日语的假名表：平假名、片假名各 46 个基本音，按あ・い・う・え・お五段十行排列，所以叫五十音。它是日语书写的基础，也是背单词前唯一必须先过的一关。">五十音</span></h3>
+<h3 data-i18n="imm.s1.h">Step 1: Learn the <span class="term" tabindex="0" data-tip="The Japanese syllabaries: hiragana and katakana, 46 basic sounds each, laid out in five vowel rows and ten consonant columns — hence the Japanese name “fifty sounds”. They are the foundation of written Japanese and the one thing you must get through before vocabulary.">kana</span></h3>
 <ul>
-<li data-i18n="imm.s1.li1">推荐用<a href="https://l-m-sherlock.github.io/">叶佬</a>开发的打字练习网站 <a href="https://kanabr.vercel.app/zh-hans">kanabr</a>（<a href="https://github.com/L-M-Sherlock/kanabr">GitHub</a>）：循序渐进解锁假名，还能顺便把打字也练了。</li>
-<li data-i18n="imm.s1.li2">或者你喜欢的任何工具。</li>
+<li data-i18n="imm.s1.li1">Recommended: <a href="https://kanabr.vercel.app/">kanabr</a> (<a href="https://github.com/L-M-Sherlock/kanabr">GitHub</a>), a typing trainer by <a href="https://l-m-sherlock.github.io/">L-M-Sherlock</a> that unlocks kana step by step — and teaches you to type Japanese along the way.</li>
+<li data-i18n="imm.s1.li2">Or any tool you like.</li>
 </ul>
-<p data-i18n="imm.s1.p">先记完平假名即可，不用记特别牢，后续使用会反复强化记忆。</p>
+<p data-i18n="imm.s1.p">Getting through hiragana is enough. It doesn’t need to be solid — vocabulary study will reinforce it over and over.</p>
 
-<h3 data-i18n="imm.s2.h">第 2 步：背基础单词和语法</h3>
-<blockquote><p data-i18n="imm.s2.side">每天新卡 5–20 张就够，可以把<span class="term" tabindex="0" data-tip="Anki 里 FSRS 算法的「期望记忆保留率」，默认 90%。调低到 70–80% 会明显减少每天的复习量，代价是忘得多一点——前期有沉浸兜底，这笔账划算。">保留率</span>改成 70–80%。<span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span> 的复习量会在两三周后堆起来，新卡开太多是绝大多数人放弃 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span> 的原因。</p></blockquote>
-<p data-i18n="imm.s2.lead">这里推荐使用 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span> 卡组：</p>
+<h3 data-i18n="imm.s2.h">Step 2: Core vocabulary and grammar</h3>
+<blockquote><p data-i18n="imm.s2.side">5–20 new cards a day is plenty, and you can lower the <span class="term" tabindex="0" data-tip="The “desired retention” setting of Anki’s FSRS algorithm, 90% by default. Lowering it to 70–80% cuts the daily review load noticeably at the cost of forgetting a little more — a good trade early on, when immersion has your back.">desired retention</span> to 70–80%. <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, named after 暗記 (anki, “memorisation”), is the most widely used <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition system (SRS)</a> in the world and the tool Fushi integrates with by default. Hand it anything you want to remember and it schedules reviews so you get the best retention for the least study time.</span></span> reviews pile up after two or three weeks; adding too many new cards is why most people quit <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, named after 暗記 (anki, “memorisation”), is the most widely used <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition system (SRS)</a> in the world and the tool Fushi integrates with by default. Hand it anything you want to remember and it schedules reviews so you get the best retention for the least study time.</span></span>.</p></blockquote>
+<p data-i18n="imm.s2.lead">Recommended <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, named after 暗記 (anki, “memorisation”), is the most widely used <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition system (SRS)</a> in the world and the tool Fushi integrates with by default. Hand it anything you want to remember and it schedules reviews so you get the best retention for the least study time.</span></span> decks:</p>
 <ul>
-<li data-i18n="imm.s2.li1"><span class="term" tabindex="0" data-tip="面向零基础的 Anki 单词卡组：按词频挑出约 1500 个日语高频词，每张卡带例句、发音和音调，由 The Moe Way 社区制作。Kaishi 就是「開始」。"><b>Kaishi 1.5k</b></span>：<a href="https://github.com/maimemo/kaishi-zh-cn/">中文版</a>（<a href="https://github.com/donkuri/Kaishi">原版仓库</a>）。</li>
-<li data-i18n="imm.s2.li2"><span class="term" tabindex="0" data-tip="基于 aiueo.cc（饭团君日语发音教室）语法专题制作的 Anki 卡组，收 N5～N1 共 757 条语法，每条配日语老师真人录制的例句音频。"><b>おにぎり文法</b></span>：<a href="https://ankiweb.net/shared/info/1567144169">中文版</a>，背到 <span class="term" tabindex="0" data-tip="JLPT（日本语能力测试）的等级，N5 最易、N1 最难。初级语法大致对应 N5～N4，N3 是中级的门槛；沉浸起步有 N4 上下的语法框架就够。">N3/N4</span> 即可。</li>
+<li data-i18n="imm.s2.li1"><span class="term" tabindex="0" data-tip="A beginner Anki vocabulary deck: about 1,500 high-frequency Japanese words chosen by frequency, each card with an example sentence, audio and pitch accent. Made by The Moe Way community; kaishi means “beginning”."><b>Kaishi 1.5k</b></span>: <a href="https://github.com/donkuri/Kaishi">original deck</a> (with translations into several languages in the same repo).</li>
+<li data-i18n="imm.s2.li2"><span class="term" tabindex="0" data-tip="A JLPT grammar reference based on the aiueo.cc grammar series (Onigiri’s Japanese Pronunciation Class): 757 grammar points from N5 to N1, each with example sentences recorded by a Japanese teacher."><b>Onigiri Grammar</b></span>: the Anki deck is Chinese-only, so use the <a href="https://aiueo.cc/pages_v2/en/grammars.php">Onigiri grammar guide</a> on aiueo.cc instead; up to <span class="term" tabindex="0" data-tip="Levels of the JLPT (Japanese-Language Proficiency Test): N5 is the easiest, N1 the hardest. Beginner grammar roughly covers N5–N4, and N3 is the threshold of intermediate; a grammar framework around N4 is enough to start immersing.">N3/N4</span> is enough.</li>
 </ul>
-<p data-i18n="imm.s2.p">在你背单词的时候，同时开始下一步：沉浸。</p>
+<p data-i18n="imm.s2.p">While you’re still learning vocabulary, start the next step: immersion.</p>
 
 <aside class="faq">
-<h4 data-i18n="imm.faq.q1">Q：<span class="term" tabindex="0" data-tip="日语的假名表：平假名、片假名各 46 个基本音，按あ・い・う・え・お五段十行排列，所以叫五十音。它是日语书写的基础，也是背单词前唯一必须先过的一关。">五十音</span>好枯燥，这是正常的吗？</h4>
-<p data-i18n="imm.faq.a1a">正常，而且几乎所有人都这么觉得。</p>
-<p data-i18n="imm.faq.a1b">你不需要等到「喜欢背五十音」才开始——事实上那一天可能永远不会来。你需要的是先动起来，哪怕只是每天五分钟，哪怕今天只记住了「あ」。</p>
-<p data-i18n="imm.faq.a1c">进步本身会带来动力。当你有一天突然在动画里听懂了一个词，那种感觉会让之前所有枯燥的积累变得值得。但那一天不会凭空到来，它需要你先熬过这段「什么都不懂」的时期。</p>
-<h4 data-i18n="imm.faq.q2">Q：我应该每天花多少时间在 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span> 上？</h4>
-<p data-i18n="imm.faq.a2a">比你想的少。</p>
-<p data-i18n="imm.faq.a2b">每天 15 到 30 分钟，取决于你对此事的接受程度，认真做，比偶尔一次两小时有效得多。原因很简单：习惯比强度更重要。一个你能坚持每天做的计划，远胜过一个你三天打鱼两天晒网的「高强度计划」。</p>
-<p data-i18n="imm.faq.a2c">如果你今天状态很差，那就只做 5 分钟。5 分钟也算。<b>马车走得慢没关系，重要的是不要掉下车。</b>一旦习惯断掉，重新开始的心理成本会比你想象的大得多。</p>
-<h4 data-i18n="imm.faq.q3">Q：我记性很差，老是忘，怎么办？</h4>
-<p data-i18n="imm.faq.a3a">遗忘是正常的，<span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span> 存在的意义就是对抗遗忘。</p>
-<p data-i18n="imm.faq.a3b">今天记不住，明天记不住，总有一天会记住它。</p>
+<h4 data-i18n="imm.faq.q1">Q: Learning <span class="term" tabindex="0" data-tip="The Japanese syllabaries: hiragana and katakana, 46 basic sounds each, laid out in five vowel rows and ten consonant columns — hence the Japanese name “fifty sounds”. They are the foundation of written Japanese and the one thing you must get through before vocabulary.">kana</span> is so boring — is that normal?</h4>
+<p data-i18n="imm.faq.a1a">Completely normal, and almost everyone feels the same.</p>
+<p data-i18n="imm.faq.a1b">You don’t need to wait until you “enjoy learning kana” to begin — that day may never come. What you need is to start moving, even if it’s only five minutes a day, even if all you remembered today was あ.</p>
+<p data-i18n="imm.faq.a1c">Progress itself creates motivation. The day you suddenly catch a word in an anime, all the tedious groundwork will feel worth it. But that day won’t arrive on its own — you have to get through the “I understand nothing” phase first.</p>
+<h4 data-i18n="imm.faq.q2">Q: How much time should I spend on <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, named after 暗記 (anki, “memorisation”), is the most widely used <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition system (SRS)</a> in the world and the tool Fushi integrates with by default. Hand it anything you want to remember and it schedules reviews so you get the best retention for the least study time.</span></span> each day?</h4>
+<p data-i18n="imm.faq.a2a">Less than you think.</p>
+<p data-i18n="imm.faq.a2b">15 to 30 minutes a day, depending on how much you can stomach, done properly, beats an occasional two-hour session by a wide margin. The reason is simple: habit matters more than intensity. A plan you can keep every day is worth far more than a “hardcore plan” you follow on and off.</p>
+<p data-i18n="imm.faq.a2c">On a bad day, do just 5 minutes. 5 minutes counts. <b>A slow cart is fine; what matters is not falling off.</b> Once the habit breaks, restarting costs far more willpower than you’d expect.</p>
+<h4 data-i18n="imm.faq.q3">Q: My memory is terrible and I keep forgetting — what do I do?</h4>
+<p data-i18n="imm.faq.a3a">Forgetting is normal. Fighting it is the whole point of <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, named after 暗記 (anki, “memorisation”), is the most widely used <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced repetition system (SRS)</a> in the world and the tool Fushi integrates with by default. Hand it anything you want to remember and it schedules reviews so you get the best retention for the least study time.</span></span>.</p>
+<p data-i18n="imm.faq.a3b">Not today, not tomorrow — but one day it sticks.</p>
 </aside>
 
-<h3 data-i18n="imm.s3.h">第 3 步：沉浸同时<span class="term" tabindex="0" data-tip="把沉浸里遇到的生词连同它所在的原句、音频和画面做成一张 Anki 卡片。Fushi 里点一下查词、再点一下就做好了。">制卡</span> + 背单词</h3>
+<h3 data-i18n="imm.s3.h">Step 3: Immerse, <span class="term" tabindex="0" data-tip="Turn a new word you met while immersing into an Anki card together with the sentence, audio and screenshot it came from. In Fushi it’s one tap to look up and one more to make the card.">mine cards</span> and study vocabulary at the same time</h3>
 <aside class="callout">
-<p data-i18n="imm.s3.c1">学语言需要接受一个事实：你无法理解所有内容。</p>
-<p data-i18n="imm.s3.c2">很多人觉得自己没「准备好」，想先学够了再去沉浸——这永远不会有效果。无论你提前准备了多少，第一次接触真实材料时，你都不会全懂。与其回避这种不适，不如一头扎进去：你越能容忍模糊，大脑掌握语言就越快。</p>
-<p data-i18n="imm.s3.c3"><b>如果实在受不了模糊</b></p>
-<ul data-i18n="imm.s3.c4"><li><b>剧透先行</b>：看之前先读剧情梗概，或者重看你已经看过母语版的内容。</li><li><b>母语字幕兜底</b>：通常不推荐母语字幕（学不到什么），但如果完全迷失，可以先不开字幕撑一段，撑不住再显示一下母语字幕，或者无字幕看一遍、开字幕再看一遍。</li></ul>
+<p data-i18n="imm.s3.c1">Learning a language means accepting one fact: you will not understand everything.</p>
+<p data-i18n="imm.s3.c2">Many people feel they aren’t “ready” and want to study more before immersing — that never works. No matter how much you prepare, you won’t understand it all the first time you touch real material. Rather than avoiding the discomfort, dive in: the more ambiguity you can tolerate, the faster your brain picks the language up.</p>
+<p data-i18n="imm.s3.c3"><b>If the ambiguity is unbearable</b></p>
+<ul data-i18n="imm.s3.c4"><li><b>Spoil yourself first</b>: read a plot summary beforehand, or rewatch something you already know in your own language.</li><li><b>Native-language subtitles as a last resort</b>: normally not recommended (you learn little from them), but if you are completely lost, push on without them for a while and only flash them on when you must — or watch once without and once with.</li></ul>
 </aside>
-<p data-i18n="imm.s3.p1">刚开始建议从轻松的内容入手——日常番比战斗番好懂，轻小说比纯文学好读。</p>
-<p data-i18n="imm.s3.p2">看你喜欢的内容，遇到不认识的单词点击查词，并在你觉得有必要时<span class="term" tabindex="0" data-tip="把沉浸里遇到的生词连同它所在的原句、音频和画面做成一张 Anki 卡片。Fushi 里点一下查词、再点一下就做好了。">制卡</span>。</p>
-<p data-i18n="imm.s3.p3">背单词是重要的主动非沉浸学习手段，前期能快速积累词汇量。</p>
+<p data-i18n="imm.s3.p1">Start with easy material — slice-of-life shows are easier than battle anime, light novels easier than literary fiction.</p>
+<p data-i18n="imm.s3.p2">Watch what you love, tap unknown words to look them up, and <span class="term" tabindex="0" data-tip="Turn a new word you met while immersing into an Anki card together with the sentence, audio and screenshot it came from. In Fushi it’s one tap to look up and one more to make the card.">mine cards</span> when it feels worthwhile.</p>
+<p data-i18n="imm.s3.p3">Vocabulary study is the one active, non-immersion method that matters: early on it builds your vocabulary fast.</p>
 
 </div>

@@ -22,12 +22,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "zh-CN"
+      hreflang: "en"
       href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/en/immersion"
+      hreflang: "zh-CN"
+      href: "https://fushi.moe/zh-cn/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "zh-HK"
+      href: "https://fushi.moe/zh-hk/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -36,10 +40,6 @@ head:
     - rel: "alternate"
       hreflang: "ko"
       href: "https://fushi.moe/ko/immersion"
-  - - link
-    - rel: "alternate"
-      hreflang: "zh-HK"
-      href: "https://fushi.moe/zh-hk/immersion"
   - - link
     - rel: "alternate"
       hreflang: "x-default"

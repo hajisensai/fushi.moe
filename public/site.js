@@ -38,6 +38,21 @@
     ['ar', 'العربية'],
   ];
   var SOURCE = 'zh-CN';
+  /**
+   * 这一页烤在 HTML 里的语言。手写页（首页 / 下载页）是简体中文；沉浸页默认路由 /immersion
+   * 是英文，/zh-cn/ /zh-hk/ /ja/ /ko/ 下是各语言的静态版。判定必须同步（脚本在 <head> 里跑，
+   * body 还没解析），所以只能看路径。中文用户打开 /immersion 会按 zh-CN 字典把英文换掉，
+   * 英文用户打开 /zh-cn/immersion 同理反过来。
+   */
+  var PAGE_LANG = { '/immersion': 'en' };
+  var PREFIX_LANG = { 'zh-cn': 'zh-CN', 'zh-hk': 'zh-HK', en: 'en', ja: 'ja', ko: 'ko' };
+  function pageSource() {
+    var p = location.pathname.replace(/\.html$/, '').replace(/\/index$/, '') || '/';
+    var m = p.match(/^\/(zh-cn|zh-hk|en|ja|ko)(\/|$)/);
+    if (m) return PREFIX_LANG[m[1]];
+    return PAGE_LANG[p] || SOURCE;
+  }
+  var PAGE_SOURCE = pageSource();
   var STORE = 'fushi-lang';
   var RTL = { ar: true };
   var PENDING_CLASS = 'i18n-pending';
@@ -122,8 +137,8 @@
   var state = { choice: readChoice(), lang: SOURCE, dict: null, ready: null };
   state.lang = resolve(state.choice);
 
-  // 非中文：第一帧前藏住 body。超时兜底保证任何情况下页面都会露出来。
-  if (state.lang !== SOURCE) {
+  // 语言与本页烤的不同：第一帧前藏住 body。超时兜底保证任何情况下页面都会露出来。
+  if (state.lang !== PAGE_SOURCE) {
     root.classList.add(PENDING_CLASS);
     setTimeout(function () { root.classList.remove(PENDING_CLASS); }, PENDING_TIMEOUT_MS);
   }
@@ -160,10 +175,10 @@
     document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: dict } }));
   }
 
-  /** 把当前语言应用到页面。中文源语言且从未切过 → 什么都不用换。 */
+  /** 把当前语言应用到页面。与本页烤的语言相同且从未切过 → 什么都不用换。 */
   function apply() {
     var code = resolve(state.choice);
-    if (code === SOURCE && !state.dict) {
+    if (code === PAGE_SOURCE && !state.dict) {
       state.lang = code;
       root.lang = code; root.dir = 'ltr';
       syncLangMenus();
@@ -357,7 +372,7 @@
   else onReady();
 
   // 预热字典：和 HTML 解析并行拉，DOMContentLoaded 时多半已经到了。
-  if (state.lang !== SOURCE) loadDict(state.lang).catch(function () {});
+  if (state.lang !== PAGE_SOURCE) loadDict(state.lang).catch(function () {});
 
   window.fushiI18n = {
     LANGS: LANGS,
