@@ -134,7 +134,7 @@ title: 沉浸学习
 
 > 新手引导里的推荐包已经把常用词典和音频库打包好了，不需要自己到处找资源。
 
-<a href="/download">下载 Fushi</a>，根据新手引导完成配置：词典、单词音频数据库、下载并连接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span>。配好之后，看动画、读小说时点一下就能查词，再点一下就是一张带原句、音频和配图的 Anki 卡。
+<a href="/download">下载 Fushi</a>，根据新手引导完成配置：词典、单词音频数据库、下载并连接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span>。配好之后，看动画、读小说时点一下就能查词，再点一下就是一张带原句、音频和配图的 <span class="term" tabindex="0" data-tip="Anki，取名自暗記（あんき），是世界上使用最广泛的间隔重复记忆系统（SRS），也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。">Anki</span> 卡。
 
 ### 第 1 步：背<span class="term" tabindex="0" data-tip="日语的假名表：平假名、片假名各 46 个基本音，按あ・い・う・え・お五段十行排列，所以叫五十音。它是日语书写的基础，也是背单词前唯一必须先过的一关。">五十音</span>
 
@@ -145,9 +145,9 @@ title: 沉浸学习
 
 ### 第 2 步：背基础单词和语法
 
-> 每天新卡 5–20 张就够，可以把<span class="term" tabindex="0" data-tip="Anki 里 FSRS 算法的「期望记忆保留率」，默认 90%。调低到 70–80% 会明显减少每天的复习量，代价是忘得多一点——前期有沉浸兜底，这笔账划算。">保留率</span>改成 70–80%。Anki 的复习量会在两三周后堆起来，新卡开太多是绝大多数人放弃 Anki 的原因。
+> 每天新卡 5–20 张就够，可以把<span class="term" tabindex="0" data-tip="Anki 里 FSRS 算法的「期望记忆保留率」，默认 90%。调低到 70–80% 会明显减少每天的复习量，代价是忘得多一点——前期有沉浸兜底，这笔账划算。">保留率</span>改成 70–80%。<span class="term" tabindex="0" data-tip="Anki，取名自暗記（あんき），是世界上使用最广泛的间隔重复记忆系统（SRS），也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。">Anki</span> 的复习量会在两三周后堆起来，新卡开太多是绝大多数人放弃 <span class="term" tabindex="0" data-tip="Anki，取名自暗記（あんき），是世界上使用最广泛的间隔重复记忆系统（SRS），也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。">Anki</span> 的原因。
 
-这里推荐使用 Anki 卡组：
+这里推荐使用 <span class="term" tabindex="0" data-tip="Anki，取名自暗記（あんき），是世界上使用最广泛的间隔重复记忆系统（SRS），也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。">Anki</span> 卡组：
 
 - <span class="term" tabindex="0" data-tip="面向零基础的 Anki 单词卡组：按词频挑出约 1500 个日语高频词，每张卡带例句、发音和音调，由 The Moe Way 社区制作。Kaishi 就是「開始」。">**Kaishi 1.5k**</span>：[中文版](https://github.com/maimemo/kaishi-zh-cn/)（[原版仓库](https://github.com/donkuri/Kaishi)）。
 - <span class="term" tabindex="0" data-tip="基于 aiueo.cc（饭团君日语发音教室）语法专题制作的 Anki 卡组，收 N5～N1 共 757 条语法，每条配日语老师真人录制的例句音频。">**おにぎり文法**</span>：[中文版](https://ankiweb.net/shared/info/1567144169)，背到 <span class="term" tabindex="0" data-tip="JLPT（日本语能力测试）的等级，N5 最易、N1 最难。初级语法大致对应 N5～N4，N3 是中级的门槛；沉浸起步有 N4 上下的语法框架就够。">N3/N4</span> 即可。
@@ -156,7 +156,7 @@ title: 沉浸学习
 
 <aside class="faq">
 
-#### Q：五十音好枯燥，这是正常的吗？
+#### Q：<span class="term" tabindex="0" data-tip="日语的假名表：平假名、片假名各 46 个基本音，按あ・い・う・え・お五段十行排列，所以叫五十音。它是日语书写的基础，也是背单词前唯一必须先过的一关。">五十音</span>好枯燥，这是正常的吗？
 
 正常，而且几乎所有人都这么觉得。
 
@@ -164,7 +164,7 @@ title: 沉浸学习
 
 进步本身会带来动力。当你有一天突然在动画里听懂了一个词，那种感觉会让之前所有枯燥的积累变得值得。但那一天不会凭空到来，它需要你先熬过这段「什么都不懂」的时期。
 
-#### Q：我应该每天花多少时间在 Anki 上？
+#### Q：我应该每天花多少时间在 <span class="term" tabindex="0" data-tip="Anki，取名自暗記（あんき），是世界上使用最广泛的间隔重复记忆系统（SRS），也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。">Anki</span> 上？
 
 比你想的少。
 
@@ -174,13 +174,13 @@ title: 沉浸学习
 
 #### Q：我记性很差，老是忘，怎么办？
 
-遗忘是正常的，Anki 存在的意义就是对抗遗忘。
+遗忘是正常的，<span class="term" tabindex="0" data-tip="Anki，取名自暗記（あんき），是世界上使用最广泛的间隔重复记忆系统（SRS），也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。">Anki</span> 存在的意义就是对抗遗忘。
 
 今天记不住，明天记不住，总有一天会记住它。
 
 </aside>
 
-### 第 3 步：沉浸同时制卡 + 背单词
+### 第 3 步：沉浸同时<span class="term" tabindex="0" data-tip="把沉浸里遇到的生词连同它所在的原句、音频和画面做成一张 Anki 卡片。Fushi 里点一下查词、再点一下就做好了。">制卡</span> + 背单词
 
 <aside class="callout">
 
