@@ -4,6 +4,7 @@
  * 用法：node tool/build_immersion_i18n.mjs（默认仓库根；也可传目标目录）
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { DE, ES, FR, IT, NL, PT_BR, RU, TR, VI, ID, TH, AR } from './immersion_translations_extra.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const W = (process.argv[2] || join(dirname(fileURLToPath(import.meta.url)), '..')) + '/';
@@ -22,9 +23,16 @@ const kanabrUrl = (c) => 'https://kanabr.vercel.app/' + (c.startsWith('zh') ? 'z
 
 /* 有独立静态路由的语言：分享链接时爬虫不跑 JS，预览要靠烤在 HTML 里的那份语言。
    其余语言的正文本来就是英文占位，统一指到 /en/。 */
-const ROUTES = { en: '/immersion', 'zh-CN': '/zh-cn/immersion', 'zh-HK': '/zh-hk/immersion', ja: '/ja/immersion', ko: '/ko/immersion' };
+const ROUTES = {
+  en: '/immersion', 'zh-CN': '/zh-cn/immersion', 'zh-HK': '/zh-hk/immersion', ja: '/ja/immersion', ko: '/ko/immersion',
+  de: '/de/immersion', es: '/es/immersion', fr: '/fr/immersion', it: '/it/immersion', nl: '/nl/immersion', 'pt-BR': '/pt-br/immersion',
+  ru: '/ru/immersion', tr: '/tr/immersion', vi: '/vi/immersion', id: '/id/immersion', th: '/th/immersion', ar: '/ar/immersion',
+};
 const routeOf = (c) => ROUTES[c] || ROUTES.en;
-const OG_LOCALE = { 'zh-CN': 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', 'zh-HK': 'zh_HK' };
+const OG_LOCALE = {
+  'zh-CN': 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', 'zh-HK': 'zh_HK',
+  de: 'de_DE', es: 'es_ES', fr: 'fr_FR', it: 'it_IT', nl: 'nl_NL', 'pt-BR': 'pt_BR', ru: 'ru_RU', tr: 'tr_TR', vi: 'vi_VN', id: 'id_ID', th: 'th_TH', ar: 'ar_AR',
+};
 const SITE = 'https://fushi.moe';
 
 /* ---------- 内容：zh-CN 是源语言 ---------- */
@@ -41,7 +49,7 @@ const ZH = {
   what_p1: '去听、去读母语者给母语者做的内容：动画、小说、游戏、综艺这些面向母语者的东西。你现在看的每一部番、玩的每一款游戏，都算沉浸。',
   what_p2: '和「先学会再用」相反，沉浸是在用的过程中自然学会。',
   what_p3: '沉浸是语言习得的必经之路。背单词、学语法、做题能给你入门基础，但语言太浩瀚了，远不是教材能覆盖的。你之所以能毫不费力地读完这段话，不是因为背过什么语法规则，而是你的大脑在过去十几年的海量中文输入中自然积累了无数语言直觉。学外语也一样，这种直觉只能从大量真实输入中来。',
-  what_p4: '沉浸在最开始确实会有一段什么都不懂的阶段，但因为你选的是自己喜欢的内容，即使听不懂也能看下去。等你不知不觉开始听懂整句话、不查词典也能读下去的时候，你会发现这个过程本身就是娱乐。',
+  what_p4: '沉浸在最开始确实会有一段什么都不懂的阶段，但因为你选的是自己喜欢的内容，即使不完全听懂也能看下去。不管进步是快是慢、懂多还是懂少，你对这些内容的兴趣才是最重要的。',
   theory_summary: '沉浸学习的原理是什么？',
   theory_p1: '语言不是「学」会的，是「习得」的。你小时候没背过母语的语法表，却能把话说得比任何语法书都自然，靠的只有一件事：海量的、听得懂大半的输入。',
   theory_quote: '「我们习得语言的原理别无二致：通过理解信息。」',
@@ -106,7 +114,7 @@ const ZH_HK = {
   what_p1: '去聽、去讀母語者為母語者製作的內容：動畫、小說、遊戲、綜藝這些面向母語者的東西。你現在看的每一部番、玩的每一款遊戲，都算沉浸。',
   what_p2: '與「先學會再用」相反，沉浸是在使用的過程中自然學會。',
   what_p3: '沉浸是語言習得的必經之路。背單詞、學語法、做題能給你入門基礎，但語言太浩瀚了，遠不是教材能覆蓋的。你之所以能毫不費力地讀完這段話，不是因為背過什麼語法規則，而是你的大腦在過去十幾年的海量中文輸入中自然積累了無數語言直覺。學外語也一樣，這種直覺只能從大量真實輸入中來。',
-  what_p4: '沉浸在最開始確實會有一段什麼都不懂的階段，但因為你選的是自己喜歡的內容，即使聽不懂也能看下去。等你不知不覺開始聽懂整句話、不查詞典也能讀下去的時候，你會發現這個過程本身就是娛樂。',
+  what_p4: '沉浸在最開始確實會有一段什麼都不懂的階段，但因為你選的是自己喜歡的內容，即使不完全聽懂也能看下去。不管進步是快是慢、懂多還是懂少，你對這些內容的興趣才是最重要的。',
   theory_summary: '沉浸學習的原理是什麼？',
   theory_p1: '語言不是「學」會的，是「習得」的。你小時候沒背過母語的語法表，卻能把話說得比任何語法書都自然，靠的只有一件事：海量的、聽得懂大半的輸入。',
   theory_quote: '「我們習得語言的原理別無二致：通過理解信息。」',
@@ -170,7 +178,7 @@ const EN = {
   what_p1: 'Listening to and reading things made by native speakers for native speakers: anime, novels, games, variety shows — things made for a native audience. Every show you watch and every game you play already counts.',
   what_p2: 'Instead of “learn first, use later”, immersion lets you learn naturally by using.',
   what_p3: 'Immersion is the road every language learner has to walk eventually. Vocabulary drills, grammar study and exercises give you a foundation, but a language is far too vast for any textbook to cover. You can read this paragraph effortlessly not because you memorised grammar rules, but because more than a decade of massive input in your native language built countless intuitions in your brain. A foreign language works the same way: that intuition only comes from large amounts of real input.',
-  what_p4: 'Immersion does start with a stretch where you understand almost nothing. But because you chose content you love, you can keep watching even without understanding. By the time you find yourself catching whole sentences and reading on without a dictionary, you will realise the process itself has been entertainment all along.',
+  what_p4: 'Immersion does start with a stretch where you understand almost nothing. But because you chose content you love, you can keep watching even without understanding all of it. Fast or slow, a lot or a little — what matters most is your interest in the content itself.',
   theory_summary: 'How does immersion learning work?',
   theory_p1: 'Language isn’t “learned”, it’s acquired. You never memorised grammar tables for your mother tongue, yet you speak it more naturally than any grammar book could teach — thanks to one thing only: massive amounts of input you mostly understood.',
   theory_quote: '“We acquire language in only one way: by understanding messages.”',
@@ -234,7 +242,7 @@ const JA = {
   what_p1: '母語話者が母語話者のために作ったもの——アニメ、小説、ゲーム、バラエティといった母語話者向けのもの——を聞き、読むことです。今見ているアニメも、遊んでいるゲームも、すべてイマージョンです。',
   what_p2: '「先に学んでから使う」のではなく、イマージョンは使いながら自然に身につける方法です。',
   what_p3: 'イマージョンは言語習得で必ず通る道です。単語暗記や文法学習、問題演習は入門の土台をくれますが、言語はあまりに広大で、教科書がカバーできる範囲をはるかに超えています。あなたがこの文章を苦もなく読めるのは、文法規則を暗記したからではなく、十数年にわたる母語の大量のインプットの中で、脳が無数の言語直感を自然に蓄えてきたからです。外国語も同じで、その直感は大量の本物のインプットからしか生まれません。',
-  what_p4: 'イマージョンは、最初は確かに何もわからない時期があります。でも選んだのは自分の好きなコンテンツですから、わからなくても見続けられます。いつの間にか文がまるごと聞き取れ、辞書を引かずに読み進められるようになった頃、この過程そのものが娯楽だったと気づくはずです。',
+  what_p4: 'イマージョンは、最初は確かに何もわからない時期があります。でも選んだのは自分の好きなコンテンツですから、全部はわからなくても見続けられます。進みが速くても遅くても、わかる量が多くても少なくても、いちばん大事なのはそのコンテンツへの興味です。',
   theory_summary: 'イマージョン学習の原理は？',
   theory_p1: '言語は「学ぶ」ものではなく「習得する」ものです。子どもの頃、母語の文法表を暗記したことはないのに、どんな文法書より自然に話せる。頼りにしたのはただひとつ、大半は理解できる大量のインプットです。',
   theory_quote: '「私たちが言語を習得する方法はただひとつ、メッセージを理解することによってである。」',
@@ -298,7 +306,7 @@ const KO = {
   what_p1: '원어민이 원어민을 위해 만든 것 — 애니메이션, 소설, 게임, 예능 같은 원어민 대상의 것 — 을 듣고 읽는 것입니다. 지금 보는 애니메이션, 지금 하는 게임이 이미 몰입입니다.',
   what_p2: '「먼저 배우고 나중에 쓴다」와 반대로, 몰입은 쓰면서 자연스럽게 익히는 방법입니다.',
   what_p3: '몰입은 언어 습득에서 반드시 거쳐야 하는 길입니다. 단어 암기, 문법 공부, 문제 풀이는 입문의 기초를 주지만, 언어는 너무나 방대해서 교재가 다룰 수 있는 범위를 훨씬 넘어섭니다. 당신이 이 문단을 힘들이지 않고 읽을 수 있는 것은 문법 규칙을 외웠기 때문이 아니라, 지난 십수 년 동안 모국어를 대량으로 접하며 뇌가 무수한 언어 직감을 자연스럽게 쌓았기 때문입니다. 외국어도 마찬가지로, 그 직감은 대량의 진짜 입력에서만 나옵니다.',
-  what_p4: '몰입은 처음에 분명 아무것도 이해가 안 되는 시기가 있습니다. 하지만 좋아하는 콘텐츠를 골랐기에 이해가 안 돼도 계속 볼 수 있습니다. 어느새 문장을 통째로 알아듣고 사전 없이 읽어 나가게 될 즈음, 이 과정 자체가 오락이었음을 깨닫게 될 겁니다.',
+  what_p4: '몰입은 처음에 분명 아무것도 이해가 안 되는 시기가 있습니다. 하지만 좋아하는 콘텐츠를 골랐기에 다 이해하지 못해도 계속 볼 수 있습니다. 진도가 빠르든 느리든, 많이 알아듣든 적게 알아듣든, 가장 중요한 것은 그 콘텐츠에 대한 당신의 흥미입니다.',
   theory_summary: '몰입 학습의 원리는?',
   theory_p1: '언어는 「배우는」 것이 아니라 「습득하는」 것입니다. 어릴 때 모국어 문법표를 외운 적이 없는데도 어떤 문법책보다 자연스럽게 말하죠. 의지한 것은 단 하나, 대부분 이해할 수 있는 엄청난 양의 입력입니다.',
   theory_quote: '「우리가 언어를 습득하는 방법은 오직 하나, 메시지를 이해하는 것이다.」',
@@ -350,8 +358,19 @@ const KO = {
 };
 
 const LANGS = ['zh-CN', 'zh-HK', 'en', 'ja', 'ko', 'de', 'es', 'fr', 'it', 'nl', 'pt-BR', 'ru', 'tr', 'vi', 'th', 'id', 'ar'];
-const TRANSLATED = { 'zh-CN': ZH, 'zh-HK': ZH_HK, en: EN, ja: JA, ko: KO };
-const contentOf = (c) => TRANSLATED[c] || EN; // 其余语言暂用英文文案，链接仍按语言分流
+const TRANSLATED = { 'zh-CN': ZH, 'zh-HK': ZH_HK, en: EN, ja: JA, ko: KO, de: DE, es: ES, fr: FR, it: IT, nl: NL, 'pt-BR': PT_BR, ru: RU, tr: TR, vi: VI, id: ID, th: TH, ar: AR };
+const contentOf = (c) => { const t = TRANSLATED[c]; if (!t) throw new Error('no translation for ' + c); return t; };
+// 字段一致性：每种语言必须和英文版字段一一对应，多一个少一个都算错，别让某种语言悄悄掉段
+{
+  const ref = Object.keys(EN).sort().join(',');
+  for (const [c, t] of Object.entries(TRANSLATED)) {
+    const got = Object.keys(t).sort().join(',');
+    if (got !== ref) {
+      const a = new Set(Object.keys(EN)), b = new Set(Object.keys(t));
+      throw new Error(c + ' fields mismatch; missing=' + [...a].filter((k) => !b.has(k)).join(',') + ' extra=' + [...b].filter((k) => !a.has(k)).join(','));
+    }
+  }
+}
 
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const dataTip = (word, text) => '<span class="term" tabindex="0" data-tip="' + esc(text) + '">' + word + '</span>';

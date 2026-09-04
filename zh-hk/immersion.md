@@ -42,6 +42,54 @@ head:
       href: "https://fushi.moe/ko/immersion"
   - - link
     - rel: "alternate"
+      hreflang: "de"
+      href: "https://fushi.moe/de/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "es"
+      href: "https://fushi.moe/es/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "fr"
+      href: "https://fushi.moe/fr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "it"
+      href: "https://fushi.moe/it/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "nl"
+      href: "https://fushi.moe/nl/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "pt-BR"
+      href: "https://fushi.moe/pt-br/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ru"
+      href: "https://fushi.moe/ru/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "tr"
+      href: "https://fushi.moe/tr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "vi"
+      href: "https://fushi.moe/vi/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "th"
+      href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ar"
+      href: "https://fushi.moe/ar/immersion"
+  - - link
+    - rel: "alternate"
       hreflang: "x-default"
       href: "https://fushi.moe/immersion"
 ---
@@ -155,7 +203,7 @@ head:
 <p data-i18n="imm.what.p1">去聽、去讀母語者為母語者製作的內容：動畫、小說、遊戲、綜藝這些面向母語者的東西。你現在看的每一部番、玩的每一款遊戲，都算沉浸。</p>
 <p data-i18n="imm.what.p2">與「先學會再用」相反，沉浸是在使用的過程中自然學會。</p>
 <p data-i18n="imm.what.p3">沉浸是語言習得的必經之路。背單詞、學語法、做題能給你入門基礎，但語言太浩瀚了，遠不是教材能覆蓋的。你之所以能毫不費力地讀完這段話，不是因為背過什麼語法規則，而是你的大腦在過去十幾年的海量中文輸入中自然積累了無數語言直覺。學外語也一樣，這種直覺只能從大量真實輸入中來。</p>
-<p data-i18n="imm.what.p4">沉浸在最開始確實會有一段什麼都不懂的階段，但因為你選的是自己喜歡的內容，即使聽不懂也能看下去。等你不知不覺開始聽懂整句話、不查詞典也能讀下去的時候，你會發現這個過程本身就是娛樂。</p>
+<p data-i18n="imm.what.p4">沉浸在最開始確實會有一段什麼都不懂的階段，但因為你選的是自己喜歡的內容，即使不完全聽懂也能看下去。不管進步是快是慢、懂多還是懂少，你對這些內容的興趣才是最重要的。</p>
 
 <details class="theory">
 <summary data-i18n="imm.theory.summary">沉浸學習的原理是什麼？</summary>

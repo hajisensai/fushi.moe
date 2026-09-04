@@ -40,15 +40,15 @@
   var SOURCE = 'zh-CN';
   /**
    * 这一页烤在 HTML 里的语言。手写页（首页 / 下载页）是简体中文；沉浸页默认路由 /immersion
-   * 是英文，/zh-cn/ /zh-hk/ /ja/ /ko/ 下是各语言的静态版。判定必须同步（脚本在 <head> 里跑，
+   * 是英文，/zh-cn/ /zh-hk/ /ja/ /ko/ /de/ … 下是各语言的静态版（17 种语言各一份）。判定必须同步（脚本在 <head> 里跑，
    * body 还没解析），所以只能看路径。中文用户打开 /immersion 会按 zh-CN 字典把英文换掉，
    * 英文用户打开 /zh-cn/immersion 同理反过来。
    */
   var PAGE_LANG = { '/immersion': 'en' };
-  var PREFIX_LANG = { 'zh-cn': 'zh-CN', 'zh-hk': 'zh-HK', en: 'en', ja: 'ja', ko: 'ko' };
+  var PREFIX_LANG = { 'zh-cn': 'zh-CN', 'zh-hk': 'zh-HK', 'pt-br': 'pt-BR', en: 'en', ja: 'ja', ko: 'ko', de: 'de', es: 'es', fr: 'fr', it: 'it', nl: 'nl', ru: 'ru', tr: 'tr', vi: 'vi', id: 'id', th: 'th', ar: 'ar' };
   function pageSource() {
     var p = location.pathname.replace(/\.html$/, '').replace(/\/index$/, '') || '/';
-    var m = p.match(/^\/(zh-cn|zh-hk|en|ja|ko)(\/|$)/);
+    var m = p.match(/^\/(zh-cn|zh-hk|pt-br|en|ja|ko|de|es|fr|it|nl|ru|tr|vi|id|th|ar)(\/|$)/);
     if (m) return PREFIX_LANG[m[1]];
     return PAGE_LANG[p] || SOURCE;
   }
@@ -180,7 +180,7 @@
     var code = resolve(state.choice);
     if (code === PAGE_SOURCE && !state.dict) {
       state.lang = code;
-      root.lang = code; root.dir = 'ltr';
+      root.lang = code; root.dir = RTL[code] ? 'rtl' : 'ltr';
       syncLangMenus();
       root.classList.remove(PENDING_CLASS);
       document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: {} } }));

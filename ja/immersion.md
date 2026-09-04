@@ -42,6 +42,54 @@ head:
       href: "https://fushi.moe/ko/immersion"
   - - link
     - rel: "alternate"
+      hreflang: "de"
+      href: "https://fushi.moe/de/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "es"
+      href: "https://fushi.moe/es/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "fr"
+      href: "https://fushi.moe/fr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "it"
+      href: "https://fushi.moe/it/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "nl"
+      href: "https://fushi.moe/nl/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "pt-BR"
+      href: "https://fushi.moe/pt-br/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ru"
+      href: "https://fushi.moe/ru/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "tr"
+      href: "https://fushi.moe/tr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "vi"
+      href: "https://fushi.moe/vi/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "th"
+      href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ar"
+      href: "https://fushi.moe/ar/immersion"
+  - - link
+    - rel: "alternate"
       hreflang: "x-default"
       href: "https://fushi.moe/immersion"
 ---
@@ -155,7 +203,7 @@ head:
 <p data-i18n="imm.what.p1">母語話者が母語話者のために作ったもの——アニメ、小説、ゲーム、バラエティといった母語話者向けのもの——を聞き、読むことです。今見ているアニメも、遊んでいるゲームも、すべてイマージョンです。</p>
 <p data-i18n="imm.what.p2">「先に学んでから使う」のではなく、イマージョンは使いながら自然に身につける方法です。</p>
 <p data-i18n="imm.what.p3">イマージョンは言語習得で必ず通る道です。単語暗記や文法学習、問題演習は入門の土台をくれますが、言語はあまりに広大で、教科書がカバーできる範囲をはるかに超えています。あなたがこの文章を苦もなく読めるのは、文法規則を暗記したからではなく、十数年にわたる母語の大量のインプットの中で、脳が無数の言語直感を自然に蓄えてきたからです。外国語も同じで、その直感は大量の本物のインプットからしか生まれません。</p>
-<p data-i18n="imm.what.p4">イマージョンは、最初は確かに何もわからない時期があります。でも選んだのは自分の好きなコンテンツですから、わからなくても見続けられます。いつの間にか文がまるごと聞き取れ、辞書を引かずに読み進められるようになった頃、この過程そのものが娯楽だったと気づくはずです。</p>
+<p data-i18n="imm.what.p4">イマージョンは、最初は確かに何もわからない時期があります。でも選んだのは自分の好きなコンテンツですから、全部はわからなくても見続けられます。進みが速くても遅くても、わかる量が多くても少なくても、いちばん大事なのはそのコンテンツへの興味です。</p>
 
 <details class="theory">
 <summary data-i18n="imm.theory.summary">イマージョン学習の原理は？</summary>

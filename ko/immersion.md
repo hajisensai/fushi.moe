@@ -42,6 +42,54 @@ head:
       href: "https://fushi.moe/ko/immersion"
   - - link
     - rel: "alternate"
+      hreflang: "de"
+      href: "https://fushi.moe/de/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "es"
+      href: "https://fushi.moe/es/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "fr"
+      href: "https://fushi.moe/fr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "it"
+      href: "https://fushi.moe/it/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "nl"
+      href: "https://fushi.moe/nl/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "pt-BR"
+      href: "https://fushi.moe/pt-br/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ru"
+      href: "https://fushi.moe/ru/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "tr"
+      href: "https://fushi.moe/tr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "vi"
+      href: "https://fushi.moe/vi/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "th"
+      href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ar"
+      href: "https://fushi.moe/ar/immersion"
+  - - link
+    - rel: "alternate"
       hreflang: "x-default"
       href: "https://fushi.moe/immersion"
 ---
@@ -155,7 +203,7 @@ head:
 <p data-i18n="imm.what.p1">원어민이 원어민을 위해 만든 것 — 애니메이션, 소설, 게임, 예능 같은 원어민 대상의 것 — 을 듣고 읽는 것입니다. 지금 보는 애니메이션, 지금 하는 게임이 이미 몰입입니다.</p>
 <p data-i18n="imm.what.p2">「먼저 배우고 나중에 쓴다」와 반대로, 몰입은 쓰면서 자연스럽게 익히는 방법입니다.</p>
 <p data-i18n="imm.what.p3">몰입은 언어 습득에서 반드시 거쳐야 하는 길입니다. 단어 암기, 문법 공부, 문제 풀이는 입문의 기초를 주지만, 언어는 너무나 방대해서 교재가 다룰 수 있는 범위를 훨씬 넘어섭니다. 당신이 이 문단을 힘들이지 않고 읽을 수 있는 것은 문법 규칙을 외웠기 때문이 아니라, 지난 십수 년 동안 모국어를 대량으로 접하며 뇌가 무수한 언어 직감을 자연스럽게 쌓았기 때문입니다. 외국어도 마찬가지로, 그 직감은 대량의 진짜 입력에서만 나옵니다.</p>
-<p data-i18n="imm.what.p4">몰입은 처음에 분명 아무것도 이해가 안 되는 시기가 있습니다. 하지만 좋아하는 콘텐츠를 골랐기에 이해가 안 돼도 계속 볼 수 있습니다. 어느새 문장을 통째로 알아듣고 사전 없이 읽어 나가게 될 즈음, 이 과정 자체가 오락이었음을 깨닫게 될 겁니다.</p>
+<p data-i18n="imm.what.p4">몰입은 처음에 분명 아무것도 이해가 안 되는 시기가 있습니다. 하지만 좋아하는 콘텐츠를 골랐기에 다 이해하지 못해도 계속 볼 수 있습니다. 진도가 빠르든 느리든, 많이 알아듣든 적게 알아듣든, 가장 중요한 것은 그 콘텐츠에 대한 당신의 흥미입니다.</p>
 
 <details class="theory">
 <summary data-i18n="imm.theory.summary">몰입 학습의 원리는?</summary>
