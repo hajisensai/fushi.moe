@@ -9,6 +9,7 @@
 .vitepress/theme/       # 自定义页壳 Layout.vue + prose.css + i18n.js + chunked-download.mjs
 public/index.html       # 首页（手写静态页，含可交互 demo）
 download.md             # 下载页（通道 / 选源 / 分片加速 + 上手教程）
+immersion.md            # 沉浸学习指南（正文 + 右侧侧注；仅中文）
 public/chrome.css       # 顶栏 / 底栏 / 设计 token，两种页面共用
 public/site.js          # 界面语言（17 种，与 app 同集）+ 顶栏语言菜单 + 浮动回顶
 public/i18n/<code>.json # 站点文案字典；zh-CN 是源语言，键与标记上的 data-i18n 同一份
