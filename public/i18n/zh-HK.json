@@ -76,7 +76,7 @@
   "home.method.tip1": "<b>第 0 步：使用 Fushi</b><a class=\"ilink\" href=\"/download\">下載 Fushi</a>，按新手引導配好詞典、單詞音頻資料庫，下載並連接 Anki。之後看動畫、讀小說時點一下就能查詞，再點一下就是一張帶原句和音頻的 Anki 卡。",
   "home.method.tip2": "<b>第 1 步：背五十音</b>用 <a href=\"https://kanabr.vercel.app/\">kanabr</a> 或 Anki 卡組把平假名記完即可，不用記得特別牢，後面背單詞時會反覆強化。",
   "home.method.tip3": "<b>第 2 步：背基礎單詞和語法</b>Kaishi 1.5k 配 <a href=\"https://ankiweb.net/shared/info/1567144169\">おにぎり文法</a>，語法背到 N3/N4 即可。每天新卡 5–20 張就夠；背單詞的同時就開始下一步。",
-  "home.method.tip4": "<b>第 3 步：沉浸，同時製卡、背單詞</b>看你喜歡的內容，遇到不認識的詞點一下查詞，有必要時製卡。你無法理解所有內容——越能容忍模糊，大腦掌握語言就越快。",
+  "home.method.tip4": "<b>第 3 步：沉浸同時製卡 + 背單詞</b>看你喜歡的內容，遇到不認識的詞點一下查詞，有必要時製卡。你無法理解所有內容——越能容忍模糊，大腦掌握語言就越快。",
   "home.method.more": "閱讀完整路線",
   "home.closing.title": "你已經在學了，<br>只差一個工具。",
   "home.closing.copy": "下載 Fushi，從現在開始。",

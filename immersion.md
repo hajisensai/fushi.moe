@@ -15,7 +15,6 @@ title: 沉浸学习
 .immersion .note { font-size: 15px; color: var(--ink-2); margin: -8px 0 40px; }
 .immersion h4 { font-size: 17px; font-weight: 600; line-height: 1.4; margin: 28px 0 6px; }
 .immersion h4 + p { margin-top: 0; }
-.immersion .todo { color: var(--ink-2); border-bottom: 1px dashed var(--hairline); }
 
 /* ---- 侧注 ---- */
 .immersion blockquote {
@@ -54,6 +53,16 @@ title: 沉浸学习
 .immersion details.theory[open] summary { border-bottom: 1px solid var(--hairline); }
 .immersion details.theory p { margin: 14px 0; }
 .immersion details.theory > :last-child { padding-bottom: 18px; }
+/* ---- 长讲解块（FAQ、第 3 步的整段）：文档里也是引用块，但六七百字浮到 260px 侧栏
+   会拖出一千多像素、压住后面的侧注，所以走正文流里的灰卡 ---- */
+.immersion aside {
+  margin: 24px 0; padding: 4px 20px 18px; border-radius: 16px; background: var(--alt);
+  font-size: 15px; line-height: 1.6;
+}
+.immersion aside h4 { margin: 18px 0 4px; font-size: 16px; }
+.immersion aside p { margin: 10px 0; }
+.immersion aside ul { margin: 8px 0; }
+
 /* 折叠盒里的引用块不再外浮：盒子有底色，悬在盒外像掉出来的 */
 .immersion details.theory blockquote {
   float: none; width: auto; margin: 14px 0; padding: 12px 16px;
@@ -87,11 +96,11 @@ title: 沉浸学习
 
 看教材、做题——我猜没几个人真心喜欢这些事。对一件不喜欢的事，动力从哪来？能坚持多久？
 
-但沉浸不一样。它只需要满足一个条件：你对相关的内容——动画、综艺、电影、小说、游戏、漫画，任何你喜欢的内容——有真实的兴趣。
+**但沉浸不一样。它只需要满足一个条件：你对相关的内容——动画、综艺、电影、小说、游戏、漫画，任何你喜欢的内容——有真实的兴趣。**
 
 不需要任何基础，不需要天赋，甚至不需要「下决心」。你只需要愿意去接触这些内容。
 
-**选择你喜欢的内容，这比什么都重要。**
+选择你喜欢的内容，这比什么都重要。
 
 ## 什么是沉浸？
 
@@ -119,12 +128,11 @@ title: 沉浸学习
 
 > 新手引导里的推荐包已经把常用词典和音频库打包好了，不需要自己到处找资源。
 
-<a href="/download">下载 Fushi</a>，根据新手引导完成配置：词典、单词音频数据库、下载并连接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip">Anki，取名自暗記（あんき），是世界上使用最广泛的间隔重复记忆系统（SRS），也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span>。配好之后，看动画、读小说时点一下就能查词，再点一下就是一张带原句、音频和配图的 Anki 卡。
+<a href="/download">下载 Fushi</a>，根据新手引导完成配置：词典、单词音频数据库、下载并连接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span>。配好之后，看动画、读小说时点一下就能查词，再点一下就是一张带原句、音频和配图的 Anki 卡。
 
 ### 第 1 步：背五十音
 
-- 推荐用叶佬开发的打字练习网站 [kanabr](https://kanabr.vercel.app/)（[GitHub](https://github.com/L-M-Sherlock/kanabr)）：循序渐进解锁假名，还能顺便把打字也练了。
-- 也可以用 Anki 配这两个卡组：平假名<span class="todo">【链接待补】</span>、片假名<span class="todo">【链接待补】</span>。
+- 推荐用[叶佬](https://l-m-sherlock.github.io/)开发的打字练习网站 [kanabr](https://kanabr.vercel.app/zh-hans)（[GitHub](https://github.com/L-M-Sherlock/kanabr)）：循序渐进解锁假名，还能顺便把打字也练了。
 - 或者你喜欢的任何工具。
 
 先记完平假名即可，不用记特别牢，后续使用会反复强化记忆。
@@ -137,6 +145,8 @@ title: 沉浸学习
 - **おにぎり文法**：[中文版](https://ankiweb.net/shared/info/1567144169)，背到 N3/N4 即可。
 
 在你背单词的时候，同时开始下一步：沉浸。
+
+<aside class="faq">
 
 #### Q：五十音好枯燥，这是正常的吗？
 
@@ -152,7 +162,7 @@ title: 沉浸学习
 
 每天 15 到 30 分钟，取决于你对此事的接受程度，认真做，比偶尔一次两小时有效得多。原因很简单：习惯比强度更重要。一个你能坚持每天做的计划，远胜过一个你三天打鱼两天晒网的「高强度计划」。
 
-如果你今天状态很差，那就只做 5 分钟。5 分钟也算。马车走得慢没关系，重要的是不要掉下车。一旦习惯断掉，重新开始的心理成本会比你想象的大得多。
+如果你今天状态很差，那就只做 5 分钟。5 分钟也算。**马车走得慢没关系，重要的是不要掉下车。**一旦习惯断掉，重新开始的心理成本会比你想象的大得多。
 
 #### Q：我记性很差，老是忘，怎么办？
 
@@ -160,21 +170,27 @@ title: 沉浸学习
 
 今天记不住，明天记不住，总有一天会记住它。
 
-### 第 3 步：沉浸，同时制卡、背单词
+</aside>
+
+### 第 3 步：沉浸同时制卡 + 背单词
+
+<aside class="callout">
 
 学语言需要接受一个事实：你无法理解所有内容。
 
-> **如果实在受不了模糊**
->
-> - 剧透先行：看之前先读剧情梗概，或者重看你已经看过母语版的内容。
-> - 母语字幕兜底：通常不推荐母语字幕（学不到什么），但如果完全迷失，可以先不开字幕撑一段，撑不住再显示一下母语字幕；或者无字幕看一遍、开字幕再看一遍。
-
 很多人觉得自己没「准备好」，想先学够了再去沉浸——这永远不会有效果。无论你提前准备了多少，第一次接触真实材料时，你都不会全懂。与其回避这种不适，不如一头扎进去：你越能容忍模糊，大脑掌握语言就越快。
+
+**如果实在受不了模糊**
+
+- **剧透先行**：看之前先读剧情梗概，或者重看你已经看过母语版的内容。
+- **母语字幕兜底**：通常不推荐母语字幕（学不到什么），但如果完全迷失，可以先不开字幕撑一段，撑不住再显示一下母语字幕，或者无字幕看一遍、开字幕再看一遍。
+
+</aside>
 
 刚开始建议从轻松的内容入手——日常番比战斗番好懂，轻小说比纯文学好读。难度会随着你的积累自然往上走。
 
-> 背单词是重要的主动非沉浸学习手段，前期能快速积累词汇量。
-
 看你喜欢的内容，遇到不认识的单词点击查词，并在你觉得有必要时制卡。
+
+背单词是重要的主动非沉浸学习手段，前期能快速积累词汇量。
 
 </div>
