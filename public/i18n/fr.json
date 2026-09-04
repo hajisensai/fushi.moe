@@ -174,6 +174,7 @@
   "dl.verified": "SHA-256 vérifié",
   "dl.verify_failed": "SHA-256 non concordant — le fichier est corrompu, veuillez le retélécharger.",
   "dl.unverified": "(aucune somme de contrôle publiée pour cette version)",
+  "nav.method_href": "/immersion",
   "imm.title": "Immersion learning",
   "imm.note": "This guide uses Japanese as the example; the same approach works for any language.",
   "imm.fit.h": "Is immersion for me?",
@@ -224,6 +225,5 @@
   "imm.s3.c4": "<li><b>Spoil yourself first</b>: read a plot summary beforehand, or rewatch something you already know in your own language.</li><li><b>Native-language subtitles as a last resort</b>: normally not recommended (you learn little from them), but if you are completely lost, push on without them for a while and only flash them on when you must — or watch once without and once with.</li>",
   "imm.s3.p1": "Start with easy material — slice-of-life shows are easier than battle anime, light novels easier than literary fiction.",
   "imm.s3.p2": "Watch what you love, tap unknown words to look them up, and <span class=\"term\" tabindex=\"0\" data-tip=\"Turn a new word you met while immersing into an Anki card together with the sentence, audio and screenshot it came from. In Fushi it’s one tap to look up and one more to make the card.\">mine cards</span> when it feels worthwhile.",
-  "imm.s3.p3": "Vocabulary study is the one active, non-immersion method that matters: early on it builds your vocabulary fast.",
-  "nav.method_href": "/en/immersion"
+  "imm.s3.p3": "Vocabulary study is the one active, non-immersion method that matters: early on it builds your vocabulary fast."
 }

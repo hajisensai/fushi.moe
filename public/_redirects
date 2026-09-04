@@ -1,0 +1,3 @@
+# Cloudflare Pages 重定向（GitHub Pages 不认，那边只是 404）。
+# /en/immersion 只存在过一天：沉浸页英文版改成默认路由 /immersion 之后留的兜底。
+/en/immersion  /immersion  301
