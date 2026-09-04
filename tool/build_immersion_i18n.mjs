@@ -32,6 +32,8 @@ const ZH = {
   what_h: '什么是沉浸？',
   what_p1: '去听、去读母语者给母语者做的内容——不是教材，不是简化读物，而是动画、小说、游戏、综艺这些真实的东西。你现在看的每一部番、玩的每一款游戏，都算沉浸。',
   what_p2: '和「先学会再用」相反，沉浸是在用的过程中自然学会。',
+  what_p3: '沉浸是语言习得的必经之路。背单词、学语法、做题能给你入门基础，但语言太浩瀚了，远不是教材能覆盖的。你之所以能毫不费力地读完这段话，不是因为背过什么语法规则，而是你的大脑在过去十几年的海量中文输入中自然积累了无数语言直觉。学外语也一样，这种直觉只能从大量真实输入中来。',
+  what_p4: '沉浸在最开始会很痛苦，你几乎什么都听不懂、看不懂。这很正常，每个人都是这样过来的。但一旦过了那个阶段，你会开始不知不觉地听懂整句话、不查词典也能读下去。那种「突然就懂了」的瞬间，会让之前所有的挣扎都值得。而且因为你选的是自己喜欢的内容，这个过程本身就是娱乐，乐趣才是让你坚持到那一天的唯一燃料。',
   theory_summary: '沉浸学习的原理是什么？',
   theory_p1: '语言不是「学」会的，是「习得」的。你小时候没背过母语的语法表，却能把话说得比任何语法书都自然，靠的只有一件事：海量的、听得懂大半的输入。',
   theory_quote: '「我们习得语言的原理别无二致：通过理解信息。」',
@@ -94,6 +96,8 @@ const ZH_HK = {
   what_h: '什麼是沉浸？',
   what_p1: '去聽、去讀母語者為母語者製作的內容——不是教材，不是簡化讀物，而是動畫、小說、遊戲、綜藝這些真實的東西。你現在看的每一部番、玩的每一款遊戲，都算沉浸。',
   what_p2: '與「先學會再用」相反，沉浸是在使用的過程中自然學會。',
+  what_p3: '沉浸是語言習得的必經之路。背單詞、學語法、做題能給你入門基礎，但語言太浩瀚了，遠不是教材能覆蓋的。你之所以能毫不費力地讀完這段話，不是因為背過什麼語法規則，而是你的大腦在過去十幾年的海量中文輸入中自然積累了無數語言直覺。學外語也一樣，這種直覺只能從大量真實輸入中來。',
+  what_p4: '沉浸在最開始會很痛苦，你幾乎什麼都聽不懂、看不懂。這很正常，每個人都是這樣過來的。但一旦過了那個階段，你會開始不知不覺地聽懂整句話、不查詞典也能讀下去。那種「突然就懂了」的瞬間，會讓之前所有的掙扎都值得。而且因為你選的是自己喜歡的內容，這個過程本身就是娛樂，樂趣才是讓你堅持到那一天的唯一燃料。',
   theory_summary: '沉浸學習的原理是什麼？',
   theory_p1: '語言不是「學」會的，是「習得」的。你小時候沒背過母語的語法表，卻能把話說得比任何語法書都自然，靠的只有一件事：海量的、聽得懂大半的輸入。',
   theory_quote: '「我們習得語言的原理別無二致：通過理解信息。」',
@@ -155,6 +159,8 @@ const EN = {
   what_h: 'What is immersion?',
   what_p1: 'Listening to and reading things made by native speakers for native speakers — not textbooks, not graded readers, but the real thing: anime, novels, games, variety shows. Every show you watch and every game you play already counts.',
   what_p2: 'Instead of “learn first, use later”, immersion lets you learn naturally by using.',
+  what_p3: 'Immersion is the road every language learner has to walk eventually. Vocabulary drills, grammar study and exercises give you a foundation, but a language is far too vast for any textbook to cover. You can read this paragraph effortlessly not because you memorised grammar rules, but because more than a decade of massive input in your native language built countless intuitions in your brain. A foreign language works the same way: that intuition only comes from large amounts of real input.',
+  what_p4: 'Immersion hurts at first: you understand almost nothing you hear or read. That is normal — everyone goes through it. But once you are past that stage, you start catching whole sentences without noticing and reading on without a dictionary. Those “it just clicked” moments make every earlier struggle worth it. And because you chose content you love, the process itself is entertainment — and enjoyment is the only fuel that carries you to that day.',
   theory_summary: 'How does immersion learning work?',
   theory_p1: 'Language isn’t “learned”, it’s acquired. You never memorised grammar tables for your mother tongue, yet you speak it more naturally than any grammar book could teach — thanks to one thing only: massive amounts of input you mostly understood.',
   theory_quote: '“We acquire language in only one way: by understanding messages.”',
@@ -216,6 +222,8 @@ const JA = {
   what_h: 'イマージョンとは？',
   what_p1: '母語話者が母語話者のために作ったものを聞き、読むこと——教科書でも簡略化された読み物でもなく、アニメ、小説、ゲーム、バラエティといった本物です。今見ているアニメも、遊んでいるゲームも、すべてイマージョンです。',
   what_p2: '「先に学んでから使う」のではなく、イマージョンは使いながら自然に身につける方法です。',
+  what_p3: 'イマージョンは言語習得で必ず通る道です。単語暗記や文法学習、問題演習は入門の土台をくれますが、言語はあまりに広大で、教科書がカバーできる範囲をはるかに超えています。あなたがこの文章を苦もなく読めるのは、文法規則を暗記したからではなく、十数年にわたる母語の大量のインプットの中で、脳が無数の言語直感を自然に蓄えてきたからです。外国語も同じで、その直感は大量の本物のインプットからしか生まれません。',
+  what_p4: 'イマージョンは最初はつらいものです。聞いても読んでも、ほとんど何もわからない。それは普通のことで、誰もがそこを通ってきました。でもその段階を越えると、いつの間にか文がまるごと聞き取れ、辞書を引かずに読み進められるようになります。「突然わかった」という瞬間が、それまでのすべての苦労を報いてくれます。しかも選んだのは自分の好きなコンテンツですから、この過程そのものが娯楽です。楽しさこそが、その日まで続けるための唯一の燃料なのです。',
   theory_summary: 'イマージョン学習の原理は？',
   theory_p1: '言語は「学ぶ」ものではなく「習得する」ものです。子どもの頃、母語の文法表を暗記したことはないのに、どんな文法書より自然に話せる。頼りにしたのはただひとつ、大半は理解できる大量のインプットです。',
   theory_quote: '「私たちが言語を習得する方法はただひとつ、メッセージを理解することによってである。」',
@@ -277,6 +285,8 @@ const KO = {
   what_h: '몰입이란?',
   what_p1: '원어민이 원어민을 위해 만든 것을 듣고 읽는 것 — 교재도 단순화된 읽을거리도 아닌, 애니메이션, 소설, 게임, 예능 같은 진짜입니다. 지금 보는 애니메이션, 지금 하는 게임이 이미 몰입입니다.',
   what_p2: '「먼저 배우고 나중에 쓴다」와 반대로, 몰입은 쓰면서 자연스럽게 익히는 방법입니다.',
+  what_p3: '몰입은 언어 습득에서 반드시 거쳐야 하는 길입니다. 단어 암기, 문법 공부, 문제 풀이는 입문의 기초를 주지만, 언어는 너무나 방대해서 교재가 다룰 수 있는 범위를 훨씬 넘어섭니다. 당신이 이 문단을 힘들이지 않고 읽을 수 있는 것은 문법 규칙을 외웠기 때문이 아니라, 지난 십수 년 동안 모국어를 대량으로 접하며 뇌가 무수한 언어 직감을 자연스럽게 쌓았기 때문입니다. 외국어도 마찬가지로, 그 직감은 대량의 진짜 입력에서만 나옵니다.',
+  what_p4: '몰입은 처음엔 괴롭습니다. 들어도 읽어도 거의 아무것도 이해가 안 됩니다. 그건 정상이고, 누구나 그렇게 지나왔습니다. 하지만 그 단계를 넘기면 어느새 문장을 통째로 알아듣고, 사전 없이도 읽어 나가게 됩니다. 「갑자기 이해됐다」는 그 순간이 이전의 모든 고생을 보상해 줍니다. 게다가 선택한 것이 좋아하는 콘텐츠이기에 이 과정 자체가 오락이고, 즐거움이야말로 그날까지 버티게 하는 유일한 연료입니다.',
   theory_summary: '몰입 학습의 원리는?',
   theory_p1: '언어는 「배우는」 것이 아니라 「습득하는」 것입니다. 어릴 때 모국어 문법표를 외운 적이 없는데도 어떤 문법책보다 자연스럽게 말하죠. 의지한 것은 단 하나, 대부분 이해할 수 있는 엄청난 양의 입력입니다.',
   theory_quote: '「우리가 언어를 습득하는 방법은 오직 하나, 메시지를 이해하는 것이다.」',
@@ -381,6 +391,8 @@ ${el('p', 'fit_p4')}
 ${el('h2', 'what_h')}
 ${el('p', 'what_p1')}
 ${el('p', 'what_p2')}
+${el('p', 'what_p3')}
+${el('p', 'what_p4')}
 
 <details class="theory">
 ${el('summary', 'theory_summary')}
