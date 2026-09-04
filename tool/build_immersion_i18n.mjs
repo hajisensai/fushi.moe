@@ -3,7 +3,7 @@
  * 也写进 17 个字典。占位符在组装时换成各语言的链接 / 术语气泡标记。
  * 用法：node tool/build_immersion_i18n.mjs（默认仓库根；也可传目标目录）
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const W = (process.argv[2] || join(dirname(fileURLToPath(import.meta.url)), '..')) + '/';
@@ -20,10 +20,18 @@ const AIUEO = { en: 'en', ja: 'ja', ko: 'ko', vi: 'vi', 'zh-CN': 'ch', 'zh-HK': 
 const grammarUrl = (c) => 'https://aiueo.cc/pages_v2/' + (AIUEO[c] || 'en') + '/grammars.php';
 const kanabrUrl = (c) => 'https://kanabr.vercel.app/' + (c.startsWith('zh') ? 'zh-hans' : '');
 
+/* 有独立静态路由的语言：分享链接时爬虫不跑 JS，预览要靠烤在 HTML 里的那份语言。
+   其余语言的正文本来就是英文占位，统一指到 /en/。 */
+const ROUTES = { 'zh-CN': '/immersion', en: '/en/immersion', ja: '/ja/immersion', ko: '/ko/immersion', 'zh-HK': '/zh-hk/immersion' };
+const routeOf = (c) => ROUTES[c] || ROUTES.en;
+const OG_LOCALE = { 'zh-CN': 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', 'zh-HK': 'zh_HK' };
+const SITE = 'https://fushi.moe';
+
 /* ---------- 内容：zh-CN 是源语言 ---------- */
 const ZH = {
   title: '沉浸学习',
   note: '本文以日语为例，其他语言同理。',
+  meta_desc: '沉浸式学外语的完整起步路线：为什么选沉浸、什么是沉浸，以及从五十音、Anki 卡组到边看番边制卡的第 0～3 步。',
   fit_h: '我适合沉浸吗？',
   fit_p1: '看教材、做题——我猜没几个人真心喜欢这些事。对一件不喜欢的事，动力从哪来？能坚持多久？',
   fit_p2: '<b>但沉浸不一样。它只需要满足一个条件：你对相关的内容——动画、综艺、电影、小说、游戏、漫画，任何你喜欢的内容——有真实的兴趣。</b>',
@@ -88,6 +96,7 @@ const ZH = {
 const ZH_HK = {
   title: '沉浸學習',
   note: '本文以日語為例，其他語言同理。',
+  meta_desc: '沉浸式學外語的完整起步路線：為什麼選沉浸、什麼是沉浸，以及從五十音、Anki 卡組到邊看番邊製卡的第 0～3 步。',
   fit_h: '我適合沉浸嗎？',
   fit_p1: '看教材、做題——我猜沒幾個人真心喜歡這些事。對一件不喜歡的事，動力從哪來？能堅持多久？',
   fit_p2: '<b>但沉浸不一樣。它只需要滿足一個條件：你對相關的內容——動畫、綜藝、電影、小說、遊戲、漫畫，任何你喜歡的內容——有真實的興趣。</b>',
@@ -151,6 +160,7 @@ const ZH_HK = {
 const EN = {
   title: 'Immersion learning',
   note: 'This guide uses Japanese as the example; the same approach works for any language.',
+  meta_desc: 'A complete starter guide to learning a language through immersion: why immersion, what it is, and steps 0–3 from kana and Anki decks to mining cards while you watch.',
   fit_h: 'Is immersion for me?',
   fit_p1: 'Textbooks and drills — I doubt many people genuinely enjoy them. Where does the motivation come from for something you dislike, and how long can it last?',
   fit_p2: '<b>Immersion is different. It has exactly one requirement: a genuine interest in the content — anime, variety shows, films, novels, games, manga, anything you enjoy.</b>',
@@ -214,6 +224,7 @@ const EN = {
 const JA = {
   title: 'イマージョン学習',
   note: 'この記事は日本語を例にしていますが、他の言語でも考え方は同じです。',
+  meta_desc: 'イマージョンで外国語を身につけるための入門ガイド：なぜイマージョンか、イマージョンとは何か、かなと Anki デッキから見ながらカードを作るまでのステップ 0〜3。',
   fit_h: 'イマージョンは自分に向いている？',
   fit_p1: '教科書や問題集——それを心から楽しめる人はほとんどいないでしょう。好きでもないことに、やる気はどこから湧き、どれだけ続くでしょうか。',
   fit_p2: '<b>イマージョンは違います。必要な条件はひとつだけ。アニメ、バラエティ、映画、小説、ゲーム、漫画など、好きなコンテンツに本当の興味があることです。</b>',
@@ -277,6 +288,7 @@ const JA = {
 const KO = {
   title: '몰입 학습',
   note: '이 글은 일본어를 예로 들지만, 다른 언어도 방법은 같습니다.',
+  meta_desc: '몰입으로 외국어를 익히는 입문 가이드: 왜 몰입인가, 몰입이란 무엇인가, 가나와 Anki 덱부터 보면서 카드 만들기까지 0–3단계.',
   fit_h: '몰입이 나에게 맞을까?',
   fit_p1: '교재와 문제 풀이 — 진심으로 좋아하는 사람은 거의 없을 겁니다. 싫어하는 일에 동기가 어디서 나오고, 얼마나 오래 갈까요?',
   fit_p2: '<b>몰입은 다릅니다. 조건은 하나뿐입니다. 애니메이션, 예능, 영화, 소설, 게임, 만화 등 좋아하는 콘텐츠에 진짜 흥미가 있을 것.</b>',
@@ -367,17 +379,17 @@ function render(c) {
   };
   const out = {};
   for (const [k, v] of Object.entries(t)) {
-    if (k.startsWith('w_') || k.startsWith('tip_')) continue;
+    if (k.startsWith('w_') || k.startsWith('tip_') || k === 'meta_desc') continue;
     out[k] = v.replace(/\{(\w+)\}/g, (m, name) => { if (!(name in sub)) throw new Error('unknown placeholder ' + name + ' in ' + c + '.' + k); return sub[name]; });
   }
   return out;
 }
 
 const KEY = (k) => 'imm.' + k.replace('_', '.');
-const zh = render('zh-CN');
-const el = (tag, k, attrs = '') => '<' + tag + (attrs ? ' ' + attrs : '') + ' data-i18n="' + KEY(k) + '">' + zh[k] + '</' + tag + '>';
+let cur = null;
+const el = (tag, k, attrs = '') => '<' + tag + (attrs ? ' ' + attrs : '') + ' data-i18n="' + KEY(k) + '">' + cur[k] + '</' + tag + '>';
 
-const body = `<div class="immersion" dir="auto">
+const bodyFor = (r) => { cur = r; return `<div class="immersion" dir="auto">
 
 ${el('h1', 'title')}
 ${el('p', 'note', 'class="note"')}
@@ -450,21 +462,46 @@ ${el('p', 's3_p2')}
 ${el('p', 's3_p3')}
 
 </div>
-`;
+`; };
 
-// 1. immersion.md：保留 front matter + <style>，替换正文
+// 1. 页面：immersion.md 是 zh-CN 版，<style> 块只在这里维护；其余语言路由页复用同一段样式，
+//    正文默认文本换成该语言，data-i18n 键相同。每页自带标题 / 描述 / og / hreflang，
+//    这些是给不跑 JS 的链接预览爬虫看的。
+const yamlHead = (items) => 'head:\n' + items.map(([tag, attrs]) => {
+  const ents = Object.entries(attrs);
+  return '  - - ' + tag + '\n' + ents.map(([k, v], i) => (i === 0 ? '    - ' : '      ') + k + ': ' + JSON.stringify(v)).join('\n');
+}).join('\n');
+const frontMatter = (c, t) => {
+  const items = [
+    ['meta', { property: 'og:type', content: 'article' }],
+    ['meta', { property: 'og:title', content: t.title }],
+    ['meta', { property: 'og:description', content: t.meta_desc }],
+    ['meta', { property: 'og:url', content: SITE + routeOf(c) }],
+    ['meta', { property: 'og:locale', content: OG_LOCALE[c] }],
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    ...Object.entries(ROUTES).map(([lc, path]) => ['link', { rel: 'alternate', hreflang: lc, href: SITE + path }]),
+    ['link', { rel: 'alternate', hreflang: 'x-default', href: SITE + ROUTES['zh-CN'] }],
+  ];
+  return '---\ntitle: ' + JSON.stringify(t.title) + '\ndescription: ' + JSON.stringify(t.meta_desc) + '\n' + yamlHead(items) + '\n---\n\n';
+};
 {
   const p = W + 'immersion.md';
   const raw = readFileSync(p, 'utf8');
   const crlf = raw.includes(CR + '\n');
   const s = raw.split(CR + '\n').join('\n');
-  const cut = s.indexOf('<div class="immersion"');
-  if (cut < 0) throw new Error('body start not found');
-  const head = s.slice(0, cut).replace(
+  const a = s.indexOf('<style>');
+  const b = s.indexOf('</style>');
+  if (a < 0 || b < 0) throw new Error('style block not found in immersion.md');
+  const style = s.slice(a, b + '</style>'.length).replace(
     ' * 侧注折回正文流，变成段落之间的浅灰卡片。\n */',
-    ' * 侧注折回正文流，变成段落之间的浅灰卡片。\n *\n * 正文是带 data-i18n 键的 HTML，不是 markdown：站点语言切换靠 site.js 按键换 innerHTML，\n * 默认文本是 zh-CN。文案与 17 个字典由同一份内容对象生成（tool/build_immersion_i18n.mjs），\n * 别手改这里的段落，改内容对象后重新生成。\n */');
-  const out = head + body;
-  writeFileSync(p, crlf ? out.split('\n').join(CR + '\n') : out);
+    ' * 侧注折回正文流，变成段落之间的浅灰卡片。\n *\n * 正文是带 data-i18n 键的 HTML，不是 markdown：站点语言切换靠 site.js 按键换 innerHTML。\n * 本文件是 zh-CN 版；en/ ja/ ko/ zh-hk/ 下的同名页是各语言的静态版（给链接预览爬虫看），\n * 五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。\n * 样式只在本文件维护；别手改任何一页的段落，改内容对象后重新生成。\n */');
+  for (const c of Object.keys(ROUTES)) {
+    const t = contentOf(c);
+    const out = frontMatter(c, t) + style + '\n\n' + bodyFor(render(c));
+    const rel = routeOf(c).slice(1) + '.md';
+    mkdirSync(dirname(W + rel), { recursive: true });
+    writeFileSync(W + rel, c === 'zh-CN' && crlf ? out.split('\n').join(CR + '\n') : out);
+  }
 }
 
 // 2. 17 个字典：追加 imm.* 键（替换已有的同名键）
@@ -479,7 +516,9 @@ for (const c of LANGS) {
   for (const k of Object.keys(obj)) if (k.startsWith('imm.')) delete obj[k];
   const r = render(c);
   for (const [k, v] of Object.entries(r)) obj[KEY(k)] = v;
+  // 顶栏 / 底栏「怎么开始」按语言指到对应静态路由（site.js 的 data-i18n-attr 机制换 href）
+  obj['nav.method_href'] = routeOf(c);
   const text = JSON.stringify(obj, null, 2) + '\n';
   writeFileSync(p, crlf ? text.split('\n').join(CR + '\n') : text);
 }
-console.log('ok: keys', Object.keys(zh).length, 'langs', LANGS.length, 'translated', Object.keys(TRANSLATED).join(','));
+console.log('ok: keys', Object.keys(render('zh-CN')).length, 'pages', Object.keys(ROUTES).join(','), 'langs', LANGS.length, 'translated', Object.keys(TRANSLATED).join(','));

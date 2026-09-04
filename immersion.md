@@ -1,5 +1,49 @@
 ---
-title: 沉浸学习
+title: "沉浸学习"
+description: "沉浸式学外语的完整起步路线：为什么选沉浸、什么是沉浸，以及从五十音、Anki 卡组到边看番边制卡的第 0～3 步。"
+head:
+  - - meta
+    - property: "og:type"
+      content: "article"
+  - - meta
+    - property: "og:title"
+      content: "沉浸学习"
+  - - meta
+    - property: "og:description"
+      content: "沉浸式学外语的完整起步路线：为什么选沉浸、什么是沉浸，以及从五十音、Anki 卡组到边看番边制卡的第 0～3 步。"
+  - - meta
+    - property: "og:url"
+      content: "https://fushi.moe/immersion"
+  - - meta
+    - property: "og:locale"
+      content: "zh_CN"
+  - - meta
+    - name: "twitter:card"
+      content: "summary"
+  - - link
+    - rel: "alternate"
+      hreflang: "zh-CN"
+      href: "https://fushi.moe/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/en/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ja"
+      href: "https://fushi.moe/ja/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ko"
+      href: "https://fushi.moe/ko/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "zh-HK"
+      href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "x-default"
+      href: "https://fushi.moe/immersion"
 ---
 
 <style>
