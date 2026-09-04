@@ -42,6 +42,54 @@ head:
       href: "https://fushi.moe/ko/immersion"
   - - link
     - rel: "alternate"
+      hreflang: "de"
+      href: "https://fushi.moe/de/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "es"
+      href: "https://fushi.moe/es/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "fr"
+      href: "https://fushi.moe/fr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "it"
+      href: "https://fushi.moe/it/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "nl"
+      href: "https://fushi.moe/nl/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "pt-BR"
+      href: "https://fushi.moe/pt-br/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ru"
+      href: "https://fushi.moe/ru/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "tr"
+      href: "https://fushi.moe/tr/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "vi"
+      href: "https://fushi.moe/vi/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "th"
+      href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "ar"
+      href: "https://fushi.moe/ar/immersion"
+  - - link
+    - rel: "alternate"
       hreflang: "x-default"
       href: "https://fushi.moe/immersion"
 ---
@@ -155,7 +203,7 @@ head:
 <p data-i18n="imm.what.p1">Listening to and reading things made by native speakers for native speakers: anime, novels, games, variety shows — things made for a native audience. Every show you watch and every game you play already counts.</p>
 <p data-i18n="imm.what.p2">Instead of “learn first, use later”, immersion lets you learn naturally by using.</p>
 <p data-i18n="imm.what.p3">Immersion is the road every language learner has to walk eventually. Vocabulary drills, grammar study and exercises give you a foundation, but a language is far too vast for any textbook to cover. You can read this paragraph effortlessly not because you memorised grammar rules, but because more than a decade of massive input in your native language built countless intuitions in your brain. A foreign language works the same way: that intuition only comes from large amounts of real input.</p>
-<p data-i18n="imm.what.p4">Immersion does start with a stretch where you understand almost nothing. But because you chose content you love, you can keep watching even without understanding. By the time you find yourself catching whole sentences and reading on without a dictionary, you will realise the process itself has been entertainment all along.</p>
+<p data-i18n="imm.what.p4">Immersion does start with a stretch where you understand almost nothing. But because you chose content you love, you can keep watching even without understanding all of it. Fast or slow, a lot or a little — what matters most is your interest in the content itself.</p>
 
 <details class="theory">
 <summary data-i18n="imm.theory.summary">How does immersion learning work?</summary>
