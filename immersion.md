@@ -73,17 +73,23 @@ title: 沉浸学习
    气泡挂在**段落**上而不是词上：挂在词上时 left:0 + 340px 宽会伸出视口右缘，
    visibility:hidden 仍占滚动宽度，手机上整页被撑到 543px（实测）。
    挂段落 + display:none 两条一起：不显示时零占位，显示时宽度受段落约束。 */
-.immersion p:has(.term) { position: relative; }
+.immersion :is(p, li, h3, h4):has(.term) { position: relative; }
 .immersion .term { cursor: help; outline: none; border-bottom: 1px dotted var(--ink-2); }
-.immersion .term-tip {
+/* 两种写法：带链接的用子元素 .term-tip；纯文字的写在 data-tip 里由 ::after 渲染——
+   标题里只能用后者，VitePress 的锚点 id 取标题文本，子元素的气泡文字会被揉进去 */
+.immersion .term-tip,
+.immersion .term[data-tip]::after {
   display: none; position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 5;
-  max-width: 420px; padding: 12px 14px; border-radius: 12px;
-  background: var(--ink); color: var(--band-ink);
-  font-size: 14px; line-height: 1.5; font-weight: 400;
+  max-width: min(420px, 100%); padding: 12px 14px; border-radius: 12px;
+  background: var(--ink); color: var(--band-ink); text-align: left; white-space: normal;
+  font-size: 14px; line-height: 1.5; font-weight: 400; letter-spacing: 0;
 }
+.immersion .term[data-tip]::after { content: attr(data-tip); }
 .immersion .term:hover .term-tip,
 .immersion .term:focus .term-tip,
-.immersion .term:focus-within .term-tip { display: block; }
+.immersion .term:focus-within .term-tip,
+.immersion .term[data-tip]:hover::after,
+.immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
 <div class="immersion">
@@ -130,7 +136,7 @@ title: 沉浸学习
 
 <a href="/download">下载 Fushi</a>，根据新手引导完成配置：词典、单词音频数据库、下载并连接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最广泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">间隔重复记忆系统（SRS）</a>，也是 Fushi 默认联动的工具。你可以把想记忆的任何材料交给 Anki，它能让你用最少的学习时间达到最好的记忆效果。</span></span>。配好之后，看动画、读小说时点一下就能查词，再点一下就是一张带原句、音频和配图的 Anki 卡。
 
-### 第 1 步：背五十音
+### 第 1 步：背<span class="term" tabindex="0" data-tip="日语的假名表：平假名、片假名各 46 个基本音，按あ・い・う・え・お五段十行排列，所以叫五十音。它是日语书写的基础，也是背单词前唯一必须先过的一关。">五十音</span>
 
 - 推荐用[叶佬](https://l-m-sherlock.github.io/)开发的打字练习网站 [kanabr](https://kanabr.vercel.app/zh-hans)（[GitHub](https://github.com/L-M-Sherlock/kanabr)）：循序渐进解锁假名，还能顺便把打字也练了。
 - 或者你喜欢的任何工具。
@@ -139,10 +145,12 @@ title: 沉浸学习
 
 ### 第 2 步：背基础单词和语法
 
-> 每天新卡 5–20 张就够，可以把保留率改成 70–80%。Anki 的复习量会在两三周后堆起来，新卡开太多是绝大多数人放弃 Anki 的原因。
+> 每天新卡 5–20 张就够，可以把<span class="term" tabindex="0" data-tip="Anki 里 FSRS 算法的「期望记忆保留率」，默认 90%。调低到 70–80% 会明显减少每天的复习量，代价是忘得多一点——前期有沉浸兜底，这笔账划算。">保留率</span>改成 70–80%。Anki 的复习量会在两三周后堆起来，新卡开太多是绝大多数人放弃 Anki 的原因。
 
-- **Kaishi 1.5k**：[中文版](https://github.com/maimemo/kaishi-zh-cn/)（[原版仓库](https://github.com/donkuri/Kaishi)）。
-- **おにぎり文法**：[中文版](https://ankiweb.net/shared/info/1567144169)，背到 N3/N4 即可。
+这里推荐使用 Anki 卡组：
+
+- <span class="term" tabindex="0" data-tip="面向零基础的 Anki 单词卡组：按词频挑出约 1500 个日语高频词，每张卡带例句、发音和音调，由 The Moe Way 社区制作。Kaishi 就是「開始」。">**Kaishi 1.5k**</span>：[中文版](https://github.com/maimemo/kaishi-zh-cn/)（[原版仓库](https://github.com/donkuri/Kaishi)）。
+- <span class="term" tabindex="0" data-tip="基于 aiueo.cc（饭团君日语发音教室）语法专题制作的 Anki 卡组，收 N5～N1 共 757 条语法，每条配日语老师真人录制的例句音频。">**おにぎり文法**</span>：[中文版](https://ankiweb.net/shared/info/1567144169)，背到 <span class="term" tabindex="0" data-tip="JLPT（日本语能力测试）的等级，N5 最易、N1 最难。初级语法大致对应 N5～N4，N3 是中级的门槛；沉浸起步有 N4 上下的语法框架就够。">N3/N4</span> 即可。
 
 在你背单词的时候，同时开始下一步：沉浸。
 
@@ -189,7 +197,7 @@ title: 沉浸学习
 
 刚开始建议从轻松的内容入手——日常番比战斗番好懂，轻小说比纯文学好读。
 
-看你喜欢的内容，遇到不认识的单词点击查词，并在你觉得有必要时制卡。
+看你喜欢的内容，遇到不认识的单词点击查词，并在你觉得有必要时<span class="term" tabindex="0" data-tip="把沉浸里遇到的生词连同它所在的原句、音频和画面做成一张 Anki 卡片。Fushi 里点一下查词、再点一下就做好了。">制卡</span>。
 
 背单词是重要的主动非沉浸学习手段，前期能快速积累词汇量。
 
