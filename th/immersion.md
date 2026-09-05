@@ -3,8 +3,20 @@ title: "การเรียนแบบแช่ตัว"
 description: "คู่มือฉบับสมบูรณ์สำหรับเริ่มเรียนภาษาแบบแช่ตัว: ทำไมต้องแช่ตัว การแช่ตัวคืออะไร และขั้นที่ 0–3 ตั้งแต่คานะ ชุดการ์ด Anki ไปจนถึงการทำการ์ดระหว่างดู"
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/th/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "การเรียนแบบแช่ตัว"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">การเรียนแบบแช่ตัว</h1>
 <p class="note" data-i18n="imm.note">บทความนี้ยกภาษาญี่ปุ่นเป็นตัวอย่าง แนวคิดเดียวกันใช้ได้กับทุกภาษา</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">ขั้นที่ 0: ใช้ Fushi</h3>
 <blockquote><p data-i18n="imm.s0.side">แพ็กแนะนำในคู่มือเริ่มต้นรวมพจนานุกรมและคลังเสียงที่ใช้บ่อยไว้ให้แล้ว ไม่ต้องไปหาทรัพยากรเอง</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">ดาวน์โหลด Fushi</a> แล้วทำตามคู่มือเริ่มต้น: พจนานุกรม ฐานข้อมูลเสียงคำศัพท์ จากนั้นติดตั้งและเชื่อมต่อ <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a> ตั้งชื่อตาม 暗記 (อังกิ «การท่องจำ») เป็น<a href="https://en.wikipedia.org/wiki/Spaced_repetition">ระบบทบทวนแบบเว้นระยะ (SRS)</a>ที่ใช้กันแพร่หลายที่สุดในโลก และเป็นเครื่องมือที่ Fushi เชื่อมต่อด้วยโดยค่าเริ่มต้น ส่งอะไรก็ตามที่อยากจำให้มัน มันจะจัดตารางทบทวนให้คุณจำได้ดีที่สุดด้วยเวลาเรียนน้อยที่สุด</span></span> หลังจากนั้น ขณะดูอนิเมะหรืออ่านนิยาย แตะครั้งเดียวเพื่อค้นคำ แตะอีกครั้งได้การ์ด <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a> ตั้งชื่อตาม 暗記 (อังกิ «การท่องจำ») เป็น<a href="https://en.wikipedia.org/wiki/Spaced_repetition">ระบบทบทวนแบบเว้นระยะ (SRS)</a>ที่ใช้กันแพร่หลายที่สุดในโลก และเป็นเครื่องมือที่ Fushi เชื่อมต่อด้วยโดยค่าเริ่มต้น ส่งอะไรก็ตามที่อยากจำให้มัน มันจะจัดตารางทบทวนให้คุณจำได้ดีที่สุดด้วยเวลาเรียนน้อยที่สุด</span></span> พร้อมประโยค เสียง และภาพ</p>
+<p data-i18n="imm.s0.p"><a href="/th/download">ดาวน์โหลด Fushi</a> แล้วทำตามคู่มือเริ่มต้น: พจนานุกรม ฐานข้อมูลเสียงคำศัพท์ จากนั้นติดตั้งและเชื่อมต่อ <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a> ตั้งชื่อตาม 暗記 (อังกิ «การท่องจำ») เป็น<a href="https://en.wikipedia.org/wiki/Spaced_repetition">ระบบทบทวนแบบเว้นระยะ (SRS)</a>ที่ใช้กันแพร่หลายที่สุดในโลก และเป็นเครื่องมือที่ Fushi เชื่อมต่อด้วยโดยค่าเริ่มต้น ส่งอะไรก็ตามที่อยากจำให้มัน มันจะจัดตารางทบทวนให้คุณจำได้ดีที่สุดด้วยเวลาเรียนน้อยที่สุด</span></span> หลังจากนั้น ขณะดูอนิเมะหรืออ่านนิยาย แตะครั้งเดียวเพื่อค้นคำ แตะอีกครั้งได้การ์ด <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a> ตั้งชื่อตาม 暗記 (อังกิ «การท่องจำ») เป็น<a href="https://en.wikipedia.org/wiki/Spaced_repetition">ระบบทบทวนแบบเว้นระยะ (SRS)</a>ที่ใช้กันแพร่หลายที่สุดในโลก และเป็นเครื่องมือที่ Fushi เชื่อมต่อด้วยโดยค่าเริ่มต้น ส่งอะไรก็ตามที่อยากจำให้มัน มันจะจัดตารางทบทวนให้คุณจำได้ดีที่สุดด้วยเวลาเรียนน้อยที่สุด</span></span> พร้อมประโยค เสียง และภาพ</p>
 
 <h3 data-i18n="imm.s1.h">ขั้นที่ 1: จำ<span class="term" tabindex="0" data-tip="ตารางอักษรพยางค์ญี่ปุ่น: ฮิรางานะและคาตากานะ แต่ละแบบมีเสียงพื้นฐาน 46 เสียง เรียงเป็นห้าแถวสระสิบคอลัมน์พยัญชนะ จึงเรียกในภาษาญี่ปุ่นว่า «ห้าสิบเสียง» เป็นรากฐานของการเขียนภาษาญี่ปุ่นและเป็นด่านเดียวที่ต้องผ่านก่อนท่องศัพท์">คานะ</span></h3>
 <ul>

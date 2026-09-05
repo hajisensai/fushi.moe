@@ -3,8 +3,20 @@ title: "Leren door immersie"
 description: "Een complete startgids voor het leren van een taal door immersie: waarom immersie, wat het is, en stap 0–3 van kana en Anki-decks tot kaarten maken terwijl je kijkt."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/nl/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "Leren door immersie"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">Leren door immersie</h1>
 <p class="note" data-i18n="imm.note">Deze gids gebruikt Japans als voorbeeld; dezelfde aanpak werkt voor elke taal.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">Stap 0: Fushi instellen</h3>
 <blockquote><p data-i18n="imm.s0.side">Het aanbevolen pakket in de introductie bundelt de gangbare woordenboeken en audiobibliotheken al – je hoeft niet zelf naar bronnen te zoeken.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">Download Fushi</a> en volg de introductie: woordenboeken, woordaudio-database, daarna <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, genoemd naar 暗記 (anki, „uit het hoofd leren”), is het meestgebruikte <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced-repetitionsysteem (SRS)</a> ter wereld en het hulpmiddel waarmee Fushi standaard samenwerkt. Geef het alles wat je wilt onthouden en het plant de herhalingen zo dat je met zo min mogelijk studietijd zo veel mogelijk onthoudt.</span></span> installeren en koppelen. Daarna zoek je met één tik een woord op terwijl je kijkt of leest, en maakt een tweede tik een <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, genoemd naar 暗記 (anki, „uit het hoofd leren”), is het meestgebruikte <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced-repetitionsysteem (SRS)</a> ter wereld en het hulpmiddel waarmee Fushi standaard samenwerkt. Geef het alles wat je wilt onthouden en het plant de herhalingen zo dat je met zo min mogelijk studietijd zo veel mogelijk onthoudt.</span></span>-kaart met zin, audio en screenshot.</p>
+<p data-i18n="imm.s0.p"><a href="/nl/download">Download Fushi</a> en volg de introductie: woordenboeken, woordaudio-database, daarna <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, genoemd naar 暗記 (anki, „uit het hoofd leren”), is het meestgebruikte <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced-repetitionsysteem (SRS)</a> ter wereld en het hulpmiddel waarmee Fushi standaard samenwerkt. Geef het alles wat je wilt onthouden en het plant de herhalingen zo dat je met zo min mogelijk studietijd zo veel mogelijk onthoudt.</span></span> installeren en koppelen. Daarna zoek je met één tik een woord op terwijl je kijkt of leest, en maakt een tweede tik een <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, genoemd naar 暗記 (anki, „uit het hoofd leren”), is het meestgebruikte <a href="https://en.wikipedia.org/wiki/Spaced_repetition">spaced-repetitionsysteem (SRS)</a> ter wereld en het hulpmiddel waarmee Fushi standaard samenwerkt. Geef het alles wat je wilt onthouden en het plant de herhalingen zo dat je met zo min mogelijk studietijd zo veel mogelijk onthoudt.</span></span>-kaart met zin, audio en screenshot.</p>
 
 <h3 data-i18n="imm.s1.h">Stap 1: de <span class="term" tabindex="0" data-tip="De Japanse lettergreepschriften: hiragana en katakana, elk 46 basisklanken, geordend in vijf klinkerrijen en tien medeklinkerkolommen – vandaar de Japanse naam „vijftig klanken”. Ze zijn de basis van het Japanse schrift en het enige wat je vóór de woordenschat moet doorlopen.">kana</span> leren</h3>
 <ul>

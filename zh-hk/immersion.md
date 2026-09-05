@@ -3,8 +3,20 @@ title: "沉浸學習"
 description: "沉浸式學外語的完整起步路線：為什麼選沉浸、什麼是沉浸，以及從五十音、Anki 卡組到邊看番邊製卡的第 0～3 步。"
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/zh-hk/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "沉浸學習"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">沉浸學習</h1>
 <p class="note" data-i18n="imm.note">本文以日語為例，其他語言同理。</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">第 0 步：使用 Fushi</h3>
 <blockquote><p data-i18n="imm.s0.side">新手引導裡的推薦包已經把常用詞典和音頻庫打包好了，不需要自己到處找資源。</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">下載 Fushi</a>，按新手引導完成配置：詞典、單詞音頻資料庫、下載並連接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最廣泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">間隔重複記憶系統（SRS）</a>，也是 Fushi 預設聯動的工具。你可以把想記憶的任何材料交給 Anki，它能讓你用最少的學習時間達到最好的記憶效果。</span></span>。配好之後，看動畫、讀小說時點一下就能查詞，再點一下就是一張帶原句、音頻和配圖的 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最廣泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">間隔重複記憶系統（SRS）</a>，也是 Fushi 預設聯動的工具。你可以把想記憶的任何材料交給 Anki，它能讓你用最少的學習時間達到最好的記憶效果。</span></span> 卡。</p>
+<p data-i18n="imm.s0.p"><a href="/zh-hk/download">下載 Fushi</a>，按新手引導完成配置：詞典、單詞音頻資料庫、下載並連接 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最廣泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">間隔重複記憶系統（SRS）</a>，也是 Fushi 預設聯動的工具。你可以把想記憶的任何材料交給 Anki，它能讓你用最少的學習時間達到最好的記憶效果。</span></span>。配好之後，看動畫、讀小說時點一下就能查詞，再點一下就是一張帶原句、音頻和配圖的 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>，取名自暗記（あんき），是世界上使用最廣泛的<a href="https://en.wikipedia.org/wiki/Spaced_repetition">間隔重複記憶系統（SRS）</a>，也是 Fushi 預設聯動的工具。你可以把想記憶的任何材料交給 Anki，它能讓你用最少的學習時間達到最好的記憶效果。</span></span> 卡。</p>
 
 <h3 data-i18n="imm.s1.h">第 1 步：背<span class="term" tabindex="0" data-tip="日語的假名表：平假名、片假名各 46 個基本音，按あ・い・う・え・お五段十行排列，所以叫五十音。它是日語書寫的基礎，也是背單詞前唯一必須先過的一關。">五十音</span></h3>
 <ul>

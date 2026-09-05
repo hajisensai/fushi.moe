@@ -3,8 +3,20 @@ title: "التعلّم بالانغماس"
 description: "دليل كامل لبدء تعلّم لغة بالانغماس: لماذا الانغماس، وما هو، والخطوات من 0 إلى 3 من الكانا ومجموعات Anki إلى صنع البطاقات أثناء المشاهدة."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/ar/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "التعلّم بالانغماس"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">التعلّم بالانغماس</h1>
 <p class="note" data-i18n="imm.note">يتخذ هذا الدليل اليابانية مثالًا؛ والنهج نفسه يصلح لأي لغة.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">الخطوة 0: إعداد Fushi</h3>
 <blockquote><p data-i18n="imm.s0.side">الحزمة الموصى بها في دليل البداية تجمع القواميس ومكتبات الصوت الشائعة مسبقًا — لا داعي للبحث عن الموارد بنفسك.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">نزّل Fushi</a> واتبع دليل البداية: القواميس، قاعدة بيانات صوت الكلمات، ثم ثبّت <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>، المسمّى على اسم 暗記 (أنكي، «الحفظ»)، هو <a href="https://en.wikipedia.org/wiki/Spaced_repetition">نظام التكرار المتباعد (SRS)</a> الأكثر استخدامًا في العالم والأداة التي يتكامل معها Fushi افتراضيًا. أعطه أي شيء تريد تذكّره وسيجدول المراجعات لتحفظ أكثر ما يمكن بأقل وقت دراسة.</span></span> واربطه. بعدها تبحث عن كلمة بلمسة واحدة أثناء المشاهدة أو القراءة، وبلمسة أخرى تصنع بطاقة <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>، المسمّى على اسم 暗記 (أنكي، «الحفظ»)، هو <a href="https://en.wikipedia.org/wiki/Spaced_repetition">نظام التكرار المتباعد (SRS)</a> الأكثر استخدامًا في العالم والأداة التي يتكامل معها Fushi افتراضيًا. أعطه أي شيء تريد تذكّره وسيجدول المراجعات لتحفظ أكثر ما يمكن بأقل وقت دراسة.</span></span> مع الجملة والصوت ولقطة الشاشة.</p>
+<p data-i18n="imm.s0.p"><a href="/ar/download">نزّل Fushi</a> واتبع دليل البداية: القواميس، قاعدة بيانات صوت الكلمات، ثم ثبّت <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>، المسمّى على اسم 暗記 (أنكي، «الحفظ»)، هو <a href="https://en.wikipedia.org/wiki/Spaced_repetition">نظام التكرار المتباعد (SRS)</a> الأكثر استخدامًا في العالم والأداة التي يتكامل معها Fushi افتراضيًا. أعطه أي شيء تريد تذكّره وسيجدول المراجعات لتحفظ أكثر ما يمكن بأقل وقت دراسة.</span></span> واربطه. بعدها تبحث عن كلمة بلمسة واحدة أثناء المشاهدة أو القراءة، وبلمسة أخرى تصنع بطاقة <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>، المسمّى على اسم 暗記 (أنكي، «الحفظ»)، هو <a href="https://en.wikipedia.org/wiki/Spaced_repetition">نظام التكرار المتباعد (SRS)</a> الأكثر استخدامًا في العالم والأداة التي يتكامل معها Fushi افتراضيًا. أعطه أي شيء تريد تذكّره وسيجدول المراجعات لتحفظ أكثر ما يمكن بأقل وقت دراسة.</span></span> مع الجملة والصوت ولقطة الشاشة.</p>
 
 <h3 data-i18n="imm.s1.h">الخطوة 1: حفظ <span class="term" tabindex="0" data-tip="المقطعيات اليابانية: الهيراغانا والكاتاكانا، 46 صوتًا أساسيًا لكل منهما، مرتبة في خمسة صفوف للحركات وعشرة أعمدة للصوامت — ومن هنا الاسم الياباني «الأصوات الخمسون». هي أساس الكتابة اليابانية والعقبة الوحيدة التي لا بد من تجاوزها قبل المفردات.">الكانا</span></h3>
 <ul>

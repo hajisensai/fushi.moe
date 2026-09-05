@@ -3,8 +3,20 @@ title: "Apprendre par immersion"
 description: "Guide complet pour apprendre une langue par immersion : pourquoi l’immersion, ce que c’est, et les étapes 0 à 3, des kana et des paquets Anki à la création de cartes en regardant."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/fr/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "Apprendre par immersion"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">Apprendre par immersion</h1>
 <p class="note" data-i18n="imm.note">Ce guide prend le japonais en exemple ; la même approche vaut pour toutes les langues.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">Étape 0 : installer Fushi</h3>
 <blockquote><p data-i18n="imm.s0.side">Le pack recommandé du guide de démarrage regroupe déjà les dictionnaires et bibliothèques audio courants : inutile de chercher des ressources vous-même.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">Téléchargez Fushi</a> et suivez le guide de démarrage : dictionnaires, base audio des mots, puis installation et connexion d’<span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dont le nom vient de 暗記 (anki, « mémorisation »), est le <a href="https://en.wikipedia.org/wiki/Spaced_repetition">système de répétition espacée (SRS)</a> le plus utilisé au monde et l’outil avec lequel Fushi s’intègre par défaut. Confiez-lui tout ce que vous voulez retenir : il planifie les révisions pour une rétention maximale avec un temps d’étude minimal.</span></span>. Ensuite, un appui cherche un mot pendant que vous regardez ou lisez, et un second crée une carte <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dont le nom vient de 暗記 (anki, « mémorisation »), est le <a href="https://en.wikipedia.org/wiki/Spaced_repetition">système de répétition espacée (SRS)</a> le plus utilisé au monde et l’outil avec lequel Fushi s’intègre par défaut. Confiez-lui tout ce que vous voulez retenir : il planifie les révisions pour une rétention maximale avec un temps d’étude minimal.</span></span> avec la phrase, l’audio et la capture.</p>
+<p data-i18n="imm.s0.p"><a href="/fr/download">Téléchargez Fushi</a> et suivez le guide de démarrage : dictionnaires, base audio des mots, puis installation et connexion d’<span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dont le nom vient de 暗記 (anki, « mémorisation »), est le <a href="https://en.wikipedia.org/wiki/Spaced_repetition">système de répétition espacée (SRS)</a> le plus utilisé au monde et l’outil avec lequel Fushi s’intègre par défaut. Confiez-lui tout ce que vous voulez retenir : il planifie les révisions pour une rétention maximale avec un temps d’étude minimal.</span></span>. Ensuite, un appui cherche un mot pendant que vous regardez ou lisez, et un second crée une carte <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dont le nom vient de 暗記 (anki, « mémorisation »), est le <a href="https://en.wikipedia.org/wiki/Spaced_repetition">système de répétition espacée (SRS)</a> le plus utilisé au monde et l’outil avec lequel Fushi s’intègre par défaut. Confiez-lui tout ce que vous voulez retenir : il planifie les révisions pour une rétention maximale avec un temps d’étude minimal.</span></span> avec la phrase, l’audio et la capture.</p>
 
 <h3 data-i18n="imm.s1.h">Étape 1 : apprendre les <span class="term" tabindex="0" data-tip="Les syllabaires japonais : hiragana et katakana, 46 sons de base chacun, disposés en cinq rangées de voyelles et dix colonnes de consonnes — d’où le nom japonais « cinquante sons ». Ils sont la base de l’écriture japonaise et la seule chose à maîtriser avant le vocabulaire.">kana</span></h3>
 <ul>
