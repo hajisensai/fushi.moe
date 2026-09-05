@@ -50,7 +50,7 @@ const MIME = {
  *   已用拆分前的原始 index.html 做过对照实验：同样点击、同样报这 2 条、
  *   弹窗同样增长 113 个元素，说明是既有行为而不是拆分引入的。
  */
-const PREEXISTING_NOISE = ['/favicon.ico', 'image://'];
+const PREEXISTING_NOISE = ['/favicon.ico', 'image://', '/api/stars'];
 /*
  * 第三方外链（Google Fonts 等）连不连得上取决于跑测试那台机器的外网，本机实测会
  * 间歇性 ERR_CONNECTION_TIMED_OUT 把「无未捕获 JS 异常」打红。它们不是本站产物，
@@ -63,11 +63,40 @@ function isNoise(text) {
   return PREEXISTING_NOISE.some((n) => text.includes(n)) || isThirdParty(text);
 }
 
+/*
+ * /api/stars 在生产是边缘 Worker 的路由，本地静态服务里必须自己扮演它：
+ * 一来 404 会被「无失败请求」判红，二来断言要能确定性地走「拿到 / 拿不到」两条路径，
+ * 不能取决于这台机器能不能连上 api.github.com。
+ */
+const STARS_FIXTURE = 1234;
+const starsMode = { fail: true, stars: STARS_FIXTURE };
+
 function startServer() {
   const requested = [];
   const server = createServer((req, res) => {
-    const path = new URL(req.url, 'http://localhost').pathname;
+    const url = new URL(req.url, 'http://localhost');
+    const path = url.pathname;
     requested.push(path);
+
+    if (path === '/__set-stars') {
+      starsMode.fail = url.searchParams.get('mode') === 'fail';
+      const value = Number(url.searchParams.get('value'));
+      if (Number.isFinite(value) && value > 0) starsMode.stars = value;
+      res.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' });
+      res.end(starsMode.fail ? 'fail' : String(starsMode.stars));
+      return;
+    }
+    if (path === '/api/stars') {
+      const body = starsMode.fail
+        ? JSON.stringify({ error: 'stars unavailable' })
+        : JSON.stringify({ repo: 'hajisensai/Fushi', stars: starsMode.stars });
+      res.writeHead(starsMode.fail ? 503 : 200, {
+        'content-type': 'application/json; charset=utf-8',
+        'cache-control': 'no-store',
+      });
+      res.end(body);
+      return;
+    }
     const file = resolveStaticPath(PUBLIC_DIR, path); // NOSONAR: canonical root containment is enforced
     if (!file || !existsSync(file) || statSync(file).isDirectory()) { // NOSONAR: validated above
       res.writeHead(404).end('not found');
@@ -108,6 +137,9 @@ async function main() {
       '--no-first-run',
       '--no-default-browser-check',
       '--no-proxy-server',
+      // star 数拿不到时 site.js 会兜底打 api.github.com。断言必须只由本地
+      // /api/stars 决定，所以把这个兜底源解析到一个必然连不上的地址。
+      '--host-resolver-rules=MAP api.github.com 127.0.0.1:9',
       '--user-data-dir=' + profileDir,
       '--remote-debugging-port=' + DEBUG_PORT,
       '--autoplay-policy=no-user-gesture-required',
@@ -415,6 +447,100 @@ async function main() {
   })()`);
   check('抽出的图片无破图', imgOk.broken === 0 && imgOk.total > 0, JSON.stringify(imgOk));
 
+  /*
+   * star 数的两条路径都要真跑一遍。页面首帧加载时端点就是 503（starsMode 初值），
+   * 所以这里读到的是「拿不到」的真实状态，不是构造出来的。
+   */
+  const starsDown = await evaluate(`(async function(){
+    await window.fushiStars.refresh();
+    var nav = document.querySelector('.site-nav-star');
+    var box = document.querySelector('.star-box-count');
+    return {
+      exists: !!nav && !!box,
+      navOn: nav ? nav.classList.contains('on') : null,
+      navDisplay: nav ? getComputedStyle(nav).display : null,
+      boxOn: box ? box.classList.contains('on') : null,
+      boxDisplay: box ? getComputedStyle(box).display : null,
+      boxWidth: box ? box.getBoundingClientRect().width : null,
+      text: ((nav ? nav.textContent : '') + '|' + (box ? box.textContent : '')).trim(),
+      count: window.fushiStars.count
+    };
+  })()`);
+  check(
+    'star 数拿不到时徽章保持隐藏，绝不显示 0 / NaN 占位',
+    starsDown.exists === true &&
+      starsDown.navOn === false && starsDown.boxOn === false &&
+      starsDown.navDisplay === 'none' && starsDown.boxDisplay === 'none' &&
+      starsDown.boxWidth === 0 && starsDown.count === null &&
+      !/\d/.test(starsDown.text),
+    JSON.stringify(starsDown),
+  );
+
+  await evaluate("fetch('/__set-stars?mode=ok').then(function(r){return r.text();})");
+  const starsUp = await evaluate(`(async function(){
+    await window.fushiStars.refresh();
+    var nav = document.querySelector('.site-nav-star [data-fushi-stars]');
+    var num = document.querySelector('.star-box-num');
+    var box = document.querySelector('.star-box-count');
+    var host = document.querySelector('.site-nav-star');
+    return {
+      navText: nav ? nav.textContent : null,
+      navOn: host ? host.classList.contains('on') : null,
+      navDisplay: host ? getComputedStyle(host).display : null,
+      numText: num ? num.textContent : null,
+      boxOn: box ? box.classList.contains('on') : null,
+      boxDisplay: box ? getComputedStyle(box).display : null,
+      boxWidth: box ? box.getBoundingClientRect().width : null,
+      boxHref: box ? box.getAttribute('href') : null,
+      count: window.fushiStars.count,
+      stored: localStorage.getItem('fushi-stars')
+    };
+  })()`);
+  check(
+    '拿到 star 数后顶栏徽章与首页卡片都显示真实数字',
+    starsUp.count === 1234 &&
+      starsUp.navOn === true && starsUp.navDisplay !== 'none' &&
+      starsUp.boxOn === true && starsUp.boxDisplay === 'flex' && starsUp.boxWidth > 0 &&
+      starsUp.numText === '1,234' &&
+      /\d/.test(starsUp.navText ?? '') && (starsUp.navText ?? '').length <= 8,
+    JSON.stringify(starsUp),
+  );
+  check(
+    'star 数落本地缓存（回访先画上次的数字，不闪空位）',
+    typeof starsUp.stored === 'string' && JSON.parse(starsUp.stored).n === 1234,
+    String(starsUp.stored),
+  );
+  /*
+   * 换语言要走 applyDict：它按 data-i18n 重写 innerHTML，一不小心就会把徽章里的
+   * 数字连同宿主一起擦掉；紧凑格式也得跟着 CLDR 换（zh 到一万才缩写，en 是 1.2K）。
+   */
+  await evaluate("window.fushiI18n.set('en')");
+  const starsEn = await evaluate(`(function(){
+    var nav = document.querySelector('.site-nav-star [data-fushi-stars]');
+    var num = document.querySelector('.star-box-num');
+    var title = document.querySelector('.star-box-title');
+    return {
+      lang: window.fushiI18n.lang,
+      navText: nav ? nav.textContent : null,
+      numText: num ? num.textContent : null,
+      title: title ? title.textContent : null
+    };
+  })()`);
+  check(
+    '切语言后 star 数不被 i18n 重写擦掉，且按新语言重排格式',
+    starsEn.lang === 'en' && starsEn.numText === '1,234' && starsEn.navText === '1.2K' &&
+      /Star/.test(starsEn.title ?? ''),
+    JSON.stringify(starsEn),
+  );
+  await evaluate("window.fushiI18n.set('zh-CN')");
+
+  check(
+    '数字块链到 stargazers 页，引导按钮链到仓库',
+    starsUp.boxHref === 'https://github.com/hajisensai/Fushi/stargazers' &&
+      (await evaluate("document.querySelector('.star-box-btn').getAttribute('href')")) ===
+        'https://github.com/hajisensai/Fushi',
+  );
+
   check('无未捕获 JS 异常', jsErrors.length === 0, jsErrors.slice(0, 3).join(' | '));
   check('无失败请求（排除既有 favicon 噪声与第三方外链）', failedRequests.length === 0, failedRequests.slice(0, 5).join(' | '));
   if (noise.length) console.log('  [诊断] 已忽略的噪声/第三方外链: ' + noise.slice(0, 4).join(' | '));
@@ -429,6 +555,44 @@ async function main() {
   console.log(
     '\n首屏共请求 ' + requested.length + ' 个资源；忽略的既有噪声 ' + noise.length + ' 条' +
       (noise.length ? '（' + noise[0].slice(0, 60) + '）' : ''),
+  );
+
+  /*
+   * 回访路径：localStorage 里已经有上次的数字。它只是首帧种子，不是缓存——
+   * 重新进站必须照常刷一遍并覆盖掉。上一版在这里压了 6 小时 TTL，结果用户刷新
+   * 多少次都还是旧值，服务端明明早就更新了。这条断言钉住这个不变式。
+   * 放在最后：它要重新加载页面，不能扰动前面那些按首屏请求计数的断言。
+   */
+  const errorsBeforeReload = jsErrors.length;
+  await evaluate("fetch('/__set-stars?mode=ok&value=4321').then(function(r){return r.text();})");
+  await cdp.send('Page.navigate', { url: 'http://127.0.0.1:' + PORT + '/' });
+  const tReload = Date.now();
+  let revisit = null;
+  while (Date.now() - tReload < 15000) {
+    try {
+      revisit = await evaluate(`(function(){
+        if (!window.fushiStars) return null;
+        var num = document.querySelector('.star-box-num');
+        return {
+          count: window.fushiStars.count,
+          numText: num ? num.textContent : null,
+          stored: localStorage.getItem('fushi-stars')
+        };
+      })()`);
+    } catch { revisit = null; }
+    if (revisit && revisit.count === 4321) break;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  check(
+    '回访时本地旧值只当首帧种子，仍会刷到服务端的新值',
+    revisit !== null && revisit.count === 4321 && revisit.numText === '4,321' &&
+      typeof revisit.stored === 'string' && JSON.parse(revisit.stored).n === 4321,
+    JSON.stringify(revisit),
+  );
+  check(
+    '回访这一趟没有新增 JS 异常',
+    jsErrors.length === errorsBeforeReload,
+    jsErrors.slice(errorsBeforeReload, errorsBeforeReload + 2).join(' | '),
   );
 
   ws.close();

@@ -222,6 +222,10 @@ self.addEventListener('fetch', (event) => {
   ) return;
   // SW 自身与健康探针必须走真实网络，否则永远更新不掉。
   if (url.pathname === '/sw.js' || url.pathname === '/__health') return;
+  // /api/* 只存在于边缘 Worker，两个 Pages 源站上都没有它。
+  // 不放行的话，主线路一断就会去 GitHub Pages 要一份根本不存在的 JSON，
+  // 拿回一份 404 HTML——跟 /releases 是同一类错误映射。
+  if (url.pathname.startsWith('/api/')) return;
 
   const hashed = url.pathname.startsWith('/assets/');
 

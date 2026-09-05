@@ -93,7 +93,11 @@ const GH_STATIC_DEBUG_MANIFEST = {
 function startServer() {
   const server = createServer((req, res) => {
     const path = new URL(req.url, 'http://localhost').pathname;
-    const file = resolveStaticPath(DIST, path); // NOSONAR: canonical root containment is enforced
+    let file = resolveStaticPath(DIST, path); // NOSONAR: canonical root containment is enforced
+    // cleanUrls：线上 Pages 把 /immersion 落到 immersion.html，本地静态服务器照做，否则站内页全是 404。
+    if (file && !existsSync(file) && !extname(file) && existsSync(file + '.html')) file += '.html';
+    // 语言路由目录（/zh-cn/ → zh-cn/index.html），Cloudflare / GitHub Pages 都这样服务目录。
+    if (file && existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
     if (!file || !existsSync(file) || statSync(file).isDirectory()) { // NOSONAR: validated above
       res.writeHead(404).end('not found');
       return;
@@ -475,16 +479,26 @@ async function main() {
 
   console.log('\n--- 场景 G：下载页点顶栏 logo / 底栏「怎么开始」必须真正回到首页 ---');
   // 首页是静态 index.html，不在 VitePress 路由表里；路由若劫持这些同源链接就是前端 404。
-  for (const [label, sel] of [['顶栏 logo', '.site-nav-brand'], ['底栏「怎么开始」', '.site-footer-links a[href="/#method"]']]) {
+  // 底栏「怎么开始」指向沉浸页 /immersion（VitePress 页），同样必须真到那页而不是 404。
+  // 链接会被 site.js 按浏览器语言改到 /<lang>/…（无头 Chrome 跟随系统语言），所以点之前读
+  // 实际 href，断言到达的就是它——语言路由页（/zh-cn/、/ja/immersion）都必须真实存在。
+  for (const [label, sel, page, mark] of [
+    ['顶栏 logo', '.site-nav-brand', '/', '.hero'],
+    ['底栏「怎么开始」', '.site-footer-links a:first-child', '/immersion', '.immersion'],
+  ]) {
     await runScenario(cdp, 'G ' + label, { cfUp: true, ghUp: true });
-    await cdp.send('Runtime.evaluate', { expression: '(function(){ var a = document.querySelector(' + JSON.stringify(sel) + '); if (a) a.click(); return !!a; })()', returnByValue: true });
+    const clicked = await cdp.send('Runtime.evaluate', { expression: '(function(){ var a = document.querySelector(' + JSON.stringify(sel) + '); if (!a) return null; var href = a.getAttribute("href"); a.click(); return href; })()', returnByValue: true });
+    const href = clicked.result.value;
     await new Promise((r) => setTimeout(r, 2500));
     const g = await cdp.send('Runtime.evaluate', {
-      expression: '(function(){ return { path: location.pathname, hero: !!document.querySelector(".hero"), notFound: !!document.querySelector(".NotFound") || /page not found/i.test(document.body.textContent) }; })()',
+      expression: '(function(){ return { path: location.pathname, mark: !!document.querySelector(' + JSON.stringify(mark) + '), notFound: !!document.querySelector(".NotFound") || /page not found/i.test(document.body.textContent) }; })()',
       returnByValue: true,
     });
     const gv = g.result.value;
-    check('G ' + label + ' → 回到首页（真实导航，非站内 404）', gv.path === '/' && gv.hero && !gv.notFound, JSON.stringify(gv));
+    const expectedPath = typeof href === 'string' ? href.replace(/#.*$/, '') : null;
+    const isLangRoute = expectedPath === page || new RegExp('^/[a-z-]+' + (page === '/' ? '/' : page) + '$').test(expectedPath ?? '');
+    check('G ' + label + ' 链接是 ' + page + ' 的某个语言版本', isLangRoute, JSON.stringify(href));
+    check('G ' + label + ' → 到达 ' + expectedPath + '（真实导航，非站内 404）', expectedPath !== null && gv.path === expectedPath && gv.mark && !gv.notFound, JSON.stringify(gv));
   }
   const footerState = await runScenario(cdp, 'G 底栏形状', { cfUp: true, ghUp: true });
   check('G 底栏无「功能」，社区链接是图标', footerState.footer && !/功能/.test(footerState.footer.text) && footerState.footer.icons === 3, JSON.stringify(footerState.footer));

@@ -2,9 +2,11 @@
  * fushi.moe 站点脚本：界面语言 + 顶栏语言菜单 + 浮动「回到顶部」。
  *
  * 语言集合与 app 的界面语言完全一致（17 种，fushi/lib/i18n/*.i18n.json）。
- * 标记里写死的是简体中文（SOURCE）；其余语言的文案在 /i18n/<code>.json，
- * 按 data-i18n="key" 把元素 innerHTML 换掉（字典值可含 <b>/<a> 等内联标记，
- * 全部是本仓库自己的文件，不接收任何外部输入）。
+ * 源标记是简体中文（SOURCE，字典源语言）；构建后每种语言各烤一份静态页
+ * （英文是默认路由，其余在 /<prefix>/ 下，表见 .vitepress/theme/lang-routes.mjs），
+ * <html lang> 就是这一页烤的语言。访客语言与之不同时按 /i18n/<code>.json
+ * 用 data-i18n="key" 把元素 innerHTML 换掉（字典值可含 <b>/<a> 等内联标记，
+ * 全部是本仓库自己的文件，不接收任何外部输入），站内链接也改到该语言的页面。
  *
  * 这个文件**同步**挂在 <head> 里：非中文用户第一帧之前就得把 body 藏住，
  * 否则会先闪一屏中文再换语言。字典拿不到或超时就照常显示中文——脚本的
@@ -38,6 +40,11 @@
     ['ar', 'العربية'],
   ];
   var SOURCE = 'zh-CN';
+  /** 语言 → 路径前缀，与 .vitepress/theme/lang-routes.mjs 同一张表（tool/lang-routes.test.mjs 守两边一致）。 */
+  var LANG_PREFIX = { en: '', 'zh-CN': '/zh-cn', 'zh-HK': '/zh-hk', ja: '/ja', ko: '/ko', de: '/de', es: '/es', fr: '/fr', it: '/it', nl: '/nl', 'pt-BR': '/pt-br', ru: '/ru', tr: '/tr', vi: '/vi', th: '/th', id: '/id', ar: '/ar' };
+  /** 有语言版本的页面；/privacy 只有英文。 */
+  var LANG_PAGES = { '/': 1, '/download': 1, '/immersion': 1 };
+  var LINK_RE = /^(?:\/(zh-cn|zh-hk|ja|ko|de|es|fr|it|nl|pt-br|ru|tr|vi|th|id|ar)(?=\/|$))?(\/[^?#]*)?([?#].*)?$/;
   var STORE = 'fushi-lang';
   var RTL = { ar: true };
   var PENDING_CLASS = 'i18n-pending';
@@ -45,6 +52,12 @@
 
   var root = document.documentElement;
   var codes = LANGS.map(function (l) { return l[0]; });
+  /**
+   * 这一页烤在 HTML 里的语言：读 <html lang>。脚本在 <head> 里同步跑，html 起始标签已经解析，
+   * body 还没有——所以只能看这个属性，不能看正文。手写首页源文件是简体中文，构建后
+   * 每种语言各烤一份（tool/build_lang_routes.mjs）；VitePress 页按目录 locale 出 <html lang>。
+   */
+  var PAGE_SOURCE = matchTag(root.getAttribute('lang')) || SOURCE;
 
   function nameOf(code) {
     for (var i = 0; i < LANGS.length; i++) if (LANGS[i][0] === code) return LANGS[i][1];
@@ -110,6 +123,33 @@
 
   function resolve(choice) { return choice === 'auto' ? detect() : choice; }
 
+  /** 烤好的页面随带的字典片段（内联脚本 T('key') 要用的键），同语言访客不必再拉整份字典。 */
+  var INLINE = (function () {
+    var el = document.getElementById('fushi-dict');
+    if (!el) return null;
+    try { return JSON.parse(el.textContent); } catch (_) { return null; }
+  })();
+
+  /** 站内链接改到指定语言的页面；不是语言路由页的路径（/privacy、/releases/…）原样。 */
+  function localizeHref(href, code) {
+    if (href.charAt(0) !== '/') return href;
+    var m = LINK_RE.exec(href);
+    if (!m) return href;
+    var page = m[2] || '/';
+    if (!LANG_PAGES[page]) return href;
+    var prefix = LANG_PREFIX[code] || '';
+    return (prefix ? (page === '/' ? prefix + '/' : prefix + page) : page) + (m[3] || '');
+  }
+
+  function localizeLinks(code) {
+    var as = document.querySelectorAll('a[href^="/"]');
+    for (var i = 0; i < as.length; i++) {
+      var h = as[i].getAttribute('href');
+      var to = localizeHref(h, code);
+      if (to !== h) as[i].setAttribute('href', to);
+    }
+  }
+
   var dicts = {};
   function loadDict(code) {
     if (dicts[code]) return dicts[code];
@@ -122,8 +162,8 @@
   var state = { choice: readChoice(), lang: SOURCE, dict: null, ready: null };
   state.lang = resolve(state.choice);
 
-  // 非中文：第一帧前藏住 body。超时兜底保证任何情况下页面都会露出来。
-  if (state.lang !== SOURCE) {
+  // 语言与本页烤的不同：第一帧前藏住 body。超时兜底保证任何情况下页面都会露出来。
+  if (state.lang !== PAGE_SOURCE) {
     root.classList.add(PENDING_CLASS);
     setTimeout(function () { root.classList.remove(PENDING_CLASS); }, PENDING_TIMEOUT_MS);
   }
@@ -138,6 +178,23 @@
     });
   }
 
+  function metaContent(name) {
+    var el = document.querySelector('meta[name="' + name + '"]');
+    return el ? el.getAttribute('content') : null;
+  }
+
+  /** 「{key} 固定文字」模板填字典值；模板缺失或任一键缺失返回 null（保留页面原值）。 */
+  function fill(tpl, dict) {
+    if (typeof tpl !== 'string') return null;
+    var missing = false;
+    var out = tpl.replace(/\{([\w.]+)\}/g, function (_, key) {
+      if (typeof dict[key] === 'string') return dict[key];
+      missing = true;
+      return '';
+    });
+    return missing ? null : out;
+  }
+
   function applyDict(dict, code) {
     root.lang = code;
     root.dir = RTL[code] ? 'rtl' : 'ltr';
@@ -150,9 +207,14 @@
     for (var j = 0; j < attrEls.length; j++) {
       setAttrs(attrEls[j], attrEls[j].getAttribute('data-i18n-attr'), dict);
     }
-    if (typeof dict['meta.title'] === 'string') document.title = dict['meta.title'];
+    localizeLinks(code);
+    // 每页在 <meta name="fushi-title" / "fushi-description"> 里声明自己的标题 / 描述模板
+    // （{key} 取字典值，如「{dl.title} | Fushi」）；没声明的页（隐私政策）标题不动。
+    var title = fill(metaContent('fushi-title'), dict);
+    if (title !== null) document.title = title;
     var desc = document.querySelector('meta[name="description"]');
-    if (desc && typeof dict['meta.description'] === 'string') desc.setAttribute('content', dict['meta.description']);
+    var descTpl = fill(metaContent('fushi-description'), dict);
+    if (desc && descTpl !== null) desc.setAttribute('content', descTpl.replace(/<[^>]*>/g, ''));
     state.dict = dict;
     state.lang = code;
     syncLangMenus();
@@ -160,15 +222,15 @@
     document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: dict } }));
   }
 
-  /** 把当前语言应用到页面。中文源语言且从未切过 → 什么都不用换。 */
+  /** 把当前语言应用到页面。与本页烤的语言相同且从未切过 → 标记已是该语言，什么都不用换。 */
   function apply() {
     var code = resolve(state.choice);
-    if (code === SOURCE && !state.dict) {
+    if (code === PAGE_SOURCE && !state.dict) {
       state.lang = code;
-      root.lang = code; root.dir = 'ltr';
+      root.lang = code; root.dir = RTL[code] ? 'rtl' : 'ltr';
       syncLangMenus();
       root.classList.remove(PENDING_CLASS);
-      document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: {} } }));
+      document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: INLINE || {} } }));
       return Promise.resolve();
     }
     return loadDict(code).then(function (dict) { applyDict(dict, code); }, function () {
@@ -177,7 +239,7 @@
   }
 
   function t(key, fallback) {
-    var d = state.dict;
+    var d = state.dict || INLINE;
     return d && typeof d[key] === 'string' ? d[key] : fallback;
   }
 
@@ -247,6 +309,89 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLangMenus(); });
   }
 
+  /* --------------------------- GitHub star 数 --------------------------- */
+  /*
+   * 数据走同域 /api/stars（Worker 侧边缘缓存 15 分钟，一次回源服务所有访客）。
+   * 让浏览器直接打 api.github.com 会按访客 IP 限流，大陆网络也常常连不上——
+   * 那个地址只在同域端点不存在时兜底（本地 dev、GitHub Pages 直连这类没有 Worker 的场景）。
+   *
+   * 本地存的那个数只是「首帧种子」：进站先用上次的数字把徽章画出来，不闪空位，
+   * 然后每次访问都照常刷一遍。它不是缓存，所以没有 TTL——限流该由服务端那 15 分钟
+   * 边缘缓存负责，客户端再自作主张压一层，只会让页面上的数字锁死好几个小时
+   * （上一版就是这样：localStorage 压 6 小时，用户刷新多少次都还是旧值）。
+   * 一次都没成功过就什么都不显示——显示一个假的 star 数比不显示更糟。
+   */
+  var STAR_KEY = 'fushi-stars';
+  var STAR_ENDPOINT = '/api/stars';
+  var STAR_FALLBACK = 'https://api.github.com/repos/hajisensai/Fushi';
+  var starCount = null;
+
+  function readStars() {
+    try {
+      var v = JSON.parse(localStorage.getItem(STAR_KEY));
+      if (!v || typeof v.n !== 'number' || !isFinite(v.n)) return null;
+      return v;
+    } catch (e) { return null; }
+  }
+
+  function writeStars(n) {
+    try { localStorage.setItem(STAR_KEY, JSON.stringify({ n: n })); } catch (e) {}
+  }
+
+  /* 顶栏窄，用当前语言的紧凑写法（1234 → 1.2K / 1.2万）；卡片宽，给完整数字。 */
+  function formatStars(n, mode) {
+    try {
+      if (mode === 'full') return new Intl.NumberFormat(state.lang).format(n);
+      return new Intl.NumberFormat(state.lang, { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+    } catch (e) { return String(n); }
+  }
+
+  function renderStars() {
+    if (starCount === null) return;
+    var els = document.querySelectorAll('[data-fushi-stars]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].textContent = formatStars(starCount, els[i].getAttribute('data-fushi-stars'));
+      els[i].classList.add('on');
+      var host = els[i].closest && els[i].closest('[data-fushi-stars-host]');
+      if (host) host.classList.add('on');
+    }
+  }
+
+  /* 两个来源的字段名不同：自家端点给 stars，GitHub 原样给 stargazers_count。 */
+  function starsFrom(url, init) {
+    return fetch(url, init)
+      .then(function (r) { if (!r.ok) throw new Error('stars ' + r.status); return r.json(); })
+      .then(function (j) {
+        var n = j && typeof j.stars === 'number' ? j.stars : j && j.stargazers_count;
+        if (typeof n !== 'number' || !isFinite(n) || n < 0) throw new Error('stars payload');
+        return Math.floor(n);
+      });
+  }
+
+  function refreshStars() {
+    // no-cache 不是 no-store：照样发条件请求、照样吃 Worker 那层边缘缓存，
+    // 只是不认浏览器本地那份被 zone 改写成 4 小时的副本。
+    return starsFrom(STAR_ENDPOINT, { cache: 'no-cache' })
+      .catch(function () {
+        return starsFrom(STAR_FALLBACK, { cache: 'no-cache', headers: { accept: 'application/vnd.github+json' } });
+      })
+      .then(function (n) { starCount = n; writeStars(n); renderStars(); }, function () {});
+  }
+
+  /* wire 是公开 API，可能被页壳再调；重复注册监听或重复回源都没有意义。 */
+  var starsWired = false;
+  function wireStars() {
+    if (starsWired) return;
+    if (!document.querySelector('[data-fushi-stars]')) return;
+    starsWired = true;
+    // 换语言要重排数字格式（1,234 / 1234 / 1.2万）。
+    document.addEventListener('fushi:i18n', renderStars);
+    var cached = readStars();
+    if (cached) { starCount = cached.n; renderStars(); }
+    // 每次访问都刷：服务端 15 分钟的边缘缓存已经是限流那一层，这里再压就是把数字锁死。
+    refreshStars();
+  }
+
   function wireChrome() {
     wireLangMenus();
     var totop = document.querySelector('.site-totop');
@@ -261,6 +406,7 @@
       });
     }
     syncLangMenus();
+    wireStars();
   }
 
   var manual = !!(document.currentScript && document.currentScript.getAttribute('data-manual'));
@@ -273,7 +419,7 @@
   else onReady();
 
   // 预热字典：和 HTML 解析并行拉，DOMContentLoaded 时多半已经到了。
-  if (state.lang !== SOURCE) loadDict(state.lang).catch(function () {});
+  if (state.lang !== PAGE_SOURCE) loadDict(state.lang).catch(function () {});
 
   window.fushiI18n = {
     LANGS: LANGS,
@@ -286,5 +432,12 @@
     apply: function () { state.ready = apply(); return state.ready; },
     wire: wireChrome,
     detect: detect,
+  };
+
+  window.fushiStars = {
+    get count() { return starCount; },
+    format: formatStars,
+    render: renderStars,
+    refresh: refreshStars,
   };
 })();

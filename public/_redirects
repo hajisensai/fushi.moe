@@ -1,0 +1,4 @@
+# Cloudflare Pages 重定向（GitHub Pages 不认，那边只是 404）。
+# 英文是默认路由（无前缀）；/en/ 只存在过一天，/cn/ 是顺手的别名，都指到正确的语言路由。
+/en/*  /:splat  301
+/cn/*  /zh-cn/:splat  301
