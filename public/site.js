@@ -8,6 +8,13 @@
  * 用 data-i18n="key" 把元素 innerHTML 换掉（字典值可含 <b>/<a> 等内联标记，
  * 全部是本仓库自己的文件，不接收任何外部输入），站内链接也改到该语言的页面。
  *
+ * 地址与语言是一回事，两条规矩合起来维持这个不变式：
+ *   ① 判定顺序 ?lang= → URL 语言前缀 → 记住的选择 → 浏览器 Accept-Language；
+ *      地址里写了语言就按地址来，不让偏好把它顶掉。
+ *   ② 页面换到哪种语言，就把地址栏的前缀 replaceState 成哪种（syncUrlLang）。
+ * 违反它的表现是「地址栏 /zh-cn 页面却是英文」「切了语言地址还是上一种」，
+ * 分享出去的链接因此打开是另一种语言。
+ *
  * 这个文件**同步**挂在 <head> 里：非中文用户第一帧之前就得把 body 藏住，
  * 否则会先闪一屏中文再换语言。字典拿不到或超时就照常显示中文——脚本的
  * 任何失败都只能退化成「看到中文」，不能是白屏。
@@ -58,6 +65,22 @@
    * 每种语言各烤一份（tool/build_lang_routes.mjs）；VitePress 页按目录 locale 出 <html lang>。
    */
   var PAGE_SOURCE = matchTag(root.getAttribute('lang')) || SOURCE;
+
+  /**
+   * 这一页 URL 里的语言前缀：`/zh-cn/…` → `zh-CN`，默认路由（英文，无前缀）→ null。
+   * 前缀是访客**显式**要的语言（分享链接、hreflang、收藏），压过记住的偏好和浏览器检测。
+   * @param {string} pathname
+   * @returns {string|null}
+   */
+  function prefixLangOf(pathname) {
+    var m = LINK_RE.exec(pathname);
+    if (!m || !m[1]) return null;
+    for (var i = 0; i < codes.length; i++) {
+      if (LANG_PREFIX[codes[i]] === '/' + m[1]) return codes[i];
+    }
+    return null;
+  }
+  var PAGE_PREFIX = prefixLangOf(location.pathname);
 
   function nameOf(code) {
     for (var i = 0; i < LANGS.length; i++) if (LANGS[i][0] === code) return LANGS[i][1];
@@ -111,13 +134,21 @@
     try { localStorage.setItem(STORE, choice); } catch (_) { /* 存不了不影响本次 */ }
   }
 
-  /** ?lang= 只在这一跳生效并顺手记住，分享带语言的链接才有意义。 */
+  /**
+   * 这一次要显示哪种语言：`?lang=` → URL 语言前缀 → 记住的选择 → 自动。
+   *
+   * 前缀路由排在记住的选择前面：`/ja/download` 这种链接把语言写在地址里，
+   * 是访客点进来时提出的要求，不能被上次记住的偏好或浏览器 Accept-Language 顶掉
+   * （顶掉的表现就是「地址栏 /zh-cn 页面却是英文」）。它只作用于本次访问、不写
+   * localStorage：别人分享的日语链接不该把这台机器的偏好改成日语。
+   */
   function readChoice() {
     var q = new URLSearchParams(location.search).get('lang');
     if (q) {
       var m = q === 'auto' ? 'auto' : matchTag(q);
       if (m) { writeStored(m); return m; }
     }
+    if (PAGE_PREFIX) return PAGE_PREFIX;
     return readStored();
   }
 
@@ -148,6 +179,22 @@
       var to = localizeHref(h, code);
       if (to !== h) as[i].setAttribute('href', to);
     }
+  }
+
+  /**
+   * 站点不变式：**地址栏的语言前缀 == 页面正在显示的语言**。
+   *
+   * 每种语言都有自己的静态路由，所以「显示的语言」总有一个地址能表达它。访客在默认
+   * 路由上被自动判成中文、或从菜单换了语言，都要把地址栏改过去——否则复制出去的链接、
+   * 刷新、加书签拿到的都是另一种语言。用 replaceState 而不是跳转：内容已经在页面上换
+   * 好了，再发一次请求只会白闪一下，而刷新时那个地址烤的就是同一种语言。
+   * 不是语言路由页（/privacy、/releases/…）localizeHref 原样返回，地址不动。
+   */
+  function syncUrlLang(code) {
+    if (!window.history || !history.replaceState) return;
+    var here = location.pathname + location.search + location.hash;
+    var to = localizeHref(here, code);
+    if (to !== here) history.replaceState(history.state, '', to);
   }
 
   var dicts = {};
@@ -208,6 +255,7 @@
       setAttrs(attrEls[j], attrEls[j].getAttribute('data-i18n-attr'), dict);
     }
     localizeLinks(code);
+    syncUrlLang(code);
     // 每页在 <meta name="fushi-title" / "fushi-description"> 里声明自己的标题 / 描述模板
     // （{key} 取字典值，如「{dl.title} | Fushi」）；没声明的页（隐私政策）标题不动。
     var title = fill(metaContent('fushi-title'), dict);
@@ -228,6 +276,7 @@
     if (code === PAGE_SOURCE && !state.dict) {
       state.lang = code;
       root.lang = code; root.dir = RTL[code] ? 'rtl' : 'ltr';
+      syncUrlLang(code);
       syncLangMenus();
       root.classList.remove(PENDING_CLASS);
       document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: INLINE || {} } }));
