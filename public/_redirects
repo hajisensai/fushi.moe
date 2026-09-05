@@ -1,3 +1,4 @@
 # Cloudflare Pages 重定向（GitHub Pages 不认，那边只是 404）。
-# /en/immersion 只存在过一天：沉浸页英文版改成默认路由 /immersion 之后留的兜底。
-/en/immersion  /immersion  301
+# 英文是默认路由（无前缀）；/en/ 只存在过一天，/cn/ 是顺手的别名，都指到正确的语言路由。
+/en/*  /:splat  301
+/cn/*  /zh-cn/:splat  301

@@ -3,8 +3,20 @@ title: "몰입 학습"
 description: "몰입으로 외국어를 익히는 입문 가이드: 왜 몰입인가, 몰입이란 무엇인가, 가나와 Anki 덱부터 보면서 카드 만들기까지 0–3단계."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/ko/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "몰입 학습"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">몰입 학습</h1>
 <p class="note" data-i18n="imm.note">이 글은 일본어를 예로 들지만, 다른 언어도 방법은 같습니다.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">0단계: Fushi 사용하기</h3>
 <blockquote><p data-i18n="imm.s0.side">시작 가이드의 추천 팩에는 자주 쓰는 사전과 음성 라이브러리가 이미 묶여 있어 직접 찾아다닐 필요가 없습니다.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">Fushi 다운로드</a>하고 시작 가이드에 따라 사전, 단어 음성 데이터베이스를 설정한 뒤 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>는 「암기(暗記)」에서 이름을 딴, 세계에서 가장 널리 쓰이는 <a href="https://en.wikipedia.org/wiki/Spaced_repetition">간격 반복 시스템(SRS)</a>이며 Fushi가 기본으로 연동하는 도구입니다. 외우고 싶은 자료를 맡기면 최소한의 학습 시간으로 최고의 기억 효과를 내도록 복습을 짜 줍니다.</span></span>를 설치하고 연결하세요. 설정 후에는 애니메이션이나 소설을 보다가 한 번 탭하면 단어 검색, 한 번 더 탭하면 원문·음성·화면이 담긴 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>는 「암기(暗記)」에서 이름을 딴, 세계에서 가장 널리 쓰이는 <a href="https://en.wikipedia.org/wiki/Spaced_repetition">간격 반복 시스템(SRS)</a>이며 Fushi가 기본으로 연동하는 도구입니다. 외우고 싶은 자료를 맡기면 최소한의 학습 시간으로 최고의 기억 효과를 내도록 복습을 짜 줍니다.</span></span> 카드가 됩니다.</p>
+<p data-i18n="imm.s0.p"><a href="/ko/download">Fushi 다운로드</a>하고 시작 가이드에 따라 사전, 단어 음성 데이터베이스를 설정한 뒤 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>는 「암기(暗記)」에서 이름을 딴, 세계에서 가장 널리 쓰이는 <a href="https://en.wikipedia.org/wiki/Spaced_repetition">간격 반복 시스템(SRS)</a>이며 Fushi가 기본으로 연동하는 도구입니다. 외우고 싶은 자료를 맡기면 최소한의 학습 시간으로 최고의 기억 효과를 내도록 복습을 짜 줍니다.</span></span>를 설치하고 연결하세요. 설정 후에는 애니메이션이나 소설을 보다가 한 번 탭하면 단어 검색, 한 번 더 탭하면 원문·음성·화면이 담긴 <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>는 「암기(暗記)」에서 이름을 딴, 세계에서 가장 널리 쓰이는 <a href="https://en.wikipedia.org/wiki/Spaced_repetition">간격 반복 시스템(SRS)</a>이며 Fushi가 기본으로 연동하는 도구입니다. 외우고 싶은 자료를 맡기면 최소한의 학습 시간으로 최고의 기억 효과를 내도록 복습을 짜 줍니다.</span></span> 카드가 됩니다.</p>
 
 <h3 data-i18n="imm.s1.h">1단계: <span class="term" tabindex="0" data-tip="히라가나·가타카나 각 46개 기본음을 あ・い・う・え・お 다섯 단과 열 행으로 배열한 표. 일본어 표기의 기초이자 단어 암기 전에 반드시 거쳐야 할 유일한 관문입니다.">가나</span> 외우기</h3>
 <ul>

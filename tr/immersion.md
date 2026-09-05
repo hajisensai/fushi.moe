@@ -3,8 +3,20 @@ title: "Daldırma ile öğrenme"
 description: "Daldırma ile dil öğrenmeye başlamak için eksiksiz rehber: neden daldırma, daldırma nedir ve kana ile Anki destelerinden izlerken kart çıkarmaya kadar 0–3. adımlar."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/tr/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "Daldırma ile öğrenme"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">Daldırma ile öğrenme</h1>
 <p class="note" data-i18n="imm.note">Bu rehber Japoncayı örnek alır; aynı yaklaşım her dil için geçerlidir.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">Adım 0: Fushi’yi kurun</h3>
 <blockquote><p data-i18n="imm.s0.side">Başlangıç rehberindeki önerilen paket, yaygın sözlükleri ve ses kütüphanelerini zaten bir arada sunar — kaynak aramanıza gerek yok.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">Fushi’yi indirin</a> ve başlangıç rehberini izleyin: sözlükler, kelime ses veritabanı, ardından <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip">Adını 暗記 (anki, „ezber“) sözcüğünden alan <a href="https://apps.ankiweb.net/">Anki</a>, dünyada en yaygın kullanılan <a href="https://en.wikipedia.org/wiki/Spaced_repetition">aralıklı tekrar sistemi (SRS)</a> ve Fushi’nin varsayılan olarak entegre olduğu araçtır. Hatırlamak istediğiniz her şeyi ona verin; en az çalışma süresiyle en iyi hatırlama için tekrarları o planlar.</span></span>’yi kurup bağlayın. Sonrasında izlerken veya okurken bir dokunuşla kelimeye bakar, bir dokunuşla cümle, ses ve ekran görüntülü <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip">Adını 暗記 (anki, „ezber“) sözcüğünden alan <a href="https://apps.ankiweb.net/">Anki</a>, dünyada en yaygın kullanılan <a href="https://en.wikipedia.org/wiki/Spaced_repetition">aralıklı tekrar sistemi (SRS)</a> ve Fushi’nin varsayılan olarak entegre olduğu araçtır. Hatırlamak istediğiniz her şeyi ona verin; en az çalışma süresiyle en iyi hatırlama için tekrarları o planlar.</span></span> kartı oluşturursunuz.</p>
+<p data-i18n="imm.s0.p"><a href="/tr/download">Fushi’yi indirin</a> ve başlangıç rehberini izleyin: sözlükler, kelime ses veritabanı, ardından <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip">Adını 暗記 (anki, „ezber“) sözcüğünden alan <a href="https://apps.ankiweb.net/">Anki</a>, dünyada en yaygın kullanılan <a href="https://en.wikipedia.org/wiki/Spaced_repetition">aralıklı tekrar sistemi (SRS)</a> ve Fushi’nin varsayılan olarak entegre olduğu araçtır. Hatırlamak istediğiniz her şeyi ona verin; en az çalışma süresiyle en iyi hatırlama için tekrarları o planlar.</span></span>’yi kurup bağlayın. Sonrasında izlerken veya okurken bir dokunuşla kelimeye bakar, bir dokunuşla cümle, ses ve ekran görüntülü <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip">Adını 暗記 (anki, „ezber“) sözcüğünden alan <a href="https://apps.ankiweb.net/">Anki</a>, dünyada en yaygın kullanılan <a href="https://en.wikipedia.org/wiki/Spaced_repetition">aralıklı tekrar sistemi (SRS)</a> ve Fushi’nin varsayılan olarak entegre olduğu araçtır. Hatırlamak istediğiniz her şeyi ona verin; en az çalışma süresiyle en iyi hatırlama için tekrarları o planlar.</span></span> kartı oluşturursunuz.</p>
 
 <h3 data-i18n="imm.s1.h">Adım 1: <span class="term" tabindex="0" data-tip="Japon hece alfabeleri: her biri 46 temel sesten oluşan hiragana ve katakana, beş ünlü satırı ve on ünsüz sütununa dizilir — Japonca adı „elli ses“ buradan gelir. Japon yazısının temelidir ve kelime çalışmasından önce geçilmesi gereken tek şeydir.">kana</span> öğrenin</h3>
 <ul>

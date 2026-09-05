@@ -3,8 +3,20 @@ title: "Обучение через погружение"
 description: "Полное руководство для старта в изучении языка через погружение: зачем погружение, что это такое и шаги 0–3 — от каны и колод Anki до создания карточек прямо во время просмотра."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/ru/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "Обучение через погружение"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">Обучение через погружение</h1>
 <p class="note" data-i18n="imm.note">В этом руководстве пример — японский; тот же подход работает для любого языка.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">Шаг 0: настройте Fushi</h3>
 <blockquote><p data-i18n="imm.s0.side">Рекомендуемый пакет в первичной настройке уже включает основные словари и аудиобазы — искать ресурсы самому не нужно.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">Скачайте Fushi</a> и пройдите первичную настройку: словари, база аудио слов, затем установите и подключите <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, названный от 暗記 (анки, «заучивание»), — самая распространённая в мире <a href="https://en.wikipedia.org/wiki/Spaced_repetition">система интервальных повторений (SRS)</a> и инструмент, с которым Fushi интегрируется по умолчанию. Отдайте ему всё, что хотите запомнить, и он спланирует повторения так, чтобы запоминать больше за меньшее время.</span></span>. Дальше одно касание ищет слово во время просмотра или чтения, а второе создаёт карточку <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, названный от 暗記 (анки, «заучивание»), — самая распространённая в мире <a href="https://en.wikipedia.org/wiki/Spaced_repetition">система интервальных повторений (SRS)</a> и инструмент, с которым Fushi интегрируется по умолчанию. Отдайте ему всё, что хотите запомнить, и он спланирует повторения так, чтобы запоминать больше за меньшее время.</span></span> с предложением, аудио и скриншотом.</p>
+<p data-i18n="imm.s0.p"><a href="/ru/download">Скачайте Fushi</a> и пройдите первичную настройку: словари, база аудио слов, затем установите и подключите <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, названный от 暗記 (анки, «заучивание»), — самая распространённая в мире <a href="https://en.wikipedia.org/wiki/Spaced_repetition">система интервальных повторений (SRS)</a> и инструмент, с которым Fushi интегрируется по умолчанию. Отдайте ему всё, что хотите запомнить, и он спланирует повторения так, чтобы запоминать больше за меньшее время.</span></span>. Дальше одно касание ищет слово во время просмотра или чтения, а второе создаёт карточку <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, названный от 暗記 (анки, «заучивание»), — самая распространённая в мире <a href="https://en.wikipedia.org/wiki/Spaced_repetition">система интервальных повторений (SRS)</a> и инструмент, с которым Fushi интегрируется по умолчанию. Отдайте ему всё, что хотите запомнить, и он спланирует повторения так, чтобы запоминать больше за меньшее время.</span></span> с предложением, аудио и скриншотом.</p>
 
 <h3 data-i18n="imm.s1.h">Шаг 1: выучите <span class="term" tabindex="0" data-tip="Японские слоговые азбуки: хирагана и катакана, по 46 базовых звуков в каждой, расположенных в пять рядов гласных и десять столбцов согласных — отсюда японское название «пятьдесят звуков». Это основа японского письма и единственное, что нужно пройти до лексики.">кану</span></h3>
 <ul>

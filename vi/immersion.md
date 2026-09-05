@@ -3,8 +3,20 @@ title: "Học bằng đắm mình"
 description: "Hướng dẫn trọn vẹn để bắt đầu học ngoại ngữ bằng đắm mình: vì sao đắm mình, đắm mình là gì, và các bước 0–3 từ kana, bộ thẻ Anki đến tạo thẻ ngay khi đang xem."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/vi/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "Học bằng đắm mình"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">Học bằng đắm mình</h1>
 <p class="note" data-i18n="imm.note">Bài này lấy tiếng Nhật làm ví dụ; cách làm áp dụng được cho mọi ngôn ngữ.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">Bước 0: dùng Fushi</h3>
 <blockquote><p data-i18n="imm.s0.side">Gói đề xuất trong hướng dẫn ban đầu đã gom sẵn các từ điển và thư viện âm thanh thông dụng, không cần tự đi tìm tài nguyên.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">Tải Fushi</a> và làm theo hướng dẫn ban đầu: từ điển, cơ sở dữ liệu âm thanh từ vựng, rồi cài và kết nối <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, đặt tên theo 暗記 (anki, «học thuộc»), là <a href="https://en.wikipedia.org/wiki/Spaced_repetition">hệ thống lặp lại ngắt quãng (SRS)</a> được dùng rộng rãi nhất thế giới và là công cụ Fushi liên kết mặc định. Giao cho nó bất cứ thứ gì bạn muốn nhớ, nó sẽ sắp lịch ôn để bạn nhớ tốt nhất với thời gian học ít nhất.</span></span>. Sau đó, khi xem hay đọc, chạm một lần để tra từ, chạm thêm lần nữa là có thẻ <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, đặt tên theo 暗記 (anki, «học thuộc»), là <a href="https://en.wikipedia.org/wiki/Spaced_repetition">hệ thống lặp lại ngắt quãng (SRS)</a> được dùng rộng rãi nhất thế giới và là công cụ Fushi liên kết mặc định. Giao cho nó bất cứ thứ gì bạn muốn nhớ, nó sẽ sắp lịch ôn để bạn nhớ tốt nhất với thời gian học ít nhất.</span></span> kèm câu, âm thanh và ảnh chụp.</p>
+<p data-i18n="imm.s0.p"><a href="/vi/download">Tải Fushi</a> và làm theo hướng dẫn ban đầu: từ điển, cơ sở dữ liệu âm thanh từ vựng, rồi cài và kết nối <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, đặt tên theo 暗記 (anki, «học thuộc»), là <a href="https://en.wikipedia.org/wiki/Spaced_repetition">hệ thống lặp lại ngắt quãng (SRS)</a> được dùng rộng rãi nhất thế giới và là công cụ Fushi liên kết mặc định. Giao cho nó bất cứ thứ gì bạn muốn nhớ, nó sẽ sắp lịch ôn để bạn nhớ tốt nhất với thời gian học ít nhất.</span></span>. Sau đó, khi xem hay đọc, chạm một lần để tra từ, chạm thêm lần nữa là có thẻ <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, đặt tên theo 暗記 (anki, «học thuộc»), là <a href="https://en.wikipedia.org/wiki/Spaced_repetition">hệ thống lặp lại ngắt quãng (SRS)</a> được dùng rộng rãi nhất thế giới và là công cụ Fushi liên kết mặc định. Giao cho nó bất cứ thứ gì bạn muốn nhớ, nó sẽ sắp lịch ôn để bạn nhớ tốt nhất với thời gian học ít nhất.</span></span> kèm câu, âm thanh và ảnh chụp.</p>
 
 <h3 data-i18n="imm.s1.h">Bước 1: học <span class="term" tabindex="0" data-tip="Bảng chữ cái tiếng Nhật: hiragana và katakana, mỗi bảng 46 âm cơ bản, xếp theo năm hàng nguyên âm và mười cột phụ âm — vì thế tiếng Nhật gọi là «năm mươi âm». Đây là nền tảng của chữ viết tiếng Nhật và là cửa ải duy nhất bắt buộc phải qua trước khi học từ.">kana</span></h3>
 <ul>

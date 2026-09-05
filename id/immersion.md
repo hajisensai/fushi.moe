@@ -3,8 +3,20 @@ title: "Belajar dengan imersi"
 description: "Panduan lengkap memulai belajar bahasa dengan imersi: mengapa imersi, apa itu imersi, dan langkah 0–3 dari kana dan dek Anki sampai membuat kartu sambil menonton."
 head:
   - - meta
+    - name: "fushi-title"
+      content: "{imm.title} | Fushi"
+  - - meta
+    - name: "fushi-description"
+      content: "{imm.meta.desc}"
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/id/immersion"
+  - - meta
     - property: "og:type"
       content: "article"
+  - - meta
+    - property: "og:site_name"
+      content: "Fushi"
   - - meta
     - property: "og:title"
       content: "Belajar dengan imersi"
@@ -22,16 +34,16 @@ head:
       content: "summary"
   - - link
     - rel: "alternate"
-      hreflang: "en"
-      href: "https://fushi.moe/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "zh-CN"
       href: "https://fushi.moe/zh-cn/immersion"
   - - link
     - rel: "alternate"
       hreflang: "zh-HK"
       href: "https://fushi.moe/zh-hk/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "en"
+      href: "https://fushi.moe/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ja"
@@ -78,12 +90,12 @@ head:
       href: "https://fushi.moe/vi/immersion"
   - - link
     - rel: "alternate"
-      hreflang: "id"
-      href: "https://fushi.moe/id/immersion"
-  - - link
-    - rel: "alternate"
       hreflang: "th"
       href: "https://fushi.moe/th/immersion"
+  - - link
+    - rel: "alternate"
+      hreflang: "id"
+      href: "https://fushi.moe/id/immersion"
   - - link
     - rel: "alternate"
       hreflang: "ar"
@@ -188,7 +200,7 @@ head:
 .immersion .term[data-tip]:focus::after { display: block; }
 </style>
 
-<div class="immersion" dir="auto">
+<div class="immersion vp-raw" dir="auto">
 
 <h1 data-i18n="imm.title">Belajar dengan imersi</h1>
 <p class="note" data-i18n="imm.note">Panduan ini memakai bahasa Jepang sebagai contoh; pendekatannya berlaku untuk bahasa apa pun.</p>
@@ -217,7 +229,7 @@ head:
 
 <h3 data-i18n="imm.s0.h">Langkah 0: pakai Fushi</h3>
 <blockquote><p data-i18n="imm.s0.side">Paket rekomendasi di panduan awal sudah membundel kamus dan pustaka audio yang umum dipakai — tidak perlu mencari sumber sendiri.</p></blockquote>
-<p data-i18n="imm.s0.p"><a href="/download">Unduh Fushi</a> dan ikuti panduan awal: kamus, basis data audio kata, lalu pasang dan hubungkan <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dinamai dari 暗記 (anki, «menghafal»), adalah <a href="https://en.wikipedia.org/wiki/Spaced_repetition">sistem pengulangan berjarak (SRS)</a> yang paling banyak dipakai di dunia dan alat yang terhubung dengan Fushi secara bawaan. Serahkan apa pun yang ingin kamu ingat, ia mengatur jadwal ulangan agar kamu mengingat paling banyak dengan waktu belajar paling sedikit.</span></span>. Setelah itu, satu ketukan mencari kata saat menonton atau membaca, satu ketukan lagi membuat kartu <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dinamai dari 暗記 (anki, «menghafal»), adalah <a href="https://en.wikipedia.org/wiki/Spaced_repetition">sistem pengulangan berjarak (SRS)</a> yang paling banyak dipakai di dunia dan alat yang terhubung dengan Fushi secara bawaan. Serahkan apa pun yang ingin kamu ingat, ia mengatur jadwal ulangan agar kamu mengingat paling banyak dengan waktu belajar paling sedikit.</span></span> dengan kalimat, audio, dan tangkapan layar.</p>
+<p data-i18n="imm.s0.p"><a href="/id/download">Unduh Fushi</a> dan ikuti panduan awal: kamus, basis data audio kata, lalu pasang dan hubungkan <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dinamai dari 暗記 (anki, «menghafal»), adalah <a href="https://en.wikipedia.org/wiki/Spaced_repetition">sistem pengulangan berjarak (SRS)</a> yang paling banyak dipakai di dunia dan alat yang terhubung dengan Fushi secara bawaan. Serahkan apa pun yang ingin kamu ingat, ia mengatur jadwal ulangan agar kamu mengingat paling banyak dengan waktu belajar paling sedikit.</span></span>. Setelah itu, satu ketukan mencari kata saat menonton atau membaca, satu ketukan lagi membuat kartu <span class="term" tabindex="0">Anki<span class="term-tip" role="tooltip"><a href="https://apps.ankiweb.net/">Anki</a>, dinamai dari 暗記 (anki, «menghafal»), adalah <a href="https://en.wikipedia.org/wiki/Spaced_repetition">sistem pengulangan berjarak (SRS)</a> yang paling banyak dipakai di dunia dan alat yang terhubung dengan Fushi secara bawaan. Serahkan apa pun yang ingin kamu ingat, ia mengatur jadwal ulangan agar kamu mengingat paling banyak dengan waktu belajar paling sedikit.</span></span> dengan kalimat, audio, dan tangkapan layar.</p>
 
 <h3 data-i18n="imm.s1.h">Langkah 1: hafalkan <span class="term" tabindex="0" data-tip="Aksara suku kata Jepang: hiragana dan katakana, masing-masing 46 bunyi dasar, disusun dalam lima baris vokal dan sepuluh kolom konsonan — karena itu dalam bahasa Jepang disebut «lima puluh bunyi». Ini dasar tulisan Jepang dan satu-satunya gerbang yang wajib dilewati sebelum menghafal kata.">kana</span></h3>
 <ul>

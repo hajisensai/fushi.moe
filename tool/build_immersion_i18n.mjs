@@ -7,6 +7,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { DE, ES, FR, IT, NL, PT_BR, RU, TR, VI, ID, TH, AR } from './immersion_translations_extra.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { LANGS, routeFor, seoHead, yamlHead } from '../.vitepress/theme/lang-routes.mjs';
 const W = (process.argv[2] || join(dirname(fileURLToPath(import.meta.url)), '..')) + '/';
 const CR = String.fromCharCode(13);
 
@@ -21,19 +22,9 @@ const AIUEO = { en: 'en', ja: 'ja', ko: 'ko', vi: 'vi', 'zh-CN': 'ch', 'zh-HK': 
 const grammarUrl = (c) => 'https://aiueo.cc/pages_v2/' + (AIUEO[c] || 'en') + '/grammars.php';
 const kanabrUrl = (c) => 'https://kanabr.vercel.app/' + (c.startsWith('zh') ? 'zh-hans' : '');
 
-/* 有独立静态路由的语言：分享链接时爬虫不跑 JS，预览要靠烤在 HTML 里的那份语言。
-   其余语言的正文本来就是英文占位，统一指到 /en/。 */
-const ROUTES = {
-  en: '/immersion', 'zh-CN': '/zh-cn/immersion', 'zh-HK': '/zh-hk/immersion', ja: '/ja/immersion', ko: '/ko/immersion',
-  de: '/de/immersion', es: '/es/immersion', fr: '/fr/immersion', it: '/it/immersion', nl: '/nl/immersion', 'pt-BR': '/pt-br/immersion',
-  ru: '/ru/immersion', tr: '/tr/immersion', vi: '/vi/immersion', id: '/id/immersion', th: '/th/immersion', ar: '/ar/immersion',
-};
-const routeOf = (c) => ROUTES[c] || ROUTES.en;
-const OG_LOCALE = {
-  'zh-CN': 'zh_CN', en: 'en_US', ja: 'ja_JP', ko: 'ko_KR', 'zh-HK': 'zh_HK',
-  de: 'de_DE', es: 'es_ES', fr: 'fr_FR', it: 'it_IT', nl: 'nl_NL', 'pt-BR': 'pt_BR', ru: 'ru_RU', tr: 'tr_TR', vi: 'vi_VN', id: 'id_ID', th: 'th_TH', ar: 'ar_AR',
-};
-const SITE = 'https://fushi.moe';
+/* 每种语言一条静态路由（表在 .vitepress/theme/lang-routes.mjs）：分享链接时爬虫不跑 JS，
+   预览要靠烤在 HTML 里的那份语言。 */
+const routeOf = (c) => routeFor(c, '/immersion');
 
 /* ---------- 内容：zh-CN 是源语言 ---------- */
 const ZH = {
@@ -357,7 +348,6 @@ const KO = {
   tip_card: '몰입 중 만난 새 단어를 그 문장·음성·화면과 함께 Anki 카드로 만드는 것. Fushi에서는 한 번 탭해 검색하고 한 번 더 탭하면 완성됩니다.',
 };
 
-const LANGS = ['zh-CN', 'zh-HK', 'en', 'ja', 'ko', 'de', 'es', 'fr', 'it', 'nl', 'pt-BR', 'ru', 'tr', 'vi', 'th', 'id', 'ar'];
 const TRANSLATED = { 'zh-CN': ZH, 'zh-HK': ZH_HK, en: EN, ja: JA, ko: KO, de: DE, es: ES, fr: FR, it: IT, nl: NL, 'pt-BR': PT_BR, ru: RU, tr: TR, vi: VI, id: ID, th: TH, ar: AR };
 const contentOf = (c) => { const t = TRANSLATED[c]; if (!t) throw new Error('no translation for ' + c); return t; };
 // 字段一致性：每种语言必须和英文版字段一一对应，多一个少一个都算错，别让某种语言悄悄掉段
@@ -388,7 +378,7 @@ function render(c) {
     n3n4: dataTip('N3/N4', t.tip_n3n4),
     retention: dataTip(t.w_retention, t.tip_retention),
     card: dataTip(t.w_card, t.tip_card),
-    dl: '<a href="/download">' + t.w_dl + '</a>',
+    dl: '<a href="' + routeFor(c, '/download') + '">' + t.w_dl + '</a>',
     yeh: '<a href="https://l-m-sherlock.github.io/">' + t.w_yeh + '</a>',
     kanabr: '<a href="' + kanabrUrl(c) + '">kanabr</a>',
     gh: '<a href="https://github.com/L-M-Sherlock/kanabr">GitHub</a>',
@@ -398,7 +388,7 @@ function render(c) {
   };
   const out = {};
   for (const [k, v] of Object.entries(t)) {
-    if (k.startsWith('w_') || k.startsWith('tip_') || k === 'meta_desc') continue;
+    if (k.startsWith('w_') || k.startsWith('tip_')) continue;
     out[k] = v.replace(/\{(\w+)\}/g, (m, name) => { if (!(name in sub)) throw new Error('unknown placeholder ' + name + ' in ' + c + '.' + k); return sub[name]; });
   }
   return out;
@@ -408,7 +398,8 @@ const KEY = (k) => 'imm.' + k.replace('_', '.');
 let cur = null;
 const el = (tag, k, attrs = '') => '<' + tag + (attrs ? ' ' + attrs : '') + ' data-i18n="' + KEY(k) + '">' + cur[k] + '</' + tag + '>';
 
-const bodyFor = (r) => { cur = r; return `<div class="immersion" dir="auto">
+// vp-raw：正文里指向 /<lang>/download 的链接不在 VitePress 路由表里，不加会被客户端路由劫持成站内 404。
+const bodyFor = (r) => { cur = r; return `<div class="immersion vp-raw" dir="auto">
 
 ${el('h1', 'title')}
 ${el('p', 'note', 'class="note"')}
@@ -486,21 +477,8 @@ ${el('p', 's3_p3')}
 // 1. 页面：immersion.md 是英文版（默认路由），<style> 块只在这里维护；其余语言路由页复用同一段样式，
 //    正文默认文本换成该语言，data-i18n 键相同。每页自带标题 / 描述 / og / hreflang，
 //    这些是给不跑 JS 的链接预览爬虫看的。
-const yamlHead = (items) => 'head:\n' + items.map(([tag, attrs]) => {
-  const ents = Object.entries(attrs);
-  return '  - - ' + tag + '\n' + ents.map(([k, v], i) => (i === 0 ? '    - ' : '      ') + k + ': ' + JSON.stringify(v)).join('\n');
-}).join('\n');
 const frontMatter = (c, t) => {
-  const items = [
-    ['meta', { property: 'og:type', content: 'article' }],
-    ['meta', { property: 'og:title', content: t.title }],
-    ['meta', { property: 'og:description', content: t.meta_desc }],
-    ['meta', { property: 'og:url', content: SITE + routeOf(c) }],
-    ['meta', { property: 'og:locale', content: OG_LOCALE[c] }],
-    ['meta', { name: 'twitter:card', content: 'summary' }],
-    ...Object.entries(ROUTES).map(([lc, path]) => ['link', { rel: 'alternate', hreflang: lc, href: SITE + path }]),
-    ['link', { rel: 'alternate', hreflang: 'x-default', href: SITE + ROUTES.en }],
-  ];
+  const items = seoHead(c, '/immersion', { title: t.title, description: t.meta_desc, type: 'article', dyn: { title: '{imm.title} | Fushi', description: '{imm.meta.desc}' } });
   return '---\ntitle: ' + JSON.stringify(t.title) + '\ndescription: ' + JSON.stringify(t.meta_desc) + '\n' + yamlHead(items) + '\n---\n\n';
 };
 {
@@ -516,7 +494,7 @@ const frontMatter = (c, t) => {
     ' * 侧注折回正文流，变成段落之间的浅灰卡片。\n *\n * 正文是带 data-i18n 键的 HTML，不是 markdown：站点语言切换靠 site.js 按键换 innerHTML。\n * 本文件是英文版（默认路由 /immersion）；zh-cn/ zh-hk/ ja/ ko/ 下的同名页是各语言的静态版\n * （给链接预览爬虫看），五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。\n * 样式只在本文件维护；别手改任何一页的段落，改内容对象后重新生成。\n */')
     .replace(' * 本文件是 zh-CN 版；en/ ja/ ko/ zh-hk/ 下的同名页是各语言的静态版（给链接预览爬虫看），\n * 五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。',
       ' * 本文件是英文版（默认路由 /immersion）；zh-cn/ zh-hk/ ja/ ko/ 下的同名页是各语言的静态版\n * （给链接预览爬虫看），五个页面、17 个字典都由同一份内容对象生成（tool/build_immersion_i18n.mjs）。');
-  for (const c of Object.keys(ROUTES)) {
+  for (const c of LANGS) {
     const t = contentOf(c);
     const out = frontMatter(c, t) + style + '\n\n' + bodyFor(render(c));
     const rel = routeOf(c).slice(1) + '.md';
@@ -537,9 +515,9 @@ for (const c of LANGS) {
   for (const k of Object.keys(obj)) if (k.startsWith('imm.')) delete obj[k];
   const r = render(c);
   for (const [k, v] of Object.entries(r)) obj[KEY(k)] = v;
-  // 顶栏 / 底栏「怎么开始」按语言指到对应静态路由（site.js 的 data-i18n-attr 机制换 href）
-  obj['nav.method_href'] = routeOf(c);
+  // 站内链接改由 site.js / Layout.vue 按 lang-routes 表统一加语言前缀，不再逐链接配 href 键
+  delete obj['nav.method_href'];
   const text = JSON.stringify(obj, null, 2) + '\n';
   writeFileSync(p, crlf ? text.split('\n').join(CR + '\n') : text);
 }
-console.log('ok: keys', Object.keys(render('zh-CN')).length, 'pages', Object.keys(ROUTES).join(','), 'langs', LANGS.length, 'translated', Object.keys(TRANSLATED).join(','));
+console.log('ok: keys', Object.keys(render('zh-CN')).length, 'pages', LANGS.map(routeOf).join(','), 'translated', Object.keys(TRANSLATED).join(','));

@@ -1,6 +1,6 @@
 ---
-title: "Download Fushi"
-description: "Pick a platform, install it, and let the in-app onboarding handle the rest. Four platforms, one experience, all free and open source."
+title: "Unduh Fushi"
+description: "Pilih satu platform, pasang, sisanya serahkan pada panduan pemula di dalam aplikasi. Empat platform, satu pengalaman yang sama, semuanya gratis dan open source."
 head:
   - - meta
     - name: "fushi-title"
@@ -10,7 +10,7 @@ head:
       content: "{dl.lead}"
   - - link
     - rel: "canonical"
-      href: "https://fushi.moe/download"
+      href: "https://fushi.moe/id/download"
   - - meta
     - property: "og:type"
       content: "website"
@@ -19,16 +19,16 @@ head:
       content: "Fushi"
   - - meta
     - property: "og:title"
-      content: "Download Fushi"
+      content: "Unduh Fushi"
   - - meta
     - property: "og:description"
-      content: "Pick a platform, install it, and let the in-app onboarding handle the rest. Four platforms, one experience, all free and open source."
+      content: "Pilih satu platform, pasang, sisanya serahkan pada panduan pemula di dalam aplikasi. Empat platform, satu pengalaman yang sama, semuanya gratis dan open source."
   - - meta
     - property: "og:url"
-      content: "https://fushi.moe/download"
+      content: "https://fushi.moe/id/download"
   - - meta
     - property: "og:locale"
-      content: "en_US"
+      content: "id_ID"
   - - meta
     - name: "twitter:card"
       content: "summary"
@@ -109,8 +109,8 @@ head:
 <!-- 生成文件（tool/build_download_pages.mjs），别手改；页面本体在 .vitepress/theme/DownloadPage.vue -->
 
 <script setup>
-import DownloadPage from './.vitepress/theme/DownloadPage.vue'
-import dict from './public/i18n/en.json'
+import DownloadPage from '../.vitepress/theme/DownloadPage.vue'
+import dict from '../public/i18n/id.json'
 </script>
 
-<DownloadPage lang="en" :dict="dict" />
+<DownloadPage lang="id" :dict="dict" />

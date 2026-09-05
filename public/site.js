@@ -2,9 +2,11 @@
  * fushi.moe 站点脚本：界面语言 + 顶栏语言菜单 + 浮动「回到顶部」。
  *
  * 语言集合与 app 的界面语言完全一致（17 种，fushi/lib/i18n/*.i18n.json）。
- * 标记里写死的是简体中文（SOURCE）；其余语言的文案在 /i18n/<code>.json，
- * 按 data-i18n="key" 把元素 innerHTML 换掉（字典值可含 <b>/<a> 等内联标记，
- * 全部是本仓库自己的文件，不接收任何外部输入）。
+ * 源标记是简体中文（SOURCE，字典源语言）；构建后每种语言各烤一份静态页
+ * （英文是默认路由，其余在 /<prefix>/ 下，表见 .vitepress/theme/lang-routes.mjs），
+ * <html lang> 就是这一页烤的语言。访客语言与之不同时按 /i18n/<code>.json
+ * 用 data-i18n="key" 把元素 innerHTML 换掉（字典值可含 <b>/<a> 等内联标记，
+ * 全部是本仓库自己的文件，不接收任何外部输入），站内链接也改到该语言的页面。
  *
  * 这个文件**同步**挂在 <head> 里：非中文用户第一帧之前就得把 body 藏住，
  * 否则会先闪一屏中文再换语言。字典拿不到或超时就照常显示中文——脚本的
@@ -38,21 +40,11 @@
     ['ar', 'العربية'],
   ];
   var SOURCE = 'zh-CN';
-  /**
-   * 这一页烤在 HTML 里的语言。手写页（首页 / 下载页）是简体中文；沉浸页默认路由 /immersion
-   * 是英文，/zh-cn/ /zh-hk/ /ja/ /ko/ /de/ … 下是各语言的静态版（17 种语言各一份）。判定必须同步（脚本在 <head> 里跑，
-   * body 还没解析），所以只能看路径。中文用户打开 /immersion 会按 zh-CN 字典把英文换掉，
-   * 英文用户打开 /zh-cn/immersion 同理反过来。
-   */
-  var PAGE_LANG = { '/immersion': 'en' };
-  var PREFIX_LANG = { 'zh-cn': 'zh-CN', 'zh-hk': 'zh-HK', 'pt-br': 'pt-BR', en: 'en', ja: 'ja', ko: 'ko', de: 'de', es: 'es', fr: 'fr', it: 'it', nl: 'nl', ru: 'ru', tr: 'tr', vi: 'vi', id: 'id', th: 'th', ar: 'ar' };
-  function pageSource() {
-    var p = location.pathname.replace(/\.html$/, '').replace(/\/index$/, '') || '/';
-    var m = p.match(/^\/(zh-cn|zh-hk|pt-br|en|ja|ko|de|es|fr|it|nl|ru|tr|vi|id|th|ar)(\/|$)/);
-    if (m) return PREFIX_LANG[m[1]];
-    return PAGE_LANG[p] || SOURCE;
-  }
-  var PAGE_SOURCE = pageSource();
+  /** 语言 → 路径前缀，与 .vitepress/theme/lang-routes.mjs 同一张表（tool/lang-routes.test.mjs 守两边一致）。 */
+  var LANG_PREFIX = { en: '', 'zh-CN': '/zh-cn', 'zh-HK': '/zh-hk', ja: '/ja', ko: '/ko', de: '/de', es: '/es', fr: '/fr', it: '/it', nl: '/nl', 'pt-BR': '/pt-br', ru: '/ru', tr: '/tr', vi: '/vi', th: '/th', id: '/id', ar: '/ar' };
+  /** 有语言版本的页面；/privacy 只有英文。 */
+  var LANG_PAGES = { '/': 1, '/download': 1, '/immersion': 1 };
+  var LINK_RE = /^(?:\/(zh-cn|zh-hk|ja|ko|de|es|fr|it|nl|pt-br|ru|tr|vi|th|id|ar)(?=\/|$))?(\/[^?#]*)?([?#].*)?$/;
   var STORE = 'fushi-lang';
   var RTL = { ar: true };
   var PENDING_CLASS = 'i18n-pending';
@@ -60,6 +52,12 @@
 
   var root = document.documentElement;
   var codes = LANGS.map(function (l) { return l[0]; });
+  /**
+   * 这一页烤在 HTML 里的语言：读 <html lang>。脚本在 <head> 里同步跑，html 起始标签已经解析，
+   * body 还没有——所以只能看这个属性，不能看正文。手写首页源文件是简体中文，构建后
+   * 每种语言各烤一份（tool/build_lang_routes.mjs）；VitePress 页按目录 locale 出 <html lang>。
+   */
+  var PAGE_SOURCE = matchTag(root.getAttribute('lang')) || SOURCE;
 
   function nameOf(code) {
     for (var i = 0; i < LANGS.length; i++) if (LANGS[i][0] === code) return LANGS[i][1];
@@ -125,6 +123,33 @@
 
   function resolve(choice) { return choice === 'auto' ? detect() : choice; }
 
+  /** 烤好的页面随带的字典片段（内联脚本 T('key') 要用的键），同语言访客不必再拉整份字典。 */
+  var INLINE = (function () {
+    var el = document.getElementById('fushi-dict');
+    if (!el) return null;
+    try { return JSON.parse(el.textContent); } catch (_) { return null; }
+  })();
+
+  /** 站内链接改到指定语言的页面；不是语言路由页的路径（/privacy、/releases/…）原样。 */
+  function localizeHref(href, code) {
+    if (href.charAt(0) !== '/') return href;
+    var m = LINK_RE.exec(href);
+    if (!m) return href;
+    var page = m[2] || '/';
+    if (!LANG_PAGES[page]) return href;
+    var prefix = LANG_PREFIX[code] || '';
+    return (prefix ? (page === '/' ? prefix + '/' : prefix + page) : page) + (m[3] || '');
+  }
+
+  function localizeLinks(code) {
+    var as = document.querySelectorAll('a[href^="/"]');
+    for (var i = 0; i < as.length; i++) {
+      var h = as[i].getAttribute('href');
+      var to = localizeHref(h, code);
+      if (to !== h) as[i].setAttribute('href', to);
+    }
+  }
+
   var dicts = {};
   function loadDict(code) {
     if (dicts[code]) return dicts[code];
@@ -153,6 +178,23 @@
     });
   }
 
+  function metaContent(name) {
+    var el = document.querySelector('meta[name="' + name + '"]');
+    return el ? el.getAttribute('content') : null;
+  }
+
+  /** 「{key} 固定文字」模板填字典值；模板缺失或任一键缺失返回 null（保留页面原值）。 */
+  function fill(tpl, dict) {
+    if (typeof tpl !== 'string') return null;
+    var missing = false;
+    var out = tpl.replace(/\{([\w.]+)\}/g, function (_, key) {
+      if (typeof dict[key] === 'string') return dict[key];
+      missing = true;
+      return '';
+    });
+    return missing ? null : out;
+  }
+
   function applyDict(dict, code) {
     root.lang = code;
     root.dir = RTL[code] ? 'rtl' : 'ltr';
@@ -165,9 +207,14 @@
     for (var j = 0; j < attrEls.length; j++) {
       setAttrs(attrEls[j], attrEls[j].getAttribute('data-i18n-attr'), dict);
     }
-    if (typeof dict['meta.title'] === 'string') document.title = dict['meta.title'];
+    localizeLinks(code);
+    // 每页在 <meta name="fushi-title" / "fushi-description"> 里声明自己的标题 / 描述模板
+    // （{key} 取字典值，如「{dl.title} | Fushi」）；没声明的页（隐私政策）标题不动。
+    var title = fill(metaContent('fushi-title'), dict);
+    if (title !== null) document.title = title;
     var desc = document.querySelector('meta[name="description"]');
-    if (desc && typeof dict['meta.description'] === 'string') desc.setAttribute('content', dict['meta.description']);
+    var descTpl = fill(metaContent('fushi-description'), dict);
+    if (desc && descTpl !== null) desc.setAttribute('content', descTpl.replace(/<[^>]*>/g, ''));
     state.dict = dict;
     state.lang = code;
     syncLangMenus();
@@ -175,7 +222,7 @@
     document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: dict } }));
   }
 
-  /** 把当前语言应用到页面。与本页烤的语言相同且从未切过 → 什么都不用换。 */
+  /** 把当前语言应用到页面。与本页烤的语言相同且从未切过 → 标记已是该语言，什么都不用换。 */
   function apply() {
     var code = resolve(state.choice);
     if (code === PAGE_SOURCE && !state.dict) {
@@ -183,7 +230,7 @@
       root.lang = code; root.dir = RTL[code] ? 'rtl' : 'ltr';
       syncLangMenus();
       root.classList.remove(PENDING_CLASS);
-      document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: {} } }));
+      document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: INLINE || {} } }));
       return Promise.resolve();
     }
     return loadDict(code).then(function (dict) { applyDict(dict, code); }, function () {
@@ -192,7 +239,7 @@
   }
 
   function t(key, fallback) {
-    var d = state.dict;
+    var d = state.dict || INLINE;
     return d && typeof d[key] === 'string' ? d[key] : fallback;
   }
 
