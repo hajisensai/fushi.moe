@@ -19,7 +19,7 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: false,
   head: [
-    ['link', { rel: 'icon', type: 'image/png', href: '/icon-placeholder.png' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/fushi-icon.png' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     // 顶栏 / 底栏 / 设计 token 的唯一真相源，与手写首页 public/index.html 共用。
     ['link', { rel: 'stylesheet', href: '/chrome.css' }],

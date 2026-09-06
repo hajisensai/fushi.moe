@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fushi 语言习得</title>
 <meta name="description" content="Fushi：免费开源的沉浸式语言学习应用。看番、读书、玩游戏时点一下查词，再点一下做成带原句、画面、原声的 Anki 卡。Windows / macOS / Android / iOS。">
+<link rel="icon" type="image/png" href="/fushi-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;700&family=M+PLUS+Rounded+1c:wght@500&display=swap" media="print" onload="this.media='all'">
@@ -46,7 +47,10 @@
   .hero .logo {
     --logo-size: 76px;
     margin-bottom: 22px;
-    box-shadow: 0 18px 34px -20px rgba(0, 113, 227, 0.9);
+    /* 投影跟着图标主色走：旧的是配蓝色渐变占位图的品牌蓝辉光，换成兔子图标后
+       改成图标描边的深紫，否则底下会透出一圈不相干的蓝。 */
+    border-radius: calc(var(--logo-size) * 0.22);
+    box-shadow: 0 18px 34px -20px rgba(56, 48, 64, 0.75);
   }
 
   /* ---------- Hero（双栏：左文案 / 右方法+ACGN 体验区面板） ---------- */

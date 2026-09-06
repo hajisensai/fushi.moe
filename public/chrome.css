@@ -65,14 +65,16 @@ body {
 /* 顶栏是 sticky 的，锚点落点要让开它，否则跳过去标题被压在栏下面。 */
 :target { scroll-margin-top: calc(var(--nav-h) + 12px); }
 
-/* 占位 logo：正式图标未定稿前的占位图。一处定义，靠 --logo-size 缩放（顶栏 26px /
-   hero 76px），换正式图标时只改这一条。 */
+/* 正式 logo：兔子图标（与 app 启动器图标同一张，薰衣草底 + 投影）。一处定义，靠
+   --logo-size 缩放（顶栏 26px / hero 76px）。图片自带圆角方形底，所以不再画
+   border-radius；标记里那个 aria-hidden 的占位字母用 font-size:0 收掉——它是三处
+   标记（静态首页两处 + Layout.vue）共用的，留在原处比改三份标记更少出错。 */
 .logo {
   width: var(--logo-size, 26px); height: var(--logo-size, 26px);
-  border-radius: calc(var(--logo-size, 26px) * 0.27); flex: none;
-  background: linear-gradient(135deg, #5ac8fa, #0071e3);
-  color: #fff; font-size: calc(var(--logo-size, 26px) * 0.58); font-weight: 700;
-  display: grid; place-items: center; letter-spacing: 0;
+  flex: none;
+  background: url(/fushi-icon.png) center / contain no-repeat;
+  font-size: 0; color: transparent;
+  display: grid; place-items: center;
 }
 
 .btn {
