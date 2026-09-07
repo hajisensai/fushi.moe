@@ -318,6 +318,71 @@ async function main() {
   })()`);
   check('点字符能触发查词弹窗（同步读到异步填充的词库）', lookup.ok === true, JSON.stringify(lookup).slice(0, 220));
 
+  // BUG-2122：音高区里同一个音调型不得被多本词典各占一行。
+  // 本页注入的 deduplicatePitchAccents 是 false，旧渲染把「ギター」的五本音调
+  // 词典（全是 [1]）画成五行一模一样的 ￣ギター [1]；合并后应该是一行 + 五枚来源药丸。
+  //
+  // 「ギター」只存在于视频 cue 25.49–28.9s，字幕字符是随播放才渲染的（页面刚加载时
+  // span.ch 只有书籍 demo 的文本），所以先把 currentTime 拨进该 cue 再触 vSync；
+  // 数完把 currentTime 归零，不给后面「点播放持续超 3 秒」那条断言留下快放完的现场。
+  // 弹窗在 shadow root 里，得递归穿进去数。
+  const pitchMerge = await evaluate(`(function(){
+    function shadowQueryAll(sel){
+      var out = [];
+      function walk(root){
+        var hit = root.querySelectorAll(sel);
+        for (var i = 0; i < hit.length; i++) out.push(hit[i]);
+        var all = root.querySelectorAll('*');
+        for (var j = 0; j < all.length; j++) if (all[j].shadowRoot) walk(all[j].shadowRoot);
+      }
+      walk(document);
+      return out;
+    }
+    var v = document.getElementById('demo-video');
+    var vsub = document.getElementById('vsub');
+    if (!v || !vsub) return Promise.resolve({ ok: false, why: 'missing demo-video / vsub' });
+    v.currentTime = 27;
+    v.dispatchEvent(new Event('timeupdate'));
+    return new Promise(function(resolve){
+      function done(payload){ try { v.currentTime = 0; v.dispatchEvent(new Event('timeupdate')); } catch (_) {} resolve(payload); }
+      setTimeout(function(){
+        v.dispatchEvent(new Event('timeupdate'));
+        var spans = [].slice.call(vsub.querySelectorAll('span.ch'));
+        var target = null;
+        for (var i = 0; i < spans.length; i++) {
+          if (spans[i].textContent === 'ギ') { target = spans[i]; break; }
+        }
+        if (!target) {
+          return done({ ok: false, why: 'cue chars not rendered', n: spans.length,
+            sample: spans.slice(0, 30).map(function(s){ return s.textContent; }).join('') });
+        }
+        // 锚点词在视口外时卡会被 clamp 到视口外，弹窗定位全 miss（伪红）。
+        target.scrollIntoView({ block: 'center' });
+        setTimeout(function(){
+          target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+          setTimeout(function(){
+            done({
+              ok: true,
+              groups: shadowQueryAll('.pitch-group').length,
+              labels: shadowQueryAll('.pitch-dict-label').map(function(n){ return n.textContent; }),
+              readings: shadowQueryAll('.pronunciation-text').length,
+              cards: document.querySelectorAll('.hibiki-popup-card').length,
+              headwords: shadowQueryAll('.entry-headword, .expression, .headword')
+                .map(function(n){ return n.textContent; }).slice(0, 3),
+            });
+          }, 400);
+        }, 900);
+      }, 250);
+    });
+  })()`);
+  check(
+    '音高区：五本词典给同一个音调型时只渲染一行、挂全部来源（BUG-2122）',
+    pitchMerge.ok === true && pitchMerge.groups === 1 &&
+      pitchMerge.labels.length === 5 && pitchMerge.readings === 1 &&
+      pitchMerge.headwords.indexOf('ギター') !== -1,
+    JSON.stringify(pitchMerge).slice(0, 260),
+  );
+
   const popupOuterScroll = await evaluate(`(function(){
     return new Promise(function(resolve){
       var before = window.scrollY;
