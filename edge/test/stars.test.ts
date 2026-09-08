@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { handleStars } from '../src/stars';
-import { settings } from './fakes';
+import { memoryCache, settings } from './fakes';
 
 /** 记录 url + headers 的假 fetch：断言「回源了几次」「打的是哪个仓库」都要看到实际请求。 */
 function capturing(reply: () => Response) {
@@ -27,26 +27,6 @@ function repoJson(body: unknown, status = 200): Response {
     status,
     headers: { 'content-type': 'application/json' },
   });
-}
-
-function memoryCache(): Cache & { drop: (prefix: string) => void; keys: () => string[] } {
-  const store = new Map<string, Response>();
-  const cache = {
-    async match(request: Request) {
-      return store.get(request.url)?.clone();
-    },
-    async put(request: Request, response: Response) {
-      store.set(request.url, response.clone());
-    },
-    /** 模拟条目按 max-age 到期被边缘清掉。 */
-    drop(prefix: string) {
-      for (const k of [...store.keys()]) if (k.startsWith(prefix)) store.delete(k);
-    },
-    keys() {
-      return [...store.keys()];
-    },
-  };
-  return cache as unknown as Cache & { drop: (p: string) => void; keys: () => string[] };
 }
 
 const FRESH = 'https://stars.fushi.invalid/fresh/';

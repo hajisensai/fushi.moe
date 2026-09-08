@@ -2,7 +2,7 @@ import { fetchWithTimeout } from './fetch-timeout';
 
 /**
  * 「新鲜缓存 → 回源 → 陈旧兜底」三层读取，给所有打 api.github.com 的端点共用
- * （/api/stars、/api/downloads）。
+ * （/api/stars、/api/downloads），连同这两个端点共用的 JSON 应答形状。
  *
  * 为什么必须三层（/api/stars 上线当天踩到的）：Worker 的出口是 Cloudflare 的共享 IP，
  * api.github.com 对未认证请求按来源 IP 限流，那份配额和全球其它 Worker 共用——403 是
@@ -33,6 +33,31 @@ export type ReadThroughResult<T> =
   | { readonly value: T; readonly stale: boolean }
   | { readonly value: null; readonly reason: string };
 
+/** 把一个不需要等的写入交给 waitUntil；没有 waitUntil（测试）就让它自生自灭，绝不抛。 */
+export function inBackground(p: Promise<unknown>, waitUntil?: (p: Promise<unknown>) => void): void {
+  const guarded = p.catch(() => {});
+  if (waitUntil) waitUntil(guarded);
+}
+
+/**
+ * 给浏览器的 JSON 应答。站点在 CF Pages / GitHub Pages / 主域三处都可能被打开，一律放行
+ * CORS；staleHeader 是「这是陈旧兜底值」的标记头名（各端点各自的 x-fushi-* 头）。
+ */
+export function jsonResponse(
+  payload: unknown,
+  status: number,
+  cacheControl: string,
+  staleHeader?: string,
+): Response {
+  const headers: Record<string, string> = {
+    'content-type': 'application/json; charset=utf-8',
+    'cache-control': cacheControl,
+    'access-control-allow-origin': '*',
+  };
+  if (staleHeader) headers[staleHeader] = 'stale';
+  return new Response(JSON.stringify(payload), { status, headers });
+}
+
 async function readCached<T>(
   cache: Cache,
   key: string,
@@ -60,9 +85,7 @@ function storeCached<T>(
       'cache-control': 'max-age=' + ttlS,
     },
   });
-  const p = cache.put(new Request(key), body);
-  if (opts.waitUntil) opts.waitUntil(p);
-  else void p.catch(() => {});
+  inBackground(cache.put(new Request(key), body), opts.waitUntil);
 }
 
 export async function readThrough<T>(opts: ReadThroughOptions<T>): Promise<ReadThroughResult<T>> {

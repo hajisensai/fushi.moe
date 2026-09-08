@@ -1,20 +1,28 @@
 import type { Settings } from './config';
 import { SLOTS, type Channel } from './manifest';
-import { fetchGithubJson, readThrough } from './stale-cache';
+import {
+  fetchGithubJson,
+  inBackground,
+  jsonResponse,
+  readThrough,
+  type LoadResult,
+  type ReadThroughResult,
+} from './stale-cache';
 
 /*
  * 站内下载统计。
  *
  * 计什么：fushi.moe/releases 是站内下载的唯一必经点，三种出口各计一次「下载开始」——
- *   r2           Worker 自己从 R2 镜像吐字节
- *   github-edge  Worker 边缘代理 GitHub 吐字节（?src=gh，只在 R2 没镜像时兜底）
- *   github       302 把人送去 GitHub 直链（GitHub 那边也会计 download_count）
- * GitHub 直链、应用内更新器都不经过这里，它们的数字在 GitHub release 资产的 download_count 上，
- * /api/downloads 把两份并排给出；显示用的 total = GitHub 计数 + Worker 自己吐字节的那两种
- * （302 那种 GitHub 已经计过，不能再加一次）。
+ *   r2           Worker 自己从 R2 镜像吐字节——唯一没经过 GitHub 的出口
+ *   github-edge  Worker 边缘代理 GitHub 直链吐字节（?src=gh，只在 R2 没镜像时兜底）
+ *   github       302 把人送去 GitHub 直链
+ * 后两种都会命中 GitHub 的 releases/download URL，GitHub 自己的 download_count 已经计过；
+ * 页面显示的 total = GitHub 计数 + 只有 r2 这一种（served），否则同一次下载被加两遍。
+ * site 里三种出口的分布仍然完整保留，看趋势用。
  *
  * 「一次下载」的判据在 isDownloadStart：安装包被分片下载器切成 8 MiB 的 Range 请求并发拉，
- * 按请求数计会把一个 247 MB 的包算成三十几次；按「从字节 0 开始的那一次」计才是一次点击。
+ * 按请求数计会把一个 247 MB 的包算成三十几次；按「从字节 0 开始、且不是探测的那一次」计
+ * 才是一次点击。分片重试时第 0 片会被重拉，那一次会多计——弱网下的个位数误差，接受。
  *
  * 存在哪：单实例 SQLite Durable Object（download-stats-object.ts）。KV 的累加不是原子的，
  * 并发下会丢；Analytics Engine 读数要账号级 API token；D1 要先在账号里建库。DO 三者都不要，
@@ -22,14 +30,16 @@ import { fetchGithubJson, readThrough } from './stale-cache';
  */
 
 /**
- * 分片下载器探测一个来源时发的 Range 长度（.vitepress/theme/chunked-download.mjs 的
- * DEFAULT_PROBE_BYTES）。探测不是下载：一次点击会探 1～2 个来源，再从 0 开始拉第一片。
- * 两边同值由 test/download-stats.test.ts 守。
+ * 探测的上限长度。页面在点「下载」时会对每个来源发两种探测：`bytes=0-0`（describeSource，
+ * 只看状态码）和 `bytes=0-65535`（chunked-download.mjs 的 DEFAULT_PROBE_BYTES，量首字节
+ * 耗时）。两种都是在问「这个来源活着吗」，不是下载；安装包动辄上百 MB，从 0 起、不超过
+ * 64 KiB 的 Range 只可能是探测。与 DEFAULT_PROBE_BYTES 同值由 test/download-stats.test.ts 守。
  */
 export const PROBE_BYTES = 64 * 1024;
 
 export type DownloadOutcome = 'r2' | 'github' | 'github-edge';
-export const SERVED_OUTCOMES: readonly DownloadOutcome[] = ['r2', 'github-edge'];
+/** 没经过 GitHub、GitHub 自己计不到的出口——只有这一种能和 GitHub 的 download_count 相加。 */
+export const SERVED_OUTCOME: DownloadOutcome = 'r2';
 
 export interface DownloadEvent {
   readonly channel: Channel;
@@ -41,13 +51,13 @@ export interface DownloadEvent {
 export interface SiteDownloadSummary {
   /** 三种出口合计。 */
   readonly total: number;
-  /** 只算 Worker 自己吐字节的（r2 + github-edge）——302 去 GitHub 的那部分 GitHub 自己会计。 */
+  /** 只算 r2（Worker 从镜像吐字节）——其余两种 GitHub 自己会计。 */
   readonly served: number;
   readonly byChannel: Record<string, number>;
   readonly bySlot: Record<string, number>;
   readonly bySource: Record<string, number>;
   readonly byTag: Record<string, number>;
-  /** 最近 30 天，键 YYYY-MM-DD（UTC）。 */
+  /** 最近 30 天，键 YYYY-MM-DD（UTC），按日期升序。 */
   readonly byDay: Record<string, number>;
 }
 
@@ -63,7 +73,7 @@ export interface DownloadCounter {
  * - HEAD / 非 GET：不算。
  * - 没有 Range：普通 <a> 点击、curl、更新器——算。
  * - Range 从 0 开始：分片下载器的第一片、aria2/IDM 的第一条连接、`bytes=0-` 整文件——算，
- *   但恰好是探测长度（64 KiB）的那次不算：那是在问「这个来源活着吗」。
+ *   但长度不超过 PROBE_BYTES 的那些不算：那是探测（`bytes=0-0` / `bytes=0-65535`）。
  * - Range 从别处开始：续传、第 N 片、多线程下载器的其它连接——不算，同一次下载已经在
  *   第一片上计过了。
  * - 多段 / 后缀 Range：不算。
@@ -75,10 +85,10 @@ export function isDownloadStart(request: Request): boolean {
   const m = /^bytes=(\d+)-(\d*)$/i.exec(range.trim());
   if (!m || m[1] !== '0') return false;
   if (m[2] === '') return true;
-  return Number(m[2]) + 1 !== PROBE_BYTES;
+  return Number(m[2]) + 1 > PROBE_BYTES;
 }
 
-/** 资产文件名 → 下载槽位；不在槽位表里的（例如清单外的历史文件）归 other。 */
+/** 资产文件名 → 下载槽位；不在槽位表里的（旧 Hibiki 包、vendor 二进制、源码包）归 other。 */
 export function slotOf(assetName: string): string {
   for (const [slot, pattern] of Object.entries(SLOTS)) {
     if (pattern.test(assetName)) return slot;
@@ -86,9 +96,13 @@ export function slotOf(assetName: string): string {
   return 'other';
 }
 
-/** 版本化路径 /v/<tag>/<name> 没有清单告诉我们通道，按 tag 形状判。 */
+/**
+ * 版本化路径 /v/<tag>/<name> 没有清单告诉我们通道，按 tag 形状判。
+ * 滚动 debug 的 GitHub tag 带产品前缀（`fushi-debug-rolling`；`debug-rolling` 是桥包旧族），
+ * 清单里的版本化 tag 是 `v<ver>-debug.<seq>+<sha>`，两种都归 debug。
+ */
 export function channelOfTag(tag: string): Channel {
-  if (tag === 'debug-rolling' || /-debug\./.test(tag)) return 'debug';
+  if (tag.endsWith('debug-rolling') || /-debug\./.test(tag)) return 'debug';
   if (/-beta\./.test(tag)) return 'beta';
   return 'stable';
 }
@@ -104,9 +118,18 @@ export interface SqlLike {
 
 const DAY_WINDOW = 30;
 
+function bump(map: Record<string, number>, key: string, n: number): void {
+  map[key] = (map[key] ?? 0) + n;
+}
+
+function sortedDesc(map: Record<string, number>): Record<string, number> {
+  return Object.fromEntries(Object.entries(map).sort((a, b) => b[1] - a[1]));
+}
+
 /**
  * 账本：一行 = (天, 通道, tag, 槽位, 出口) 的计数。天粒度就够了——要的是趋势和分布，
- * 不是逐次日志；行数上界 = 天数 × 槽位数 × 出口数，十年也才几万行。
+ * 不是逐次日志；行数上界 = 天数 × 槽位数 × 出口数，十年也才几万行，所以汇总就是
+ * 一条 SELECT 全读出来在 JS 里分组，不为几个标量跑六次全表扫描。
  */
 export class DownloadLedger {
   constructor(private readonly sql: SqlLike) {
@@ -132,57 +155,36 @@ export class DownloadLedger {
 
   summary(today: string): SiteDownloadSummary {
     const since = utcDay(new Date(Date.parse(today + 'T00:00:00Z') - (DAY_WINDOW - 1) * 86_400_000));
-    const bySource = this.group('source');
+    let total = 0;
     let served = 0;
-    for (const s of SERVED_OUTCOMES) served += bySource[s] ?? 0;
-    return {
-      total: this.sum('SELECT COALESCE(SUM(n), 0) AS n FROM downloads'),
-      served,
-      byChannel: this.group('channel'),
-      bySlot: this.group('slot'),
-      bySource,
-      byTag: this.group('tag'),
-      byDay: this.rows(
-        'SELECT day AS k, SUM(n) AS n FROM downloads WHERE day >= ? GROUP BY day ORDER BY day',
-        since,
-      ),
-    };
-  }
-
-  private sum(query: string): number {
-    const row = this.sql.exec(query).toArray()[0];
-    return Number(row?.['n'] ?? 0);
-  }
-
-  /** column 只来自本文件的常量，绝不拼用户输入。 */
-  private group(column: 'channel' | 'slot' | 'source' | 'tag'): Record<string, number> {
-    return this.rows(
-      'SELECT ' + column + ' AS k, SUM(n) AS n FROM downloads GROUP BY ' + column + ' ORDER BY n DESC',
-    );
-  }
-
-  private rows(query: string, ...bindings: unknown[]): Record<string, number> {
-    const out: Record<string, number> = {};
-    for (const row of this.sql.exec(query, ...bindings).toArray()) {
-      out[String(row['k'])] = Number(row['n']);
+    const byChannel: Record<string, number> = {};
+    const bySlot: Record<string, number> = {};
+    const bySource: Record<string, number> = {};
+    const byTag: Record<string, number> = {};
+    const byDay: Record<string, number> = {};
+    const rows = this.sql
+      .exec('SELECT day, channel, tag, slot, source, n FROM downloads ORDER BY day')
+      .toArray();
+    for (const row of rows) {
+      const n = Number(row['n']);
+      total += n;
+      if (row['source'] === SERVED_OUTCOME) served += n;
+      bump(byChannel, String(row['channel']), n);
+      bump(bySlot, String(row['slot']), n);
+      bump(bySource, String(row['source']), n);
+      bump(byTag, String(row['tag']), n);
+      const day = String(row['day']);
+      if (day >= since) bump(byDay, day, n);
     }
-    return out;
-  }
-}
-
-/** 内存计数器：测试与「binding 没配」时的本地开发用。 */
-export class MemoryDownloadCounter implements DownloadCounter {
-  readonly events: DownloadEvent[] = [];
-  private readonly ledger: DownloadLedger;
-  constructor(sql: SqlLike, private readonly now: () => Date = () => new Date()) {
-    this.ledger = new DownloadLedger(sql);
-  }
-  async record(event: DownloadEvent): Promise<void> {
-    this.events.push(event);
-    this.ledger.record(event, utcDay(this.now()));
-  }
-  async summary(): Promise<SiteDownloadSummary> {
-    return this.ledger.summary(utcDay(this.now()));
+    return {
+      total,
+      served,
+      byChannel: sortedDesc(byChannel),
+      bySlot: sortedDesc(bySlot),
+      bySource: sortedDesc(bySource),
+      byTag: sortedDesc(byTag),
+      byDay,
+    };
   }
 }
 
@@ -196,8 +198,12 @@ const SUMMARY_TTL_S = 60;
 const GITHUB_FRESH_KEY = 'https://downloads.fushi.invalid/github/fresh/';
 const GITHUB_STALE_KEY = 'https://downloads.fushi.invalid/github/stale/';
 const SUMMARY_KEY = 'https://downloads.fushi.invalid/summary/';
+const RELEASES_PER_PAGE = 100;
+/** 正式版与 beta 永不删除、约三天一个，十页 = 一千个 release，够用很多年。 */
+const RELEASES_MAX_PAGES = 10;
 
 export interface GithubDownloadSummary {
+  /** 只算认得出槽位的 Fushi 资产；仓库里的旧 Hibiki 包、vendor 二进制不进这个数（bySlot.other 里能看到）。 */
   readonly total: number;
   readonly byTag: Record<string, number>;
   readonly bySlot: Record<string, number>;
@@ -225,7 +231,7 @@ function validateGithubSummary(raw: unknown): GithubDownloadSummary | null {
   return { total: r.total, byTag: r.byTag, bySlot: r.bySlot };
 }
 
-/** GET /repos/:repo/releases 的应答 → 各资产 download_count 汇总。形状不对判失败，不编数字。 */
+/** GET /repos/:repo/releases 的应答（各页拼起来）→ 各资产 download_count 汇总。形状不对判失败，不编数字。 */
 export function githubSummaryFromReleases(raw: unknown): GithubDownloadSummary | null {
   if (!Array.isArray(raw)) return null;
   let total = 0;
@@ -237,19 +243,34 @@ export function githubSummaryFromReleases(raw: unknown): GithubDownloadSummary |
     for (const asset of release.assets as { name?: unknown; download_count?: unknown }[]) {
       if (typeof asset?.name !== 'string' || typeof asset.download_count !== 'number') return null;
       const n = Math.max(0, Math.floor(asset.download_count));
-      tagSum += n;
       const slot = slotOf(asset.name);
-      bySlot[slot] = (bySlot[slot] ?? 0) + n;
+      bump(bySlot, slot, n);
+      if (slot === 'other') continue;
+      tagSum += n;
+      total += n;
     }
     byTag[release.tag_name] = tagSum;
-    total += tagSum;
   }
   return { total, byTag, bySlot };
 }
 
-async function githubSummary(deps: DownloadStatsDeps) {
-  const repo = deps.settings.ghRepo;
-  const key = encodeURIComponent(repo);
+/** 跟着 per_page 翻页直到不满一页；一页都拿不全就整体判失败，不拿半截数据当全集。 */
+async function loadGithubReleases(deps: DownloadStatsDeps): Promise<LoadResult<GithubDownloadSummary>> {
+  const base = 'https://api.github.com/repos/' + deps.settings.ghRepo + '/releases?per_page=' + RELEASES_PER_PAGE;
+  const releases: unknown[] = [];
+  for (let page = 1; page <= RELEASES_MAX_PAGES; page++) {
+    const r = await fetchGithubJson(deps.fetcher, base + '&page=' + page);
+    if (!r.ok) return r;
+    if (!Array.isArray(r.value)) return { ok: false, reason: 'bad payload' };
+    releases.push(...r.value);
+    if (r.value.length < RELEASES_PER_PAGE) break;
+  }
+  const summary = githubSummaryFromReleases(releases);
+  return summary ? { ok: true, value: summary } : { ok: false, reason: 'bad payload' };
+}
+
+function githubSummary(deps: DownloadStatsDeps): Promise<ReadThroughResult<GithubDownloadSummary>> {
+  const key = encodeURIComponent(deps.settings.ghRepo);
   return readThrough<GithubDownloadSummary>({
     cache: deps.cache,
     freshKey: GITHUB_FRESH_KEY + key,
@@ -258,16 +279,7 @@ async function githubSummary(deps: DownloadStatsDeps) {
     staleTtlS: GITHUB_STALE_TTL_S,
     waitUntil: deps.waitUntil,
     validate: validateGithubSummary,
-    load: async () => {
-      // 一页 100 个 release 够用：正式版 + beta + 一个滚动 debug，远不到一页。
-      const r = await fetchGithubJson(
-        deps.fetcher,
-        'https://api.github.com/repos/' + repo + '/releases?per_page=100',
-      );
-      if (!r.ok) return r;
-      const summary = githubSummaryFromReleases(r.value);
-      return summary ? { ok: true, value: summary } : { ok: false, reason: 'bad payload' };
-    },
+    load: () => loadGithubReleases(deps),
   });
 }
 
@@ -281,25 +293,17 @@ async function siteSummary(deps: DownloadStatsDeps): Promise<SiteDownloadSummary
   }
 }
 
-function json(payload: unknown, status: number, cacheControl: string, stale = false): Response {
-  const headers: Record<string, string> = {
-    'content-type': 'application/json; charset=utf-8',
-    'cache-control': cacheControl,
-    'access-control-allow-origin': '*',
-  };
-  if (stale) headers['x-fushi-downloads'] = 'stale';
-  return new Response(JSON.stringify(payload), { status, headers });
-}
-
 /**
  * GET /api/downloads
  *
  *   { total, site, github, stale }
  *
- * total 是给页面显示的一个数：GitHub 各 release 资产 download_count 之和 + 站内由 Worker
- * 吐字节的下载数（R2 镜像 / 边缘代理；302 去 GitHub 的已在前者里）。GitHub 一次都没拿到
- * 过时 total 为 null——页面据此不显示，绝不显示假的 0。site / github 两份原始分布并排给出，
- * 方便看趋势与平台分布。
+ * total 是给页面显示的一个数：GitHub 各 release 资产 download_count 之和 + 站内从 R2 镜像
+ * 吐出的下载数（其余出口 GitHub 已计）。GitHub 一次都没拿到过时 total 为 null——页面据此
+ * 不显示，绝不显示假的 0。site / github 两份原始分布并排给出，方便看趋势与平台分布。
+ *
+ * 只有两边都拿到新鲜值的完整应答才进 60 秒边缘缓存；降级应答（哪一半是 null 或陈旧）
+ * 逐请求重算，好让 DO 抖一下或 GitHub 撞一发 403 之后下一个请求就能恢复。
  */
 export async function handleDownloadStats(deps: DownloadStatsDeps): Promise<Response> {
   const cache = deps.cache;
@@ -310,21 +314,19 @@ export async function handleDownloadStats(deps: DownloadStatsDeps): Promise<Resp
 
   const [site, github] = await Promise.all([siteSummary(deps), githubSummary(deps)]);
   if (site === null && github.value === null) {
-    return json({ error: 'downloads unavailable', reason: github.reason }, 503, 'no-store');
+    return jsonResponse({ error: 'downloads unavailable', reason: github.reason }, 503, 'no-store');
   }
 
   const total = github.value === null ? null : github.value.total + (site?.served ?? 0);
   const stale = github.value !== null && github.stale;
-  const response = json(
+  const response = jsonResponse(
     { total, site, github: github.value, stale },
     200,
     'public, max-age=' + SUMMARY_TTL_S,
-    stale,
+    stale ? 'x-fushi-downloads' : undefined,
   );
-  if (cache) {
-    const p = cache.put(new Request(SUMMARY_KEY), response.clone());
-    if (deps.waitUntil) deps.waitUntil(p);
-    else await p.catch(() => {});
+  if (cache && site !== null && github.value !== null && !stale) {
+    inBackground(cache.put(new Request(SUMMARY_KEY), response.clone()), deps.waitUntil);
   }
   return response;
 }

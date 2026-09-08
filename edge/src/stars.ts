@@ -1,5 +1,5 @@
 import type { Settings } from './config';
-import { fetchGithubJson, readThrough } from './stale-cache';
+import { fetchGithubJson, jsonResponse, readThrough } from './stale-cache';
 
 /**
  * 新鲜期。api.github.com 对未认证请求按来源 IP 限流，而 Worker 的出口是
@@ -28,17 +28,6 @@ export interface StarsDeps {
 export interface StarsPayload {
   readonly repo: string;
   readonly stars: number;
-}
-
-function json(payload: unknown, status: number, cacheControl: string, stale = false): Response {
-  const headers: Record<string, string> = {
-    'content-type': 'application/json; charset=utf-8',
-    'cache-control': cacheControl,
-    // 站点在 CF Pages / GitHub Pages / 主域三处都可能被打开，一律放行。
-    'access-control-allow-origin': '*',
-  };
-  if (stale) headers['x-fushi-stars'] = 'stale';
-  return new Response(JSON.stringify(payload), { status, headers });
 }
 
 function validateStars(raw: unknown): StarsPayload | null {
@@ -78,10 +67,10 @@ export async function handleStars(deps: StarsDeps): Promise<Response> {
   });
 
   if (result.value === null) {
-    return json({ error: 'stars unavailable', reason: result.reason }, 503, 'no-store');
+    return jsonResponse({ error: 'stars unavailable', reason: result.reason }, 503, 'no-store');
   }
   // 回源失败：上一次成功的值仍然是真值，只是旧一点。给它一个短 max-age，
   // 好让下一批请求尽快再试一次回源，而不是把陈旧值也锁上 15 分钟。
-  if (result.stale) return json(result.value, 200, 'public, max-age=60', true);
-  return json(result.value, 200, 'public, max-age=' + STARS_TTL_S);
+  if (result.stale) return jsonResponse(result.value, 200, 'public, max-age=60', 'x-fushi-stars');
+  return jsonResponse(result.value, 200, 'public, max-age=' + STARS_TTL_S);
 }

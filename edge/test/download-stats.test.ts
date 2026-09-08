@@ -9,15 +9,15 @@ import {
   githubSummaryFromReleases,
   handleDownloadStats,
   isDownloadStart,
-  MemoryDownloadCounter,
   PROBE_BYTES,
   slotOf,
+  utcDay,
   type DownloadCounter,
   type DownloadEvent,
   type SiteDownloadSummary,
   type SqlLike,
 } from '../src/download-stats';
-import { fakeFetch, fakeR2, settings, store } from './fakes';
+import { fakeFetch, fakeR2, memoryCache, settings, store } from './fakes';
 
 /** DO 的 ctx.storage.sql 与这里的 node:sqlite 收敛到同一个最小形状（SqlLike）。 */
 function sqlite(): SqlLike {
@@ -32,26 +32,25 @@ function sqlite(): SqlLike {
   };
 }
 
-function memoryCache(): Cache & { keys: () => string[] } {
-  const entries = new Map<string, Response>();
-  return {
-    async match(request: Request | string) {
-      const url = typeof request === 'string' ? request : request.url;
-      return entries.get(url)?.clone();
-    },
-    async put(request: Request | string, response: Response) {
-      const url = typeof request === 'string' ? request : request.url;
-      entries.set(url, response.clone());
-    },
-    keys: () => [...entries.keys()],
-  } as unknown as Cache & { keys: () => string[] };
+/** 生产是 Durable Object stub；测试里把同一份账本装在 node:sqlite 上，顺带记下每次 record。 */
+class MemoryDownloadCounter implements DownloadCounter {
+  readonly events: DownloadEvent[] = [];
+  private readonly ledger = new DownloadLedger(sqlite());
+  constructor(private readonly now: () => Date = () => new Date()) {}
+  async record(event: DownloadEvent): Promise<void> {
+    this.events.push(event);
+    this.ledger.record(event, utcDay(this.now()));
+  }
+  async summary(): Promise<SiteDownloadSummary> {
+    return this.ledger.summary(utcDay(this.now()));
+  }
 }
 
 const get = (url: string, headers: Record<string, string> = {}, method = 'GET') =>
   new Request(url, { method, headers });
 
 describe('isDownloadStart：什么算一次下载开始', () => {
-  it('探测长度与分片下载器同值——两边任何一侧改了都要一起改', () => {
+  it('探测上限与分片下载器的探测长度同值——两边任何一侧改了都要一起改', () => {
     expect(PROBE_BYTES).toBe(DEFAULT_PROBE_BYTES);
   });
 
@@ -63,13 +62,14 @@ describe('isDownloadStart：什么算一次下载开始', () => {
     expect(isDownloadStart(get('https://x/latest/windows', {}, 'HEAD'))).toBe(false);
   });
 
-  it('从 0 开始的 Range 算：分片第一片、bytes=0- 整文件、aria2 第一条连接', () => {
+  it('从 0 开始的大 Range 算：分片第一片、bytes=0- 整文件、aria2 第一条连接', () => {
     expect(isDownloadStart(get('https://x/v/t/n', { range: 'bytes=0-8388607' }))).toBe(true);
     expect(isDownloadStart(get('https://x/v/t/n', { range: 'bytes=0-' }))).toBe(true);
-    expect(isDownloadStart(get('https://x/v/t/n', { range: 'bytes=0-1048575' }))).toBe(true);
+    expect(isDownloadStart(get('https://x/v/t/n', { range: 'bytes=0-' + PROBE_BYTES }))).toBe(true);
   });
 
-  it('恰好探测长度（64 KiB）的那次不算：那是在问「来源活着吗」', () => {
+  it('页面发的两种探测都不算：describeSource 的 bytes=0-0 与 probeSources 的 bytes=0-65535', () => {
+    expect(isDownloadStart(get('https://x/v/t/n', { range: 'bytes=0-0' }))).toBe(false);
     expect(isDownloadStart(get('https://x/v/t/n', { range: 'bytes=0-' + (PROBE_BYTES - 1) }))).toBe(false);
   });
 
@@ -90,13 +90,15 @@ describe('slotOf / channelOfTag', () => {
     expect(slotOf('fushi-2.3.0-windows-setup.exe')).toBe('windows');
     expect(slotOf('fushi-2.3.0-debug.13529-abc1234-debug.apk')).toBe('android-universal');
     expect(slotOf('bridge-2.1.1-x86_64.apk')).toBe('bridge-x64');
-    expect(slotOf('Source code (zip)')).toBe('other');
+    expect(slotOf('hibiki-1.3.2-windows-setup.exe')).toBe('other');
+    expect(slotOf('mpv-dev-x86_64-v3.7z')).toBe('other');
   });
 
-  it('tag 形状 → 通道', () => {
+  it('tag 形状 → 通道；滚动 debug 的真实 GitHub tag 是 fushi-debug-rolling', () => {
     expect(channelOfTag('v2.3.0')).toBe('stable');
     expect(channelOfTag('v2.3.0-beta.13529')).toBe('beta');
     expect(channelOfTag('v2.3.0-debug.13529+abc1234')).toBe('debug');
+    expect(channelOfTag('fushi-debug-rolling')).toBe('debug');
     expect(channelOfTag('debug-rolling')).toBe('debug');
   });
 });
@@ -110,21 +112,22 @@ describe('DownloadLedger：SQLite 账本', () => {
     ...over,
   });
 
-  it('同键累加、异键分行；served 只算 Worker 自己吐字节的两种出口', () => {
+  it('同键累加、异键分行；served 只算 r2——其余两种出口 GitHub 自己会计', () => {
     const ledger = new DownloadLedger(sqlite());
     ledger.record(ev(), '2026-09-08');
     ledger.record(ev(), '2026-09-08');
     ledger.record(ev({ source: 'github' }), '2026-09-08');
     ledger.record(ev({ slot: 'macos', source: 'github-edge' }), '2026-09-07');
-    ledger.record(ev({ channel: 'debug', tag: 'debug-rolling', slot: 'android-universal' }), '2026-08-01');
+    ledger.record(ev({ channel: 'debug', tag: 'fushi-debug-rolling', slot: 'android-universal' }), '2026-08-01');
 
     const s = ledger.summary('2026-09-08');
     expect(s.total).toBe(5);
-    expect(s.served).toBe(4);
+    expect(s.served).toBe(3);
     expect(s.bySource).toEqual({ r2: 3, github: 1, 'github-edge': 1 });
     expect(s.bySlot).toEqual({ windows: 3, macos: 1, 'android-universal': 1 });
     expect(s.byChannel).toEqual({ stable: 4, debug: 1 });
-    expect(s.byTag).toEqual({ 'v2.3.0': 4, 'debug-rolling': 1 });
+    expect(s.byTag).toEqual({ 'v2.3.0': 4, 'fushi-debug-rolling': 1 });
+    expect(Object.keys(s.bySlot)[0]).toBe('windows'); // 分布按计数降序，看的人一眼见最大项
   });
 
   it('byDay 只给最近 30 天，按日期升序', () => {
@@ -199,13 +202,19 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
         waited.push(p.catch(() => {}));
       },
     };
-    return { deps: d, settle: async () => { await Promise.all(waited); waited = []; } };
+    return {
+      deps: d,
+      settle: async () => {
+        await Promise.all(waited);
+        waited = [];
+      },
+    };
   }
 
   const R2_WIN = { 'releases/v2.3.0/fushi-2.3.0-windows-setup.exe': '0123456789' };
 
   it('R2 镜像命中 → source=r2，槽位 / 通道 / tag 来自清单', async () => {
-    const counter = new MemoryDownloadCounter(sqlite());
+    const counter = new MemoryDownloadCounter();
     const { deps: d, settle } = deps(counter, R2_WIN);
     const res = await handleDownload(get('https://fushi.moe/latest/windows'), d);
     await settle();
@@ -214,7 +223,7 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
   });
 
   it('没镜像 302 去 GitHub → source=github（GitHub 那边也会计，served 不含它）', async () => {
-    const counter = new MemoryDownloadCounter(sqlite());
+    const counter = new MemoryDownloadCounter();
     const { deps: d, settle } = deps(counter);
     const res = await handleDownload(get('https://fushi.moe/latest/macos'), d);
     await settle();
@@ -223,8 +232,8 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
     expect((await counter.summary()).served).toBe(0);
   });
 
-  it('?src=gh 边缘代理成功 → source=github-edge；版本化路径的槽位 / 通道从文件名与 tag 推', async () => {
-    const counter = new MemoryDownloadCounter(sqlite());
+  it('?src=gh 边缘代理成功 → source=github-edge（同样不进 served）；版本化路径的槽位 / 通道从文件名与 tag 推', async () => {
+    const counter = new MemoryDownloadCounter();
     const { deps: d, settle } = deps(counter);
     const res = await handleDownload(
       get('https://fushi.moe/v/v2.3.0/fushi-2.3.0-macos.zip?src=gh', { range: 'bytes=0-8388607' }),
@@ -233,10 +242,11 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
     await settle();
     expect(res.status).toBe(200);
     expect(counter.events).toEqual([{ channel: 'stable', tag: 'v2.3.0', slot: 'macos', source: 'github-edge' }]);
+    expect((await counter.summary()).served).toBe(0);
   });
 
   it('?src=gh 边缘代理失败（502）不计', async () => {
-    const counter = new MemoryDownloadCounter(sqlite());
+    const counter = new MemoryDownloadCounter();
     const { deps: d, settle } = deps(counter);
     d.fetcher = fakeFetch({
       'raw.example': manifestJson,
@@ -249,7 +259,7 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
   });
 
   it('?src=r2 点名镜像但没镜像 → 404 不计', async () => {
-    const counter = new MemoryDownloadCounter(sqlite());
+    const counter = new MemoryDownloadCounter();
     const { deps: d, settle } = deps(counter);
     const res = await handleDownload(get('https://fushi.moe/v/v2.3.0/fushi-2.3.0-macos.zip?src=r2'), d);
     await settle();
@@ -257,12 +267,13 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
     expect(counter.events).toEqual([]);
   });
 
-  it('分片下载器一次点击 = 探测 + 第一片 + 后续片：只计一次', async () => {
-    const counter = new MemoryDownloadCounter(sqlite());
+  it('页面一次点击的真实请求序列 = 0-0 诊断探测 + 64 KiB 探测 + 第一片 + 后续片 + HEAD：只计一次', async () => {
+    const counter = new MemoryDownloadCounter();
     const { deps: d, settle } = deps(counter, R2_WIN);
     const url = 'https://fushi.moe/v/v2.3.0/fushi-2.3.0-windows-setup.exe?src=r2';
+    await handleDownload(get(url, { range: 'bytes=0-0' }), d);
     await handleDownload(get(url, { range: 'bytes=0-' + (PROBE_BYTES - 1) }), d);
-    await handleDownload(get(url, { range: 'bytes=0-4' }), d);
+    await handleDownload(get(url, { range: 'bytes=0-' + PROBE_BYTES }), d);
     await handleDownload(get(url, { range: 'bytes=5-9' }), d);
     await handleDownload(get(url, {}, 'HEAD'), d);
     await settle();
@@ -270,20 +281,20 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
     expect(counter.events[0]?.source).toBe('r2');
   });
 
-  it('调试通道的 tag 归 debug', async () => {
-    const counter = new MemoryDownloadCounter(sqlite());
+  it('调试通道的滚动 tag 归 debug', async () => {
+    const counter = new MemoryDownloadCounter();
     const { deps: d, settle } = deps(counter);
     d.fetcher = fakeFetch({
       'raw.example': manifestJson,
       'github.com': () => new Response('x', { status: 200 }),
     });
     await handleDownload(
-      get('https://fushi.moe/v/debug-rolling/fushi-2.3.0-debug.13529-abc1234-debug.apk?src=gh'),
+      get('https://fushi.moe/v/fushi-debug-rolling/fushi-2.3.0-debug.13529-abc1234-debug.apk?src=gh'),
       d,
     );
     await settle();
     expect(counter.events).toEqual([
-      { channel: 'debug', tag: 'debug-rolling', slot: 'android-universal', source: 'github-edge' },
+      { channel: 'debug', tag: 'fushi-debug-rolling', slot: 'android-universal', source: 'github-edge' },
     ]);
   });
 
@@ -310,22 +321,23 @@ describe('下载路由计数：三种出口各计一次，探测 / HEAD / 续传
 });
 
 describe('githubSummaryFromReleases', () => {
-  it('把各 release 资产的 download_count 按 tag 与槽位汇总', () => {
+  it('把各 release 资产的 download_count 按 tag 与槽位汇总；认不出槽位的（旧 Hibiki 包、vendor 二进制）只进 bySlot.other 不进 total', () => {
     const s = githubSummaryFromReleases([
       {
         tag_name: 'v2.3.0',
         assets: [
           { name: 'fushi-2.3.0-windows-setup.exe', download_count: 120 },
           { name: 'fushi-2.3.0-arm64-v8a.apk', download_count: 300 },
+          { name: 'mpv-dev-x86_64-v3.7z', download_count: 9000 },
         ],
       },
-      { tag_name: 'debug-rolling', assets: [{ name: 'fushi-2.3.0-debug.1-a-debug.apk', download_count: 7 }] },
-      { tag_name: 'v2.2.4', assets: [] },
+      { tag_name: 'fushi-debug-rolling', assets: [{ name: 'fushi-2.3.0-debug.1-a-debug.apk', download_count: 7 }] },
+      { tag_name: 'v1.3.2', assets: [{ name: 'hibiki-1.3.2-windows-setup.exe', download_count: 500 }] },
     ]);
     expect(s).toEqual({
       total: 427,
-      byTag: { 'v2.3.0': 420, 'debug-rolling': 7, 'v2.2.4': 0 },
-      bySlot: { windows: 120, 'android-arm64': 300, 'android-universal': 7 },
+      byTag: { 'v2.3.0': 420, 'fushi-debug-rolling': 7, 'v1.3.2': 0 },
+      bySlot: { windows: 120, 'android-arm64': 300, other: 9500, 'android-universal': 7 },
     });
   });
 
@@ -343,18 +355,20 @@ describe('/api/downloads', () => {
       assets: [{ name: 'fushi-2.3.0-windows-setup.exe', download_count: 1000 }],
     },
   ];
+  const RELEASES_URL = 'https://api.github.com/repos/owner/repo/releases?per_page=100&page=1';
   const releasesJson = (body: unknown = RELEASES, status = 200) => () =>
     new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
   async function seeded(): Promise<MemoryDownloadCounter> {
-    const counter = new MemoryDownloadCounter(sqlite(), () => new Date('2026-09-08T12:00:00Z'));
+    const counter = new MemoryDownloadCounter(() => new Date('2026-09-08T12:00:00Z'));
     await counter.record({ channel: 'stable', tag: 'v2.3.0', slot: 'windows', source: 'r2' });
     await counter.record({ channel: 'stable', tag: 'v2.3.0', slot: 'windows', source: 'r2' });
     await counter.record({ channel: 'stable', tag: 'v2.3.0', slot: 'macos', source: 'github' });
+    await counter.record({ channel: 'stable', tag: 'v2.3.0', slot: 'macos', source: 'github-edge' });
     return counter;
   }
 
-  it('total = GitHub download_count 之和 + 站内 Worker 吐字节的下载数（302 去 GitHub 的不重复计）', async () => {
+  it('total = GitHub download_count 之和 + 站内 r2 出口的下载数（302 / 边缘代理 GitHub 已计，不重复加）', async () => {
     const fetcher = fakeFetch({ 'api.github.com': releasesJson() });
     const res = await handleDownloadStats({ settings: settings(), fetcher, counter: await seeded() });
     expect(res.status).toBe(200);
@@ -362,25 +376,56 @@ describe('/api/downloads', () => {
     expect(res.headers.get('cache-control')).toBe('public, max-age=60');
     const body = (await res.json()) as { total: number; site: SiteDownloadSummary; github: { total: number }; stale: boolean };
     expect(body.total).toBe(1002);
-    expect(body.site.total).toBe(3);
+    expect(body.site.total).toBe(4);
     expect(body.site.served).toBe(2);
     expect(body.github.total).toBe(1000);
     expect(body.stale).toBe(false);
-    expect(fetcher.calls).toEqual(['https://api.github.com/repos/owner/repo/releases?per_page=100']);
+    expect(fetcher.calls).toEqual([RELEASES_URL]);
   });
 
-  it('整份应答边缘缓存 60 秒：第二次既不打 GitHub 也不问计数器', async () => {
+  it('GitHub 满一页就翻下一页，直到不满一页；各页资产一起汇总', async () => {
+    const page1 = Array.from({ length: 100 }, (_, i) => ({
+      tag_name: 'v1.' + i,
+      assets: [{ name: 'fushi-1.' + i + '-windows-setup.exe', download_count: 1 }],
+    }));
+    const page2 = [{ tag_name: 'v0.1', assets: [{ name: 'fushi-0.1-macos.zip', download_count: 5 }] }];
+    const fetcher = fakeFetch({
+      'api.github.com': (() => {
+        let n = 0;
+        return () => releasesJson(n++ === 0 ? page1 : page2)();
+      })(),
+    });
+    const res = await handleDownloadStats({ settings: settings(), fetcher });
+    const body = (await res.json()) as { total: number; github: { bySlot: Record<string, number> } };
+    expect(fetcher.calls).toEqual([RELEASES_URL, RELEASES_URL.replace('&page=1', '&page=2')]);
+    expect(body.total).toBe(105);
+    expect(body.github.bySlot).toEqual({ windows: 100, macos: 5 });
+  });
+
+  it('翻页中途失败：整体判失败，不拿半截数据当全集', async () => {
+    const page1 = Array.from({ length: 100 }, (_, i) => ({ tag_name: 'v1.' + i, assets: [] }));
+    const fetcher = fakeFetch({
+      'api.github.com': (() => {
+        let n = 0;
+        return () => (n++ === 0 ? releasesJson(page1)() : releasesJson({ message: 'rate limited' }, 403)());
+      })(),
+    });
+    const res = await handleDownloadStats({ settings: settings(), fetcher });
+    expect(res.status).toBe(503);
+  });
+
+  it('两边都新鲜的完整应答才进 60 秒边缘缓存：第二次既不打 GitHub 也不问计数器', async () => {
     const fetcher = fakeFetch({ 'api.github.com': releasesJson() });
     let asked = 0;
+    const seed = await seeded();
     const counter: DownloadCounter = {
       record: async () => {},
       summary: async () => {
         asked++;
-        return (await (await seeded()).summary());
+        return seed.summary();
       },
     };
-    const cache = memoryCache();
-    const d = { settings: settings(), fetcher, counter, cache };
+    const d = { settings: settings(), fetcher, counter, cache: memoryCache() };
     await handleDownloadStats(d);
     const second = await handleDownloadStats(d);
     expect(second.status).toBe(200);
@@ -392,19 +437,39 @@ describe('/api/downloads', () => {
     const cache = memoryCache();
     const good = fakeFetch({ 'api.github.com': releasesJson() });
     await handleDownloadStats({ settings: settings(), fetcher: good, cache, counter: await seeded() });
-    // 让整份应答缓存过期（只清 summary 键，保留 GitHub 的新鲜/陈旧副本），再让新鲜副本失效。
-    const entries = cache as unknown as { keys: () => string[] };
-    const dropped = memoryCache();
-    for (const k of entries.keys()) {
-      if (k.includes('/github/stale/')) await dropped.put(new Request(k), (await cache.match(new Request(k)))!);
-    }
+    // 整份应答与 GitHub 新鲜副本都到期，只剩陈旧副本。
+    cache.drop('https://downloads.fushi.invalid/summary/');
+    cache.drop('https://downloads.fushi.invalid/github/fresh/');
     const bad = fakeFetch({ 'api.github.com': releasesJson({ message: 'rate limited' }, 403) });
-    const res = await handleDownloadStats({ settings: settings(), fetcher: bad, cache: dropped, counter: await seeded() });
+    const res = await handleDownloadStats({ settings: settings(), fetcher: bad, cache, counter: await seeded() });
     expect(res.status).toBe(200);
     expect(res.headers.get('x-fushi-downloads')).toBe('stale');
     const body = (await res.json()) as { total: number; stale: boolean };
     expect(body.total).toBe(1002);
     expect(body.stale).toBe(true);
+  });
+
+  it('降级应答（陈旧 / 哪一半是 null）不进边缘缓存：下一个请求就重试', async () => {
+    const cache = memoryCache();
+    const bad = fakeFetch({ 'api.github.com': releasesJson({ message: 'nope' }, 403) });
+    await handleDownloadStats({ settings: settings(), fetcher: bad, cache, counter: await seeded() });
+    expect(cache.keys().some((k) => k.includes('/summary/'))).toBe(false);
+
+    const good = fakeFetch({ 'api.github.com': releasesJson() });
+    const recovered = await handleDownloadStats({ settings: settings(), fetcher: good, cache, counter: await seeded() });
+    expect(((await recovered.json()) as { total: number }).total).toBe(1002);
+    expect(cache.keys().some((k) => k.includes('/summary/'))).toBe(true);
+
+    // 反过来：GitHub 新鲜、DO 抖了一下 → 也不缓存，DO 恢复后下一个请求就有 site。
+    const flaky = memoryCache();
+    const broken: DownloadCounter = {
+      record: async () => {},
+      summary: async () => {
+        throw new Error('do down');
+      },
+    };
+    await handleDownloadStats({ settings: settings(), fetcher: fakeFetch({ 'api.github.com': releasesJson() }), cache: flaky, counter: broken });
+    expect(flaky.keys().some((k) => k.includes('/summary/'))).toBe(false);
   });
 
   it('GitHub 一次都没成功过：total 为 null，站内分布照给，页面据此不显示数字', async () => {
@@ -414,7 +479,7 @@ describe('/api/downloads', () => {
     const body = (await res.json()) as { total: number | null; site: SiteDownloadSummary; github: null };
     expect(body.total).toBeNull();
     expect(body.github).toBeNull();
-    expect(body.site.total).toBe(3);
+    expect(body.site.total).toBe(4);
   });
 
   it('没配计数器：total 就是 GitHub 的数', async () => {
