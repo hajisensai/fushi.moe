@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Spoilerati prima</b>: leggi un riassunto della trama, oppure riguarda qualcosa che conosci già nella tua lingua.</li><li><b>Sottotitoli nella tua lingua come ultima risorsa</b>: di norma sconsigliati (si impara poco), ma se sei completamente perso, resisti un po’ senza e accendili solo quando devi — oppure guarda una volta senza e una con.</li>",
   "imm.s3.p1": "Inizia da materiale facile: gli slice of life sono più facili degli anime di combattimento, le light novel più facili della narrativa letteraria.",
   "imm.s3.p2": "Guarda ciò che ami, tocca le parole sconosciute per cercarle e <span class=\"term\" tabindex=\"0\" data-tip=\"Trasformare una parola nuova incontrata in immersione in una scheda Anki insieme alla frase, all’audio e allo screenshot da cui viene. In Fushi è un tocco per cercarla e uno per creare la scheda.\">crea schede</span> quando ne vale la pena.",
-  "imm.s3.p3": "Lo studio del vocabolario è l’unico metodo attivo, oltre all’immersione, che conta: all’inizio costruisce il lessico molto in fretta."
+  "imm.s3.p3": "Lo studio del vocabolario è l’unico metodo attivo, oltre all’immersione, che conta: all’inizio costruisce il lessico molto in fretta.",
+  "dl.native_recovery": "Il download non parte? Prova l’altra fonte qui sotto. Se il browser lo blocca ancora, tieni premuto il link e copialo in un altro browser."
 }

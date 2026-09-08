@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Spoiler primeiro</b>: leia um resumo da história antes, ou reveja algo que já conhece na sua língua.</li><li><b>Legendas na sua língua como último recurso</b>: normalmente não recomendadas (aprende-se pouco), mas se estiver totalmente perdido, aguente um tempo sem e só ligue quando não der mais — ou assista uma vez sem e outra com.</li>",
   "imm.s3.p1": "Comece com material leve — animes de cotidiano são mais fáceis que os de luta, light novels mais fáceis que literatura.",
   "imm.s3.p2": "Assista ao que você gosta, toque nas palavras desconhecidas para consultar e <span class=\"term\" tabindex=\"0\" data-tip=\"Transformar uma palavra nova vista na imersão em um cartão do Anki junto com a frase, o áudio e a captura de onde ela veio. No Fushi é um toque para consultar e outro para criar o cartão.\">crie cartões</span> quando valer a pena.",
-  "imm.s3.p3": "Estudar vocabulário é o único método ativo, fora a imersão, que importa: no começo ele constrói seu vocabulário bem rápido."
+  "imm.s3.p3": "Estudar vocabulário é o único método ativo, fora a imersão, que importa: no começo ele constrói seu vocabulário bem rápido.",
+  "dl.native_recovery": "O download não começou? Tente a outra fonte abaixo. Se o navegador continuar bloqueando, mantenha o link pressionado e copie-o para outro navegador."
 }

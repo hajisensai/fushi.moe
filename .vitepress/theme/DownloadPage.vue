@@ -132,6 +132,7 @@ const metaSource = ref('')             // 清单是从哪拿到的
 const loadingRelease = ref(false)
 /** slot -> 分片下载任务状态 */
 const jobs = reactive({})
+const nativeDownloads = reactive({})
 
 const channelDef = computed(() => CHANNELS.find((c) => c.id === channel.value) ?? CHANNELS[0])
 const rows = computed(() => PLATFORMS.filter((p) => p.channels.includes(channel.value)))
@@ -163,7 +164,8 @@ function withTimeout(promise, ms) {
 async function probe(id, url, opts) {
   const t0 = performance.now()
   try {
-    await withTimeout(fetch(url, { cache: 'no-store', ...opts }), PROBE_TIMEOUT_MS)
+    const response = await withTimeout(fetch(url, { cache: 'no-store', ...opts }), PROBE_TIMEOUT_MS)
+    if (response.type !== 'opaque' && !response.ok) throw new Error('HTTP ' + response.status)
     probed.value = { ...probed.value, [id]: { ok: true, ms: Math.round(performance.now() - t0) } }
   } catch {
     probed.value = { ...probed.value, [id]: { ok: false, ms: Infinity } }
@@ -267,6 +269,7 @@ function pick(id) {
 
 function pickChannel(id) {
   if (channel.value === id) return
+  for (const slot of Object.keys(nativeDownloads)) delete nativeDownloads[slot]
   channel.value = id
   loadRelease()
 }
@@ -402,9 +405,24 @@ function chunkSupported() {
 function onDownloadClick(e, slot) {
   if (slot === 'ios' && IOS_TESTFLIGHT_URL) return
   const info = release.value?.slots?.[slot]
-  if (!info || !chunkSupported() || jobs[slot]) return
+  if (!info || !chunkSupported() || jobs[slot]) {
+    rememberNativeDownload(slot)
+    return
+  }
   e.preventDefault()
   startChunked(slot, info).catch(() => {})
+}
+
+/** 原生下载没有成功/失败回调；放行用户点击，同时保留同一版本的恢复入口。 */
+function rememberNativeDownload(slot) {
+  const info = release.value?.slots?.[slot]
+  nativeDownloads[slot] = {
+    name: downloadNameFor(slot),
+    mirror: info && release.value.tag
+      ? DL_BASE + '/v/' + encodeURIComponent(release.value.tag) + '/' + encodeURIComponent(info.name)
+      : DL_BASE + '/' + channelDef.value.path + '/' + slot,
+    github: githubUrlFor(slot) || hrefFor(slot),
+  }
 }
 
 async function startChunked(slot, info) {
@@ -561,12 +579,13 @@ onMounted(async () => {
     if (saved === 'auto' || saved === 'cf' || saved === 'gh') choice.value = saved
   } catch { /* 读不到就用默认的自动 */ }
 
+  // 推荐包和版本清单不参与测速完成状态，避免它们拖住选源器。
+  void loadPackManifest()
+  void loadRelease()
   await Promise.all([
-    loadPackManifest(),
     probe('cf', DL_BASE + '/api/latest'),
     // GitHub 不给我们 CORS，用 no-cors 只看连不连得上，不读内容
     probe('gh', 'https://github.com/' + GH_REPO + '/releases/latest', { mode: 'no-cors' }),
-    loadRelease(),
   ])
   probing.value = false
 })
@@ -629,7 +648,7 @@ onMounted(async () => {
           <a v-else :href="hrefFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" @click="onDownloadClick($event, p.slot)">
             {{ t('dl.download', '下载') }}<span v-if="sizeFor(p.slot)"> · {{ sizeFor(p.slot) }}</span>
           </a>
-          <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" :title="t('dl.direct_link_hint', 'IDM / aria2 等下载器可直接对它多线程')">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
+          <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" @click="rememberNativeDownload(p.slot)" :title="t('dl.direct_link_hint', 'IDM / aria2 等下载器可直接对它多线程')">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
         </template>
         <div v-else class="dl-job" :class="jobs[p.slot].state">
           <template v-if="jobs[p.slot].state === 'probing'">
@@ -655,17 +674,22 @@ onMounted(async () => {
           <template v-else-if="jobs[p.slot].state === 'fallback'">
             <span>{{ t('dl.chunk_fallback', '分片来源不可用，请用普通下载。') }}</span>
             <span class="dl-job-split" v-for="r in jobs[p.slot].reasons" :key="r.id">{{ r.text }}</span>
-            <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
-            <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
+            <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener" @click="rememberNativeDownload(p.slot)">{{ t('dl.chunk_direct', '普通下载') }}</a>
+            <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" @click="rememberNativeDownload(p.slot)">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_close', '收起') }}</button>
           </template>
           <template v-else>
             <span class="dl-job-err">{{ t('dl.chunk_failed', '分片下载失败。') }}</span>
             <span class="dl-job-split" v-if="jobs[p.slot].error">{{ jobs[p.slot].error }}</span>
-            <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.chunk_direct', '普通下载') }}</a>
-            <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
+            <a :href="jobs[p.slot].href" :download="downloadNameFor(p.slot)" rel="noopener" @click="rememberNativeDownload(p.slot)">{{ t('dl.chunk_direct', '普通下载') }}</a>
+            <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" @click="rememberNativeDownload(p.slot)">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
             <button type="button" @click="cancelJob(p.slot)">{{ t('dl.chunk_close', '收起') }}</button>
           </template>
+        </div>
+        <div v-if="nativeDownloads[p.slot]" class="dl-native-recovery" role="status">
+          <span>{{ t('dl.native_recovery', '未开始下载？可尝试下方另一来源；若仍被浏览器拦截，请长按链接复制到其他浏览器打开。') }}</span>
+          <a :href="nativeDownloads[p.slot].mirror" :download="nativeDownloads[p.slot].name" rel="noopener">{{ t('dl.mirror_cf', 'Cloudflare 镜像') }}</a>
+          <a :href="nativeDownloads[p.slot].github" :download="nativeDownloads[p.slot].name" rel="noopener">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
         </div>
       </td>
     </tr>
@@ -824,6 +848,8 @@ onMounted(async () => {
 }
 .dl-table td:last-child a.dl-direct:hover { color: var(--link); }
 .dl-job { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 13px; }
+.dl-native-recovery { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; font-size: 13px; color: var(--ink-2); overflow-wrap: anywhere; }
+.dl-table td:last-child .dl-native-recovery a { font-size: 13px; white-space: normal; }
 .dl-job button {
   align-self: flex-start;
   padding: 2px 10px; border: 1px solid var(--hairline); border-radius: 980px;

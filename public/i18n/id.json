@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Spoiler dulu</b>: baca ringkasan cerita sebelum menonton, atau tonton ulang sesuatu yang sudah kamu tonton versi bahasa ibumu.</li><li><b>Takarir bahasa ibu sebagai jalan terakhir</b>: biasanya tidak dianjurkan (hampir tidak belajar apa-apa), tapi kalau benar-benar tersesat, bertahanlah dulu tanpa takarir dan nyalakan hanya saat tidak kuat lagi — atau tonton sekali tanpa, sekali dengan takarir.</li>",
   "imm.s3.p1": "Di awal, mulailah dari konten yang ringan — anime keseharian lebih mudah dipahami daripada anime pertarungan, light novel lebih mudah dibaca daripada sastra.",
   "imm.s3.p2": "Tonton yang kamu suka, ketuk kata yang tidak dikenal untuk mencarinya, dan <span class=\"term\" tabindex=\"0\" data-tip=\"Mengubah kata baru yang ditemui saat imersi menjadi kartu Anki bersama kalimat asli, audio, dan tangkapan layar tempatnya muncul. Di Fushi, satu ketukan untuk mencari, satu ketukan lagi untuk membuat kartunya.\">buat kartu</span> bila dirasa perlu.",
-  "imm.s3.p3": "Menghafal kosakata adalah satu-satunya cara belajar aktif di luar imersi yang penting: di awal ia menumpuk kosakata dengan cepat."
+  "imm.s3.p3": "Menghafal kosakata adalah satu-satunya cara belajar aktif di luar imersi yang penting: di awal ia menumpuk kosakata dengan cepat.",
+  "dl.native_recovery": "Unduhan belum dimulai? Coba sumber lain di bawah. Jika browser masih memblokirnya, tekan lama tautan lalu salin ke browser lain."
 }
