@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Spoiler jezelf eerst</b>: lees vooraf een samenvatting van het verhaal, of kijk iets opnieuw dat je in je eigen taal al kent.</li><li><b>Ondertitels in je eigen taal als laatste redmiddel</b>: normaal niet aan te raden (je leert er weinig van), maar als je helemaal de weg kwijt bent, hou het eerst een tijdje vol zonder en zet ze alleen aan als het echt moet – of kijk één keer zonder en één keer met.</li>",
   "imm.s3.p1": "Begin met makkelijk materiaal – slice-of-life is makkelijker dan vechtanime, light novels makkelijker dan literatuur.",
   "imm.s3.p2": "Kijk wat je leuk vindt, tik op onbekende woorden om ze op te zoeken en <span class=\"term\" tabindex=\"0\" data-tip=\"Een nieuw woord uit je immersie omzetten in een Anki-kaart, samen met de zin, audio en screenshot waar het vandaan komt. In Fushi is het één tik om op te zoeken en één om de kaart te maken.\">maak kaarten</span> als het de moeite is.",
-  "imm.s3.p3": "Woorden leren is de enige actieve methode naast immersie die ertoe doet: in het begin bouwt het je woordenschat snel op."
+  "imm.s3.p3": "Woorden leren is de enige actieve methode naast immersie die ertoe doet: in het begin bouwt het je woordenschat snel op.",
+  "dl.native_recovery": "Start de download niet? Probeer de andere bron hieronder. Blijft de browser deze blokkeren, houd dan de link ingedrukt en kopieer hem naar een andere browser."
 }

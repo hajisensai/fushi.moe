@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Spoiler zuerst</b>: Lies vorher eine Inhaltsangabe, oder schau etwas noch einmal, das du in deiner Sprache schon kennst.</li><li><b>Untertitel in der eigenen Sprache als letzter Ausweg</b>: normalerweise nicht empfehlenswert (man lernt wenig daraus), aber wenn du völlig verloren bist, halte erst eine Weile ohne durch und blende sie nur ein, wenn es sein muss – oder schau einmal ohne und einmal mit.</li>",
   "imm.s3.p1": "Fang mit leichtem Material an – Slice-of-Life ist leichter als Kampf-Anime, Light Novels leichter als anspruchsvolle Literatur.",
   "imm.s3.p2": "Schau, was du liebst, tippe auf unbekannte Wörter, um sie nachzuschlagen, und <span class=\"term\" tabindex=\"0\" data-tip=\"Ein neues Wort aus der Immersion zusammen mit Satz, Audio und Screenshot, in denen es vorkam, in eine Anki-Karte verwandeln. In Fushi ist es ein Tipp zum Nachschlagen und ein weiterer für die Karte.\">Karten erstellen</span>, wenn es sich lohnt.",
-  "imm.s3.p3": "Vokabellernen ist die eine aktive Methode neben der Immersion, die zählt: Anfangs baut es den Wortschatz schnell auf."
+  "imm.s3.p3": "Vokabellernen ist die eine aktive Methode neben der Immersion, die zählt: Anfangs baut es den Wortschatz schnell auf.",
+  "dl.native_recovery": "Download nicht gestartet? Versuche die andere Quelle unten. Blockiert der Browser ihn weiterhin, halte den Link gedrückt und kopiere ihn in einen anderen Browser."
 }

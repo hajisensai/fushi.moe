@@ -129,6 +129,7 @@ function installInterceptor(cdp) {
     const url = request.url;
     try {
       const parsed = new URL(url);
+      if (scenario.hangPack && parsed.pathname === '/pack/manifest.json') return;
       if (parsed.pathname === '/releases/api/latest') {
         if (!scenario.cfUp) {
           await cdp.send('Fetch.failRequest', { requestId, errorReason: 'ConnectionFailed' });
@@ -401,6 +402,7 @@ async function main() {
   const injected = await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
     source: 'try { delete window.showSaveFilePicker; } catch (e) { window.showSaveFilePicker = undefined; }',
   });
+  scenario.hangPack = true;
   await runScenario(cdp, 'I 无 File System Access', { cfUp: true, ghUp: true });
   const noFs = await cdp.send('Runtime.evaluate', {
     expression: `(function(){
@@ -420,6 +422,9 @@ async function main() {
               job: !!document.querySelector('.dl-job'),
               href: a.getAttribute('href'),
               download: a.getAttribute('download'),
+              recovery: document.querySelector('.dl-native-recovery')?.textContent,
+              recoveryLinks: [...document.querySelectorAll('.dl-native-recovery a')].map(a => ({ href: a.getAttribute('href'), download: a.getAttribute('download') })),
+              probing: /正在测试下载源/.test(document.querySelector('.dl-status')?.textContent || ''),
             });
           }, 800);
         }, 400);
@@ -433,6 +438,10 @@ async function main() {
   check('I 前提成立：该上下文里确实没有 showSaveFilePicker', nf.hasApi === 'undefined', JSON.stringify(nf));
   check('I 点「下载」不被拦截，交给浏览器原生下载（不进分片、不出任务行）', nf.prevented === false && nf.job === false, JSON.stringify(nf));
   check('I 放行的那条链接仍带 download 属性（否则被 VitePress 路由劫持成 404）', nf.download !== null && /^\/releases\//.test(nf.href || ''), JSON.stringify(nf));
+  check('I 原生下载无回调时保留恢复说明', /未开始下载/.test(nf.recovery || ''), nf.recovery);
+  check('I 恢复链接锁定同版本并保留原生下载属性', nf.recoveryLinks?.length === 2 && nf.recoveryLinks.every(a => a.href.includes('/v9.9.9/') && a.download === 'fushi-9.9.9-arm64-v8a.apk') && nf.recoveryLinks[0].href.startsWith('/releases/v/') && nf.recoveryLinks[1].href.startsWith('https://github.com/'), JSON.stringify(nf.recoveryLinks));
+  check('I 推荐包请求挂起不阻塞测速结束', nf.probing === false, JSON.stringify(nf));
+  scenario.hangPack = false;
   await cdp.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: injected.identifier ?? injected.result?.identifier });
 
   console.log('\n--- 场景 J：探测阶段点「取消」必须立刻生效 ---');

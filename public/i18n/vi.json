@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Đọc spoiler trước</b>: đọc tóm tắt cốt truyện trước khi xem, hoặc xem lại thứ bạn đã xem bản tiếng mẹ đẻ.</li><li><b>Phụ đề tiếng mẹ đẻ là phương án cuối</b>: thường không khuyến khích (học được rất ít), nhưng nếu lạc hoàn toàn, hãy cố xem không phụ đề một lúc, không nổi nữa mới bật lên — hoặc xem một lượt không phụ đề, một lượt có phụ đề.</li>",
   "imm.s3.p1": "Lúc mới bắt đầu nên chọn nội dung nhẹ nhàng — anime đời thường dễ hiểu hơn anime chiến đấu, light novel dễ đọc hơn văn học.",
   "imm.s3.p2": "Xem thứ bạn thích, gặp từ lạ thì chạm để tra, và <span class=\"term\" tabindex=\"0\" data-tip=\"Biến từ mới gặp khi đắm mình thành một thẻ Anki cùng với câu gốc, âm thanh và ảnh chụp nơi nó xuất hiện. Trong Fushi, chạm một lần để tra, chạm thêm lần nữa là xong thẻ.\">tạo thẻ</span> khi thấy đáng.",
-  "imm.s3.p3": "Học từ vựng là cách học chủ động duy nhất ngoài đắm mình thật sự quan trọng: giai đoạn đầu nó giúp tích lũy vốn từ rất nhanh."
+  "imm.s3.p3": "Học từ vựng là cách học chủ động duy nhất ngoài đắm mình thật sự quan trọng: giai đoạn đầu nó giúp tích lũy vốn từ rất nhanh.",
+  "dl.native_recovery": "Chưa bắt đầu tải xuống? Hãy thử nguồn khác bên dưới. Nếu trình duyệt vẫn chặn, hãy nhấn giữ liên kết rồi sao chép sang trình duyệt khác."
 }

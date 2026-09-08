@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Spoilez-vous d’abord</b> : lisez un résumé de l’intrigue, ou revoyez quelque chose que vous connaissez déjà dans votre langue.</li><li><b>Sous-titres dans votre langue en dernier recours</b> : déconseillé en général (on en apprend peu), mais si vous êtes complètement perdu, tenez un moment sans, et ne les affichez que quand il le faut — ou regardez une fois sans, une fois avec.</li>",
   "imm.s3.p1": "Commencez par du contenu facile : les tranches de vie sont plus faciles que les anime de combat, les light novels plus faciles que la littérature.",
   "imm.s3.p2": "Regardez ce que vous aimez, appuyez sur les mots inconnus pour les chercher, et <span class=\"term\" tabindex=\"0\" data-tip=\"Transformer un mot nouveau rencontré en immersion en carte Anki, avec la phrase, l’audio et la capture d’où il vient. Dans Fushi, un appui pour chercher, un autre pour créer la carte.\">créez des cartes</span> quand ça en vaut la peine.",
-  "imm.s3.p3": "Le vocabulaire est la seule méthode active, hors immersion, qui compte : au début, il construit votre lexique très vite."
+  "imm.s3.p3": "Le vocabulaire est la seule méthode active, hors immersion, qui compte : au début, il construit votre lexique très vite.",
+  "dl.native_recovery": "Le téléchargement ne démarre pas ? Essayez l’autre source ci-dessous. Si le navigateur le bloque encore, appuyez longuement sur le lien et copiez-le dans un autre navigateur."
 }

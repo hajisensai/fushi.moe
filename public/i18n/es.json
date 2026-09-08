@@ -225,5 +225,6 @@
   "imm.s3.c4": "<li><b>Spoiléate antes</b>: lee un resumen del argumento, o vuelve a ver algo que ya conoces en tu idioma.</li><li><b>Subtítulos en tu idioma como último recurso</b>: normalmente no se recomiendan (se aprende poco), pero si estás totalmente perdido, aguanta un rato sin ellos y actívalos solo cuando no puedas más — o mira una vez sin y otra con.</li>",
   "imm.s3.p1": "Empieza por material fácil: los animes de vida cotidiana son más fáciles que los de combate, y las novelas ligeras más que la literatura.",
   "imm.s3.p2": "Ve lo que te gusta, toca las palabras desconocidas para buscarlas y <span class=\"term\" tabindex=\"0\" data-tip=\"Convertir una palabra nueva vista durante la inmersión en una tarjeta de Anki junto con la frase, el audio y la captura de donde salió. En Fushi es un toque para buscarla y otro para crear la tarjeta.\">crear tarjetas</span> cuando valga la pena.",
-  "imm.s3.p3": "Estudiar vocabulario es el único método activo, aparte de la inmersión, que importa: al principio construye tu vocabulario muy rápido."
+  "imm.s3.p3": "Estudiar vocabulario es el único método activo, aparte de la inmersión, que importa: al principio construye tu vocabulario muy rápido.",
+  "dl.native_recovery": "¿No comienza la descarga? Prueba la otra fuente. Si el navegador sigue bloqueándola, mantén pulsado el enlace y cópialo en otro navegador."
 }
