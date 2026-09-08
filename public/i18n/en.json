@@ -135,6 +135,7 @@
   "dl.channel_stable_hint": "Tested official releases — recommended for everyday use.",
   "dl.status_using": "Using",
   "dl.status_version": "version",
+  "dl.downloads_total": "downloads",
   "dl.status_loading": "Fetching the release manifest…",
   "dl.status_auto": "(chosen automatically)",
   "dl.mirror_auto": "Auto",

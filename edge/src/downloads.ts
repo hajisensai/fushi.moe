@@ -1,5 +1,12 @@
 import type { HealthStore } from './breaker';
 import type { Settings } from './config';
+import {
+  channelOfTag,
+  isDownloadStart,
+  slotOf,
+  type DownloadCounter,
+  type DownloadOutcome,
+} from './download-stats';
 import { fetchWithTimeout } from './fetch-timeout';
 import { proxyGithubCached } from './github-cache';
 import {
@@ -20,6 +27,8 @@ export interface DownloadDeps {
   readonly mirror?: R2Bucket;
   readonly manifestCache?: Cache;
   readonly waitUntil?: (p: Promise<unknown>) => void;
+  /** 站内下载计数。没配就只是不计，下载路由本身不变。 */
+  readonly counter?: DownloadCounter;
 }
 
 const MANIFEST_TTL_S = 600;
@@ -281,6 +290,30 @@ async function serveViaEdge(
   return proxied;
 }
 
+/** 计数要的三个维度；版本化路径没有清单，由调用方从 tag / 文件名推。 */
+interface AssetContext {
+  readonly tag: string;
+  readonly channel: Channel;
+  readonly slot: string;
+}
+
+/**
+ * 给下载应答记一笔。只记「一次下载开始」（isDownloadStart）且应答成功的：探测、续传、
+ * HEAD、404/502 都不是下载。记账在 waitUntil 里跑，绝不拖慢或拖垮下载本身。
+ */
+function counted(
+  request: Request,
+  deps: DownloadDeps,
+  ctx: AssetContext,
+  source: DownloadOutcome,
+  response: Response,
+): Response {
+  if (!deps.counter || response.status >= 400 || !isDownloadStart(request)) return response;
+  const p = deps.counter.record({ ...ctx, source }).catch(() => {});
+  if (deps.waitUntil) deps.waitUntil(p);
+  return response;
+}
+
 function sourceOf(request: Request): AssetSource {
   const src = new URL(request.url).searchParams.get('src');
   return src === 'r2' || src === 'gh' ? src : null;
@@ -289,18 +322,20 @@ function sourceOf(request: Request): AssetSource {
 async function serveAsset(
   request: Request,
   deps: DownloadDeps,
-  tag: string,
+  ctx: AssetContext,
   asset: ReleaseAsset,
   immutable: boolean,
 ): Promise<Response> {
   const source = sourceOf(request);
-  if (source === 'gh') return serveViaEdge(request, deps, asset, immutable);
+  if (source === 'gh') {
+    return counted(request, deps, ctx, 'github-edge', await serveViaEdge(request, deps, asset, immutable));
+  }
 
-  const mirrored = await serveFromMirror(request, deps, tag, asset);
-  if (mirrored) return mirrored;
+  const mirrored = await serveFromMirror(request, deps, ctx.tag, asset);
+  if (mirrored) return counted(request, deps, ctx, 'r2', mirrored);
   // 点名要镜像就只给镜像：分片下载器靠这个 404 判定「该来源不可用」，302 会把它带去撞 CORS。
   if (source === 'r2') return jsonError(404, 'not mirrored');
-  return redirectToGithub(asset);
+  return counted(request, deps, ctx, 'github', redirectToGithub(asset));
 }
 
 function githubAssetUrl(repo: string, tag: string, name: string): string {
@@ -434,7 +469,13 @@ export async function handleDownload(request: Request, deps: DownloadDeps): Prom
     const tag = decodeURIComponent(parts[1]!);
     const name = decodeURIComponent(parts[2]!);
     const manifest = await loadManifest(deps, 'stable');
-    return serveAsset(request, deps, tag, resolveVersionedAsset(manifest, deps, tag, name), true);
+    return serveAsset(
+      request,
+      deps,
+      { tag, channel: channelOfTag(tag), slot: slotOf(name) },
+      resolveVersionedAsset(manifest, deps, tag, name),
+      true,
+    );
   }
 
   if (parts.length === 2) {
@@ -444,7 +485,7 @@ export async function handleDownload(request: Request, deps: DownloadDeps): Prom
     if (!manifest) return githubReleasesRedirect(deps, channel);
     const asset = resolveSlot(manifest, parts[1]!);
     if (!asset) return notFound('unknown download slot: ' + parts[1]);
-    return serveAsset(request, deps, manifest.tag, asset, false);
+    return serveAsset(request, deps, { tag: manifest.tag, channel, slot: parts[1]! }, asset, false);
   }
 
   return notFound('not found');

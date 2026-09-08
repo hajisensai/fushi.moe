@@ -135,6 +135,7 @@
   "dl.channel_stable_hint": "Test edilmiş resmi sürümler — günlük kullanım için önerilir.",
   "dl.status_using": "Kullanılan",
   "dl.status_version": "sürüm",
+  "dl.downloads_total": "indirme",
   "dl.status_loading": "Sürüm listesi alınıyor…",
   "dl.status_auto": "(otomatik seçildi)",
   "dl.mirror_auto": "Otomatik",

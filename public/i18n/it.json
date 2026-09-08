@@ -135,6 +135,7 @@
   "dl.channel_stable_hint": "Release ufficiali testate; consigliate per l'uso quotidiano.",
   "dl.status_using": "In uso",
   "dl.status_version": "versione",
+  "dl.downloads_total": "download",
   "dl.status_loading": "Recupero dell'elenco delle versioni…",
   "dl.status_auto": "(scelta automatica)",
   "dl.mirror_auto": "Automatico",

@@ -130,6 +130,7 @@ const probing = ref(true)
 const release = ref(null)              // { channel, tag, version, slots }
 const metaSource = ref('')             // 清单是从哪拿到的
 const loadingRelease = ref(false)
+const downloads = ref(null)            // /api/downloads 的 total；拿不到就整段不显示
 /** slot -> 分片下载任务状态 */
 const jobs = reactive({})
 
@@ -228,6 +229,25 @@ async function loadRelease() {
 
   if (want === channel.value) loadingRelease.value = false
 }
+
+/**
+ * 累计下载数：同域 /api/downloads（Worker：GitHub 各 release 资产 download_count 之和 +
+ * 站内由 R2 镜像 / 边缘代理吐出的下载数，整份应答边缘缓存 60 秒）。拿不到就不显示——
+ * 显示一个假的 0 比不显示更糟。cache: 'no-cache' 只绕过浏览器本地副本（zone 的
+ * Browser Cache TTL 会把 max-age 改写成几小时），边缘缓存照吃，和 star 徽章同一套纪律。
+ */
+async function loadDownloads() {
+  try {
+    const r = await withTimeout(fetch('/api/downloads', { cache: 'no-cache' }), PROBE_TIMEOUT_MS)
+    if (!r.ok) return
+    const d = await r.json()
+    if (typeof d.total === 'number' && isFinite(d.total) && d.total >= 0) downloads.value = d.total
+  } catch { /* 不显示 */ }
+}
+const downloadsText = computed(() => {
+  if (downloads.value === null) return ''
+  try { return new Intl.NumberFormat(props.lang).format(downloads.value) } catch { return String(downloads.value) }
+})
 
 function hrefFor(slot) {
   if (slot === 'ios' && IOS_TESTFLIGHT_URL) return IOS_TESTFLIGHT_URL
@@ -561,6 +581,8 @@ onMounted(async () => {
     if (saved === 'auto' || saved === 'cf' || saved === 'gh') choice.value = saved
   } catch { /* 读不到就用默认的自动 */ }
 
+  // 不进 Promise.all：下载数只是装饰，不该拖住「正在测试下载源…」这块的收起。
+  loadDownloads()
   await Promise.all([
     loadPackManifest(),
     probe('cf', DL_BASE + '/api/latest'),
@@ -589,6 +611,7 @@ onMounted(async () => {
     {{ t('dl.status_using', '正在使用') }} <b>{{ activeMirrorName }}</b>
     <span v-if="release" class="sep">· {{ t('dl.status_version', '版本') }} {{ release.tag }}</span>
     <span v-else-if="loadingRelease" class="sep">· {{ t('dl.status_loading', '正在取版本清单…') }}</span>
+    <span v-if="downloadsText" class="sep">· {{ t('dl.downloads_total', '累计下载') }} <b data-fushi-downloads>{{ downloadsText }}</b></span>
     <span v-if="choice === 'auto'" class="dl-auto">{{ t('dl.status_auto', '（自动选择）') }}</span>
   </div>
   <div class="dl-buttons">

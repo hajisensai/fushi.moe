@@ -135,6 +135,7 @@
   "dl.channel_stable_hint": "經過測試的正式發佈，推薦日常使用。",
   "dl.status_using": "正在使用",
   "dl.status_version": "版本",
+  "dl.downloads_total": "累計下載",
   "dl.status_loading": "正在取得版本清單…",
   "dl.status_auto": "（自動選擇）",
   "dl.mirror_auto": "自動",

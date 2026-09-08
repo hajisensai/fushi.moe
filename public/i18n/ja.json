@@ -135,6 +135,7 @@
   "dl.channel_stable_hint": "テスト済みの正式リリース。日常利用にはこちらを推奨。",
   "dl.status_using": "使用中",
   "dl.status_version": "バージョン",
+  "dl.downloads_total": "累計ダウンロード",
   "dl.status_loading": "リリース一覧を取得中…",
   "dl.status_auto": "（自動選択）",
   "dl.mirror_auto": "自動",

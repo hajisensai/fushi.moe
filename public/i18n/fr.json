@@ -135,6 +135,7 @@
   "dl.channel_stable_hint": "Versions officielles testées — recommandées pour un usage quotidien.",
   "dl.status_using": "Vous utilisez",
   "dl.status_version": "version",
+  "dl.downloads_total": "téléchargements",
   "dl.status_loading": "Récupération du manifeste des versions…",
   "dl.status_auto": "(choix automatique)",
   "dl.mirror_auto": "Auto",

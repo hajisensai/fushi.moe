@@ -135,6 +135,7 @@
   "dl.channel_stable_hint": "Bản phát hành chính thức đã qua kiểm thử, khuyên dùng hằng ngày.",
   "dl.status_using": "Đang dùng",
   "dl.status_version": "phiên bản",
+  "dl.downloads_total": "lượt tải",
   "dl.status_loading": "Đang lấy danh sách phiên bản…",
   "dl.status_auto": "(tự động chọn)",
   "dl.mirror_auto": "Tự động",
