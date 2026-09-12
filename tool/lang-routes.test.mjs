@@ -90,6 +90,17 @@ test('页壳用到的 data-i18n 键都在 CHROME_KEYS 里，17 份字典都有�
   for (const c of LANGS) assert.ok(js.includes("['" + c + "', '" + NAMES[c] + "']"), 'site.js LANGS 缺 ' + c + ' 的自称');
 });
 
+test('首页所有 data-i18n 文案在 17 份字典中都有翻译', () => {
+  const home = read('public/index.html');
+  const keys = new Set();
+  for (const m of home.matchAll(/data-i18n="([^"]+)"/g)) keys.add(m[1]);
+  for (const m of home.matchAll(/data-i18n-attr="([^"]+)"/g)) for (const pair of m[1].split(';')) keys.add(pair.split('=')[1]);
+  for (const c of LANGS) {
+    const dict = JSON.parse(read('public/i18n/' + c + '.json'));
+    for (const k of keys) assert.equal(typeof dict[k], 'string', c + ' 缺首页文案 ' + k);
+  }
+});
+
 test('没有页面再用逐链接的 nav.method_href；字典里也没有这个键', () => {
   for (const f of ['public/index.html', '.vitepress/theme/Layout.vue']) assert.ok(!read(f).includes('nav.method_href'), f);
   for (const f of readdirSync(join(ROOT, 'public', 'i18n'))) assert.ok(!('nav.method_href' in JSON.parse(read('public/i18n/' + f))), f);

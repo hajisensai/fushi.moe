@@ -517,27 +517,82 @@ async function main() {
     var nav = document.querySelector('.site-nav-star [data-fushi-stars]');
     var num = document.querySelector('.star-box-num');
     var title = document.querySelector('.star-box-title');
+    var sponsorTitle = document.querySelector('[data-i18n="home.sponsor.title"]');
     return {
       lang: window.fushiI18n.lang,
       navText: nav ? nav.textContent : null,
       numText: num ? num.textContent : null,
-      title: title ? title.textContent : null
+      title: title ? title.textContent : null,
+      sponsorTitle: sponsorTitle ? sponsorTitle.textContent : null
     };
   })()`);
   check(
-    '切语言后 star 数不被 i18n 重写擦掉，且按新语言重排格式',
+    '切语言后支持区文案同步切换，star 数不被擦掉且按新语言重排格式',
     starsEn.lang === 'en' && starsEn.numText === '1,234' && starsEn.navText === '1.2K' &&
-      /Star/.test(starsEn.title ?? ''),
+      starsEn.title === 'Help more learners find Fushi' &&
+      starsEn.sponsorTitle === 'Help keep Fushi moving forward',
     JSON.stringify(starsEn),
   );
   await evaluate("window.fushiI18n.set('zh-CN')");
 
   check(
-    '数字块链到 stargazers 页，引导按钮链到仓库',
+    'Star 数字块链到 stargazers 页，引导按钮链到仓库',
     starsUp.boxHref === 'https://github.com/hajisensai/Fushi/stargazers' &&
       (await evaluate("document.querySelector('.star-box-btn').getAttribute('href')")) ===
         'https://github.com/hajisensai/Fushi',
   );
+
+  const supportBox = await evaluate(`(function(){
+    var box = document.querySelector('.support-box');
+    var star = document.querySelector('.support-path-star');
+    var sponsor = document.querySelector('.support-path-sponsor');
+    var mark = document.querySelector('.sponsor-box-mark');
+    var button = document.querySelector('.sponsor-box-btn');
+    var starCopy = star && star.querySelector('[data-i18n="home.star.copy"]');
+    var sponsorCopy = sponsor && sponsor.querySelector('[data-i18n="home.sponsor.copy"]');
+    return {
+      exists: !!box && !!star && !!sponsor,
+      columns: box ? getComputedStyle(box).gridTemplateColumns.split(' ').length : 0,
+      sideBySide: star && sponsor ? Math.abs(star.getBoundingClientRect().top - sponsor.getBoundingClientRect().top) < 2 : false,
+      markHref: mark ? mark.getAttribute('href') : null,
+      buttonHref: button ? button.getAttribute('href') : null,
+      target: button ? button.target : null,
+      rel: button ? button.rel : '',
+      distinct: !!starCopy && !!sponsorCopy && /GitHub/.test(starCopy.textContent) && /开发|development/i.test(sponsorCopy.textContent)
+    };
+  })()`);
+  check(
+    '桌面支持区并列区分 Star 可见度与 Sponsors 持续开发成本',
+    supportBox.exists === true && supportBox.columns === 3 && supportBox.sideBySide === true && supportBox.distinct === true,
+    JSON.stringify(supportBox),
+  );
+  check(
+    'Sponsors 标记和按钮都指向公开赞助页并安全新开',
+    supportBox.markHref === 'https://github.com/sponsors/hajisensai' &&
+      supportBox.buttonHref === 'https://github.com/sponsors/hajisensai' &&
+      supportBox.target === '_blank' && supportBox.rel.includes('noopener'),
+    JSON.stringify(supportBox),
+  );
+
+  await cdp.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  const supportMobile = await evaluate(`(function(){
+    var box = document.querySelector('.support-box');
+    var star = document.querySelector('.support-path-star');
+    var sponsor = document.querySelector('.support-path-sponsor');
+    var buttons = [].slice.call(document.querySelectorAll('.support-box-btn'));
+    return {
+      columns: box ? getComputedStyle(box).gridTemplateColumns.split(' ').length : 0,
+      stacked: star && sponsor ? sponsor.getBoundingClientRect().top >= star.getBoundingClientRect().bottom : false,
+      fits: box ? box.getBoundingClientRect().right <= innerWidth && box.getBoundingClientRect().left >= 0 && document.documentElement.scrollWidth <= innerWidth : false,
+      fullButtons: buttons.length === 2 && buttons.every(function (b) { return b.getBoundingClientRect().width >= 300 && b.getBoundingClientRect().height >= 44; })
+    };
+  })()`);
+  check(
+    '390px 窄屏下两种支持方式纵排、按钮可触控且无横向溢出',
+    supportMobile.columns === 1 && supportMobile.stacked === true && supportMobile.fits === true && supportMobile.fullButtons === true,
+    JSON.stringify(supportMobile),
+  );
+  await cdp.send('Emulation.clearDeviceMetricsOverride');
 
   check('无未捕获 JS 异常', jsErrors.length === 0, jsErrors.slice(0, 3).join(' | '));
   check('无失败请求（排除既有 favicon 噪声与第三方外链）', failedRequests.length === 0, failedRequests.slice(0, 5).join(' | '));
