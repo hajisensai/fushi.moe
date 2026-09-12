@@ -160,7 +160,7 @@
   "dl.p_windows": "Termasuk penambangan suara Galgame dan pencarian kata di desktop",
   "dl.p_windows_portable": "Ekstrak dan jalankan; tanpa pintasan, asosiasi berkas, atau pembaruan otomatis",
   "dl.p_macos": "Untuk Apple Silicon maupun Intel",
-  "dl.p_ios": "Pasang lewat TestFlight",
+  "dl.p_ios": "Pasang lewat TestFlight: tanpa fitur penemuan dan unduhan yang tidak diizinkan App Store; pembaruan datang beberapa hari lebih lambat",
   "dl.mirror_cf": "Mirror Cloudflare",
   "dl.mirror_cf_hint": "Disalurkan lewat R2, lebih cepat di sebagian besar wilayah",
   "dl.mirror_gh": "GitHub langsung",

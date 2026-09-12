@@ -160,7 +160,7 @@
   "dl.p_windows": "Galgame ses madenciliği ve masaüstü kelime arama içerir",
   "dl.p_windows_portable": "Çıkarın ve çalıştırın; kısayol, dosya ilişkilendirme ve otomatik güncelleme yok",
   "dl.p_macos": "Apple Silicon ve Intel",
-  "dl.p_ios": "TestFlight ile kurulum",
+  "dl.p_ios": "TestFlight ile kurulum: App Store'un izin vermediği keşif ve indirme özellikleri olmadan; güncellemeler birkaç gün sonra gelir",
   "dl.mirror_cf": "Cloudflare yansısı",
   "dl.mirror_cf_hint": "R2 üzerinden sunulur; çoğu bölgede daha hızlı",
   "dl.mirror_gh": "GitHub doğrudan",

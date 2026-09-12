@@ -160,7 +160,7 @@
   "dl.p_windows": "Includes Galgame voice mining and desktop text lookup",
   "dl.p_windows_portable": "Unzip and run; no shortcuts, no file associations, no auto-update",
   "dl.p_macos": "Apple Silicon and Intel",
-  "dl.p_ios": "Install via TestFlight",
+  "dl.p_ios": "Install via TestFlight — without the discovery and download features the App Store guidelines disallow; updates land a few days later",
   "dl.mirror_cf": "Cloudflare mirror",
   "dl.mirror_cf_hint": "Served via R2; faster in most regions",
   "dl.mirror_gh": "GitHub direct",

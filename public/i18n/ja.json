@@ -160,7 +160,7 @@
   "dl.p_windows": "Galgame の音声マイニングとデスクトップ上のテキスト検索を搭載",
   "dl.p_windows_portable": "解凍してすぐ使える。ショートカット・ファイル関連付け・自動更新はなし",
   "dl.p_macos": "Apple Silicon と Intel の両対応",
-  "dl.p_ios": "TestFlight 経由でインストール",
+  "dl.p_ios": "TestFlight 経由でインストール。App Store が認めない発見・ダウンロード機能はなく、更新は数日遅れ",
   "dl.mirror_cf": "Cloudflare ミラー",
   "dl.mirror_cf_hint": "R2 経由で配信。多くの地域でより高速",
   "dl.mirror_gh": "GitHub 直接",

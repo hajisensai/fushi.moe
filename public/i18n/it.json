@@ -160,7 +160,7 @@
   "dl.p_windows": "Include l'estrazione delle voci dei Galgame e la ricerca di testo sul desktop",
   "dl.p_windows_portable": "Estrai e avvia; niente collegamenti, associazioni file o aggiornamenti automatici",
   "dl.p_macos": "Apple Silicon e Intel",
-  "dl.p_ios": "Installazione tramite TestFlight",
+  "dl.p_ios": "Installazione tramite TestFlight: senza le funzioni di scoperta e download non consentite dall'App Store; gli aggiornamenti arrivano qualche giorno dopo",
   "dl.mirror_cf": "Mirror Cloudflare",
   "dl.mirror_cf_hint": "Servito tramite R2; più veloce nella maggior parte delle regioni",
   "dl.mirror_gh": "GitHub diretto",

@@ -160,7 +160,7 @@
   "dl.p_windows": "Inclusief Galgame-stemmining en tekst opzoeken op het bureaublad",
   "dl.p_windows_portable": "Uitpakken en starten; geen snelkoppelingen, bestandskoppelingen of auto-update",
   "dl.p_macos": "Apple Silicon en Intel",
-  "dl.p_ios": "Installeren via TestFlight",
+  "dl.p_ios": "Installeren via TestFlight: zonder de ontdek- en downloadfuncties die de App Store niet toestaat; updates komen een paar dagen later",
   "dl.mirror_cf": "Cloudflare-mirror",
   "dl.mirror_cf_hint": "Geleverd via R2; sneller in de meeste regio's",
   "dl.mirror_gh": "GitHub direct",
