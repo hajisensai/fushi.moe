@@ -233,22 +233,20 @@ async function main() {
     JSON.stringify(gameCardImage),
   );
 
-  const giftLink = await evaluate(`(function(){
-    var a = document.querySelector('.site-footer-gift > a');
-    var code = document.querySelector('.site-footer-gift code');
-    return a && code ? {
+  const sponsorLink = await evaluate(`(function(){
+    var a = document.querySelector('.site-footer-sponsor > a');
+    return a ? {
       href: a.href,
       target: a.target,
       rel: a.rel,
-      recipient: code.textContent.trim()
+      oldGift: !!document.querySelector('.site-footer-gift, a[href="https://claude.ai/gift"]')
     } : null;
   })()`);
   check(
-    '首页礼赠入口只指向 Claude 官方页面并显示收件邮箱',
-    giftLink && giftLink.href === 'https://claude.ai/gift' &&
-      giftLink.target === '_blank' && giftLink.rel.includes('noopener') &&
-      giftLink.recipient === 'vw6cnhd9f7@privaterelay.appleid.com',
-    JSON.stringify(giftLink),
+    '首页支持入口指向 Fushi 的 GitHub Sponsors 页面',
+    sponsorLink && sponsorLink.href === 'https://github.com/sponsors/hajisensai' &&
+      sponsorLink.target === '_blank' && sponsorLink.rel.includes('noopener') && !sponsorLink.oldGift,
+    JSON.stringify(sponsorLink),
   );
 
   const termmap = await evaluate(

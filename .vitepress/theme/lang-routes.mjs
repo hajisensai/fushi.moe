@@ -112,7 +112,7 @@ export const NAMES = {
  */
 export const CHROME_KEYS = [
   'nav.menu', 'nav.method', 'nav.qq', 'nav.language', 'nav.lang_auto', 'nav.download',
-  'footer.gift_claude', 'footer.gift_recipient', 'footer.legal', 'nav.totop',
+  'footer.sponsor', 'footer.legal', 'nav.totop',
 ];
 
 /**
