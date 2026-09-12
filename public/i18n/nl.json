@@ -137,6 +137,7 @@
   "dl.channel_stable_hint": "Geteste officiële releases — aanbevolen voor dagelijks gebruik.",
   "dl.status_using": "In gebruik",
   "dl.status_version": "versie",
+  "dl.downloads_total": "downloads",
   "dl.status_loading": "Releasemanifest ophalen…",
   "dl.status_auto": "(automatisch gekozen)",
   "dl.mirror_auto": "Automatisch",

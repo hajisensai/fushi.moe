@@ -1,3 +1,4 @@
+import type { DownloadStats } from './download-stats-object';
 import { normalizeBasePath, type OriginSpec } from './origins';
 
 export interface Env {
@@ -30,6 +31,8 @@ export interface Env {
   PACK_PREFIX?: string;
   /** release 资产镜像桶。未绑定时下载全部回退 GitHub。 */
   MIRROR?: R2Bucket;
+  /** 站内下载计数（单实例 SQLite Durable Object）。未绑定时下载照常，只是不计。 */
+  DOWNLOAD_STATS?: DurableObjectNamespace<DownloadStats>;
 }
 
 export interface Settings {

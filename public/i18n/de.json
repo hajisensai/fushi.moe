@@ -137,6 +137,7 @@
   "dl.channel_stable_hint": "Getestete offizielle Releases – empfohlen für den Alltag.",
   "dl.status_using": "Verwendet",
   "dl.status_version": "Version",
+  "dl.downloads_total": "Downloads",
   "dl.status_loading": "Release-Manifest wird abgerufen…",
   "dl.status_auto": "(automatisch gewählt)",
   "dl.mirror_auto": "Automatisch",

@@ -137,6 +137,7 @@
   "dl.channel_stable_hint": "Протестированные официальные релизы — рекомендуется для повседневного использования.",
   "dl.status_using": "Используется",
   "dl.status_version": "версия",
+  "dl.downloads_total": "загрузок",
   "dl.status_loading": "Получение списка версий…",
   "dl.status_auto": "(выбрано автоматически)",
   "dl.mirror_auto": "Авто",

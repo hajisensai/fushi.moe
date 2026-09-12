@@ -137,6 +137,7 @@
   "dl.channel_stable_hint": "รุ่นเผยแพร่อย่างเป็นทางการที่ผ่านการทดสอบแล้ว แนะนำสำหรับใช้งานทั่วไป",
   "dl.status_using": "กำลังใช้",
   "dl.status_version": "เวอร์ชัน",
+  "dl.downloads_total": "ยอดดาวน์โหลด",
   "dl.status_loading": "กำลังดึงรายการเวอร์ชัน…",
   "dl.status_auto": "(เลือกอัตโนมัติ)",
   "dl.mirror_auto": "อัตโนมัติ",

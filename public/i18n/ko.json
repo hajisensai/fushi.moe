@@ -137,6 +137,7 @@
   "dl.channel_stable_hint": "테스트를 거친 정식 릴리스. 일상적인 사용에 권장합니다.",
   "dl.status_using": "사용 중",
   "dl.status_version": "버전",
+  "dl.downloads_total": "누적 다운로드",
   "dl.status_loading": "릴리스 목록을 가져오는 중…",
   "dl.status_auto": "(자동 선택)",
   "dl.mirror_auto": "자동",

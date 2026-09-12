@@ -137,6 +137,7 @@
   "dl.channel_stable_hint": "إصدارات رسمية مختبرة — يوصى بها للاستخدام اليومي.",
   "dl.status_using": "المستخدم حاليًا",
   "dl.status_version": "الإصدار",
+  "dl.downloads_total": "التنزيلات",
   "dl.status_loading": "جارٍ جلب قائمة الإصدارات…",
   "dl.status_auto": "(اختيار تلقائي)",
   "dl.mirror_auto": "تلقائي",

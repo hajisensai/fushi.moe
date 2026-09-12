@@ -137,6 +137,7 @@
   "dl.channel_stable_hint": "Rilis resmi yang sudah diuji, disarankan untuk pemakaian sehari-hari.",
   "dl.status_using": "Sedang memakai",
   "dl.status_version": "versi",
+  "dl.downloads_total": "unduhan",
   "dl.status_loading": "Mengambil daftar versi…",
   "dl.status_auto": "(dipilih otomatis)",
   "dl.mirror_auto": "Otomatis",
