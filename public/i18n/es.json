@@ -160,7 +160,7 @@
   "dl.p_windows": "Incluye minería de voces de Galgame y consulta de texto en el escritorio",
   "dl.p_windows_portable": "Descomprime y ejecuta; sin accesos directos, asociaciones ni actualizaciones automáticas",
   "dl.p_macos": "Apple Silicon e Intel",
-  "dl.p_ios": "Instalación mediante TestFlight",
+  "dl.p_ios": "Instalación mediante TestFlight: sin las funciones de descubrimiento y descarga que la App Store no permite; las actualizaciones llegan unos días más tarde",
   "dl.mirror_cf": "Espejo de Cloudflare",
   "dl.mirror_cf_hint": "Servido a través de R2; más rápido en la mayoría de regiones",
   "dl.mirror_gh": "GitHub directo",

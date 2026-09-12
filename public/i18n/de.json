@@ -160,7 +160,7 @@
   "dl.p_windows": "Mit Galgame-Sprach-Mining und Textnachschlagen auf dem Desktop",
   "dl.p_windows_portable": "Entpacken und starten; keine Verknüpfungen, Dateizuordnungen oder Auto-Updates",
   "dl.p_macos": "Apple Silicon und Intel",
-  "dl.p_ios": "Installation über TestFlight",
+  "dl.p_ios": "Installation über TestFlight: ohne die von den App-Store-Richtlinien untersagten Entdeckungs- und Download-Funktionen; Updates kommen einige Tage später",
   "dl.mirror_cf": "Cloudflare-Mirror",
   "dl.mirror_cf_hint": "Über R2 ausgeliefert; in den meisten Regionen schneller",
   "dl.mirror_gh": "GitHub direkt",

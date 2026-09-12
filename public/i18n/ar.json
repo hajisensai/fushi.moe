@@ -160,7 +160,7 @@
   "dl.p_windows": "يتضمن استخراج أصوات Galgame والبحث عن الكلمات على سطح المكتب",
   "dl.p_windows_portable": "فك الضغط وشغّل مباشرة؛ بدون اختصارات أو ارتباط بالملفات أو تحديث تلقائي",
   "dl.p_macos": "Apple Silicon وIntel",
-  "dl.p_ios": "التثبيت عبر TestFlight",
+  "dl.p_ios": "التثبيت عبر TestFlight: بدون ميزات الاكتشاف والتنزيل التي لا تسمح بها App Store، وتصل التحديثات بعد بضعة أيام",
   "dl.mirror_cf": "مرآة Cloudflare",
   "dl.mirror_cf_hint": "تُقدَّم عبر R2؛ أسرع في معظم المناطق",
   "dl.mirror_gh": "GitHub مباشرة",

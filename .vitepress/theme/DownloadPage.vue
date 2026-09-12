@@ -83,7 +83,7 @@ const STORE_KEY = 'fushi-download-mirror'
  * iOS 走 TestFlight，不再直接发 ipa。填上公开邀请链接（https://testflight.apple.com/join/…）
  * 即可；留空时 iOS 行退回该版本的 ipa 链接。
  */
-const IOS_TESTFLIGHT_URL = ''
+const IOS_TESTFLIGHT_URL = 'https://testflight.apple.com/join/j88d69jx'
 /** 没有文件系统写入 API 时整包先落内存再存盘；超过这个体积不冒险，退回普通链接。 */
 const MEMORY_SINK_LIMIT = 512 * 1024 * 1024
 /** 推荐包（约 9.5 GB）的分片仓库；页面拿不到清单时这个页面仍然可点。 */
@@ -103,7 +103,7 @@ const PLATFORMS = [
   { slot: 'android-universal', nameZh: 'Android',           noteKey: 'dl.p_android_universal', noteZh: '通用包，含全部架构，体积较大',         channels: ['debug'] },
   { slot: 'windows',           nameZh: 'Windows',           noteKey: 'dl.p_windows',           noteZh: '含 Galgame 语音挖掘、桌面划词',        channels: ['stable', 'debug'] },
   { slot: 'macos',             nameZh: 'macOS',             noteKey: 'dl.p_macos',             noteZh: 'Apple Silicon 与 Intel 通用',         channels: ['stable', 'debug'] },
-  { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装',                 channels: ['stable', 'debug'], testflight: true },
+  { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装；少了发现、下载等 App Store 审核指南不允许的功能，更新晚几天',                 channels: ['stable', 'debug'], testflight: true },
 ]
 
 /** 与 edge/src/manifest.ts 的 SLOTS 同一份判据（GitHub 静态清单兜底时在浏览器里解析）。 */

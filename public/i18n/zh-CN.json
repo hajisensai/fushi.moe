@@ -160,7 +160,7 @@
   "dl.p_windows": "含 Galgame 语音挖掘、桌面划词",
   "dl.p_windows_portable": "解压即用；不建快捷方式、不注册文件关联、不自动更新",
   "dl.p_macos": "Apple Silicon 与 Intel 通用",
-  "dl.p_ios": "通过 TestFlight 安装",
+  "dl.p_ios": "通过 TestFlight 安装；少了发现、下载等 App Store 审核指南不允许的功能，更新晚几天",
   "dl.mirror_cf": "Cloudflare 镜像",
   "dl.mirror_cf_hint": "经 R2 分发，多数地区更快",
   "dl.mirror_gh": "GitHub 直连",
