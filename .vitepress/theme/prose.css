@@ -100,7 +100,124 @@
   text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
 }
 
+/* ---------- 常见问题：列表页（FaqIndex.vue）与文章页壳（Layout.vue 的 .faq-article-head） ---------- */
+.prose .faq .lead { margin-bottom: 8px; }
+.prose .faq-empty { color: var(--ink-2); }
+.prose .faq-search {
+  position: relative; margin: 32px 0 8px;
+}
+.prose .faq-search svg {
+  position: absolute; left: 14px; top: 50%; width: 18px; height: 18px;
+  transform: translateY(-50%); color: var(--ink-2); pointer-events: none;
+}
+.prose .faq-search input {
+  width: 100%; box-sizing: border-box; padding: 12px 16px 12px 42px;
+  font: inherit; font-size: 16px; color: var(--ink);
+  background: var(--alt); border: 1px solid transparent; border-radius: 12px;
+  outline: none; -webkit-appearance: none; appearance: none;
+}
+.prose .faq-search input::placeholder { color: var(--ink-2); }
+.prose .faq-search input:focus { border-color: var(--link); background: var(--ground); }
+.prose .faq-search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+[dir="rtl"] .prose .faq-search svg { left: auto; right: 14px; }
+[dir="rtl"] .prose .faq-search input { padding: 12px 42px 12px 16px; }
+.prose .faq-group h2 { font-size: clamp(22px, 2.6vw, 28px); margin-top: 48px; margin-bottom: 4px; }
+.prose .faq-list {
+  list-style: none; padding: 0; margin: 16px 0 0;
+  border-top: 1px solid var(--hairline);
+}
+.prose .faq-list li {
+  margin: 0; padding: 18px 0; border-bottom: 1px solid var(--hairline);
+}
+.prose .faq-list a { color: var(--ink); display: block; }
+.prose .faq-list a:hover { color: var(--link); text-decoration: none; }
+.prose .faq-item-title { display: block; font-size: 17px; font-weight: 600; line-height: 1.4; text-wrap: balance; }
+.prose .faq-item-desc { display: block; margin-top: 4px; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.prose .faq-more {
+  margin-top: 48px; padding: 18px 20px; border-radius: 16px; background: var(--alt);
+  font-size: 15px; line-height: 1.6; color: var(--ink-2);
+}
+.prose .faq-article-head { margin-bottom: 40px; }
+.prose .faq-article-nav { margin: 0 0 20px; font-size: 14px; }
+.prose .faq-article-head h1 { font-size: clamp(30px, 4.6vw, 44px); margin-bottom: 10px; }
+.prose .faq-article-meta { margin: 0; font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* 文章正文的二级标题不需要 72px 那么大的段距（那是下载页 / 沉浸页的长章节用的） */
+.prose.faq-article h2 { margin-top: 48px; }
+
+/* ---------- 常见问题：文档式三栏（Layout.vue 的 .faq-layout：FaqSidebar / 正文 / FaqOutline） ---------- */
+/* 窄屏单列：目录收成正文上方的一条按钮；≥ 961px 左侧固定目录；≥ 1200px 再加右侧「本页内容」。 */
+.site-main-faq { padding-top: 32px; }
+.faq-layout { max-width: 1240px; margin-inline: auto; }
+.faq-side-body a, .faq-outline a { color: var(--ink-2); text-decoration: none; display: block; }
+.faq-side-body a:hover, .faq-outline a:hover { color: var(--ink); }
+.faq-side-body a.is-active, .faq-outline a.is-active { color: var(--link); font-weight: 600; }
+.faq-side-chev { width: 16px; height: 16px; flex: none; transition: transform 0.2s ease; }
+
+.faq-side-toggle {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 14px; margin: 0 0 24px;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--ink);
+  background: var(--alt); border: 0; border-radius: 12px; cursor: pointer;
+}
+.faq-side-toggle > svg:first-child { width: 18px; height: 18px; }
+.faq-side-toggle .faq-side-chev { margin-left: auto; }
+.faq-side.is-open .faq-side-toggle .faq-side-chev { transform: rotate(180deg); }
+.faq-side-toggle:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.faq-side-body { display: none; font-size: 14px; line-height: 1.45; }
+.faq-side.is-open .faq-side-body { display: block; margin-bottom: 32px; }
+.faq-side-body .faq-side-home {
+  font-weight: 600; color: var(--ink); padding: 6px 0 14px; margin-bottom: 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+.faq-side-body .faq-side-home.is-active { color: var(--link); }
+.faq-side-group { margin-top: 18px; }
+.faq-side-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;
+  padding: 4px 0; margin: 0 0 6px;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); text-align: left;
+  background: none; border: 0; cursor: pointer;
+}
+.faq-side-head:hover { color: var(--link); }
+.faq-side-head:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
+.faq-side-head .faq-side-chev { color: var(--ink-2); }
+.faq-side-group.is-collapsed .faq-side-head .faq-side-chev { transform: rotate(-90deg); }
+.faq-side-group ul { list-style: none; margin: 0; padding: 0; }
+.faq-side-group li { margin: 0; }
+.faq-side-group li a { padding: 6px 0 6px 12px; border-left: 2px solid transparent; }
+.faq-side-group li a.is-active { border-left-color: var(--link); }
+
+.faq-outline { display: none; }
+
+@media (min-width: 961px) {
+  .faq-layout { display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 0 48px; align-items: start; }
+  .faq-layout .prose { max-width: 692px; margin-inline: auto; min-width: 0; }
+  /* 目录和「本页内容」钉在视口里，页面滚动不跟着走。用 fixed 而不是 sticky：sticky 只能在自己的
+     格子里粘，文章短的页面格子和目录一样高、粘不住，一滚就带走了。fixed 元素不写 left 时横向落在
+     它本来的静态位置——外层 .faq-side / .faq-outline 留在网格里当占位，内层再 fixed，就自然对齐到该列。 */
+  .faq-side, .faq-outline { position: relative; }
+  .faq-side-body, .faq-outline-body {
+    position: fixed; top: calc(var(--nav-h) + 32px); bottom: 16px;
+    overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  }
+  .faq-side-toggle { display: none; }
+  .faq-side-body { display: block; width: 232px; padding-right: 16px; box-sizing: border-box; }
+  .faq-side-group:first-of-type { margin-top: 14px; }
+  /* 宽屏有目录，文章顶上那条「← 全部问题」多余 */
+  .prose .faq-article-nav { display: none; }
+  .prose .faq-article-head { margin-bottom: 32px; }
+}
+@media (min-width: 1200px) {
+  .faq-layout { grid-template-columns: 232px minmax(0, 1fr) 200px; }
+  .faq-outline { display: block; }
+  .faq-outline-body { width: 200px; box-sizing: border-box; font-size: 13px; line-height: 1.45; padding-left: 16px; border-left: 1px solid var(--hairline); }
+  .faq-outline-title { margin: 0 0 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink); }
+  .faq-outline ul { list-style: none; margin: 0; padding: 0; }
+  .faq-outline li { margin: 0; }
+  .faq-outline a { padding: 5px 0; }
+}
+
 @media (max-width: 760px) {
   .prose h2 { margin-top: 56px; }
   .prose { font-size: 16px; }
+  .prose.faq-article h2 { margin-top: 40px; }
 }

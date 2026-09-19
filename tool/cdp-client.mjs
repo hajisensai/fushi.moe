@@ -7,7 +7,10 @@ const CHROME_CANDIDATES = [
   'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
 ];
 
+/** 本机装的第一个候选浏览器；FUSHI_BROWSER 指定路径可以压过（比如本机 Chrome 不开 CDP 端口时改用 Edge）。 */
 export function findBrowser() {
+  const forced = process.env.FUSHI_BROWSER;
+  if (forced) return existsSync(forced) ? forced : undefined;
   return CHROME_CANDIDATES.find((path) => existsSync(path));
 }
 

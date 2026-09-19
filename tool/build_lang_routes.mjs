@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * 构建后把手写静态首页烤成 17 种语言各一份：
  *   dist/index.html（英文，默认路由）+ dist/<prefix>/index.html（其余 16 种）。
