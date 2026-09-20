@@ -19,6 +19,7 @@ A few terms:
 - **Tracker**: the "phone book" server that helps you find peers; **DHT** is the tracker-less way peers ask each other — with both on you find the most people.
 - **Index site**: a website listing which torrents exist without storing the files. The biggest for anime is **Nyaa**; films and series have various public indexes; **Torznab** is a unified index API that tools like Jackett / Prowlarr translate hundreds of index sites into.
 - **Port mapping (UPnP / NAT-PMP)**: lets the router forward incoming connections to you so others can connect to you directly; downloading works without it, just slower.
+- **IPv6**: the newer addressing scheme. On IPv4 most people sit behind a router and can't reach each other without port mapping; on IPv6 every device has a public address and seeders connect directly — turning IPv6 on usually finds a whole extra crowd of seeders.
 
 BT itself is only a transport protocol; what's transported is a separate matter — it's the same thing whether you fetch a Linux image or an anime episode.
 
@@ -79,7 +80,7 @@ If the built-in sources were disabled, searches say "No sources available for th
 
 ## Common situations
 
-- **Won't download / speed 0**: check seeders first — 0 means find another release; then whether the router blocks the listen port and whether UPnP is on; try enabling a tracker subscription.
+- **Won't download / speed 0**: check seeders first — 0 means find another release; then whether the router blocks the listen port and whether UPnP is on; try enabling a tracker subscription. One thing that's easy to overlook: **IPv6 is off**. Many seeders today are only reachable over IPv6; once IPv6 is enabled on both router and system (most ISPs provide it), the number of seeders you can connect to often jumps severalfold — and IPv6 peers can reach you without any port mapping.
 - **Nothing found**: Nyaa is anime only; films and series are on apibay / Knaben; if the index site is unreachable, configure a proxy (the proxy only affects searches and trackers; peer connections are covered above).
 - **Push to qBittorrent failed**: WebUI address, credentials, and whether qB has "Web user interface" enabled; without path mappings across machines the finished files can't be found.
 - **Stopped seeding after renaming**: renaming / moving inside Fushi goes through the engine and keeps seeding; renaming in a file manager breaks it.
