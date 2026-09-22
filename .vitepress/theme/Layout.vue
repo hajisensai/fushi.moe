@@ -49,6 +49,10 @@ const applyI18n = (tries = 30) => {
   const i18n = typeof window !== 'undefined' ? window.fushiI18n : undefined
   if (i18n) i18n.apply()
   else if (tries > 0) setTimeout(() => applyI18n(tries - 1), 100)
+  // 主题钮的 aria-pressed 是 site.js 在 <head> 里就写好的，而页壳 SSR 出来的是静态的
+  // aria-pressed="false"——hydrate 会按 vnode 把它抹回去。这里跟着补一次。
+  const t = typeof window !== 'undefined' ? window.fushiTheme : undefined
+  if (t) t.apply()
 }
 // 等一个 tick：VitePress 自己的根组件在 mounted 里才把 <html lang> 设成本页 locale（父组件的 mounted 排在
 // 页壳之后），site.js 靠这个属性判断页面自带的语言。dev 模式的 HTML 模板没有 lang，不等就会误判成中文源页。
@@ -141,6 +145,7 @@ onUnmounted(() => {
             <li><button type="button" role="option" data-lang="ar">العربية</button></li>
           </ul>
         </div>
+        <button class="site-nav-theme" type="button" aria-pressed="false" :title="c('nav.theme', '深色模式')" :aria-label="c('nav.theme', '深色模式')" data-i18n-attr="title=nav.theme;aria-label=nav.theme"><svg class="site-nav-theme-sun" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-13.2a1 1 0 0 1-1-1V1.6a1 1 0 0 1 2 0v1.2a1 1 0 0 1-1 1zm0 19.6a1 1 0 0 1-1-1v-1.2a1 1 0 0 1 2 0v1.2a1 1 0 0 1-1 1zM22.4 13h-1.2a1 1 0 0 1 0-2h1.2a1 1 0 0 1 0 2zm-19.6 0H1.6a1 1 0 0 1 0-2h1.2a1 1 0 0 1 0 2zm16.53-7.33-.85.85a1 1 0 0 1-1.41-1.41l.85-.85a1 1 0 0 1 1.41 1.41zM6.08 19.34l-.85.85a1 1 0 1 1-1.41-1.41l.85-.85a1 1 0 0 1 1.41 1.41zm12.85.85-.85-.85a1 1 0 0 1 1.41-1.41l.85.85a1 1 0 0 1-1.41 1.41zM5.23 6.52l-.85-.85a1 1 0 0 1 1.41-1.41l.85.85a1 1 0 0 1-1.41 1.41z"/></svg><svg class="site-nav-theme-moon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21.3 14.4a1 1 0 0 0-1.15-.3 7.4 7.4 0 0 1-2.76.53 7.32 7.32 0 0 1-7.32-7.32c0-.95.18-1.88.53-2.76a1 1 0 0 0-1.23-1.33A9.72 9.72 0 0 0 2.6 12.4a9.72 9.72 0 0 0 9.72 9.72 9.72 9.72 0 0 0 9.18-6.57 1 1 0 0 0-.2-1.15z"/></svg></button>
         <a class="btn" :href="routeFor(lang, '/download')" data-i18n="nav.download">{{ c('nav.download', '下载') }}</a>
       </div>
     </nav>

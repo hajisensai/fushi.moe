@@ -837,8 +837,8 @@ onMounted(async () => {
 .dl-bar i { display: block; height: 100%; background: var(--link); transition: width 0.2s linear; }
 .dl-job-line { font-variant-numeric: tabular-nums; }
 .dl-job-split { color: var(--ink-2); font-size: 12px; }
-.dl-job-ok { color: #1a7f37; }
-.dl-job-err { color: #b25000; }
+.dl-job-ok { color: var(--ok); }
+.dl-job-err { color: var(--warn); }
 .dl-warn { color: var(--ink-2); font-size: 14px; }
 
 /* 推荐包下载块：用站点自己的 token（chrome.css 的 --ground / --ink / --hairline /
@@ -867,7 +867,7 @@ onMounted(async () => {
 .pack-dl-bar span { display: block; height: 100%; background: var(--link); transition: width 0.2s linear; }
 .pack-dl-meta { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .pack-dl-note { font-size: 13px; color: var(--ink-2); margin: 8px 0 0 !important; line-height: 1.5; }
-.pack-dl-ok { color: #1a7f37; }
-.pack-dl-bad { color: #b25000; }
+.pack-dl-ok { color: var(--ok); }
+.pack-dl-bad { color: var(--warn); }
 .pack-dl-links { display: flex; gap: 16px; flex-wrap: wrap; margin: 8px 0 0 !important; font-size: 13px; }
 </style>

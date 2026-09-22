@@ -222,3 +222,34 @@ test('常见问题：每篇都有中文原文 faq/<slug>.md、英文版 <slug>.e
     if (m[2] === 'en') assert.ok(!/\]\(\/zh-cn\//.test(md), 'faq/' + f + ' 不要链到 /zh-cn/ 页面，用默认路由');
   }
 });
+
+test('深浅色：chrome.css 两个深色入口的声明逐字相同；顶栏两处页壳各有一颗主题钮', () => {
+  const css = read('public/chrome.css').replace(/\r/g, '');
+  // ① 跟随系统（没 JS / dev 里 site.js 还没插进来时的入口）
+  const auto = /@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\) \{([\s\S]*?)\n  \}\n\}/.exec(css);
+  // ② /site.js 解析成实际那一档后写在 <html data-theme> 上
+  const forced = /\n:root\[data-theme="dark"\] \{([\s\S]*?)\n\}/.exec(css);
+  assert.ok(auto, 'chrome.css 缺 @media (prefers-color-scheme: dark) 的深色块');
+  assert.ok(forced, 'chrome.css 缺 :root[data-theme="dark"] 的深色块');
+  const decls = (body) => body.split(';').map((d) => d.trim()).filter(Boolean);
+  assert.deepEqual(decls(auto[1]), decls(forced[1]), '两个深色入口的声明漂了：一套值只能有一份，改一处要改两处');
+  assert.ok(decls(forced[1]).includes('color-scheme: dark'), '深色块要写 color-scheme: dark（滚动条 / 原生控件跟着翻面）');
+  // 亮色那份 token 里出现的每个自定义属性，深色块都要给出对应值，漏一个就是半边脸
+  const light = /\n:root \{([\s\S]*?)\n\}/.exec(css);
+  const names = (body) => new Set(decls(body).filter((d) => d.startsWith('--')).map((d) => d.split(':')[0].trim()));
+  const darkNames = names(forced[1]);
+  const SKIP = /^--(app-|sans|jp|jp-sans|ass-font|nav-h)/;  // app 实拍面与字体 / 尺寸不随主题变
+  for (const n of names(light[1])) {
+    if (SKIP.test(n)) continue;
+    assert.ok(darkNames.has(n), '深色块缺 ' + n);
+  }
+  for (const f of ['public/index.html', '.vitepress/theme/Layout.vue']) {
+    const s = read(f);
+    assert.equal((s.match(/class="site-nav-theme"/g) || []).length, 1, f + ' 顶栏要有且只有一颗主题钮');
+    assert.ok(/data-i18n-attr="title=nav\.theme;aria-label=nav\.theme"/.test(s), f + ' 主题钮的标题要走 nav.theme');
+    assert.ok(s.includes('site-nav-theme-sun') && s.includes('site-nav-theme-moon'), f + ' 主题钮要带太阳 / 月亮两个图标');
+  }
+  const js = read('public/site.js');
+  assert.ok(js.includes("'fushi-theme'"), 'site.js 要用 fushi-theme 这个 localStorage 键');
+  assert.ok(js.indexOf('function applyTheme') < js.indexOf('function pageSource'), '主题要排在语言前面：<body> 解析前就得把 data-theme 写好');
+});

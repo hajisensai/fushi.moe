@@ -23,6 +23,13 @@
   --accent: #5856d6;
   --card: #ffffff;
   --card-shadow: 0 20px 44px rgba(0, 0, 0, 0.08);
+  /* 状态色（下载页任务行、::: warning / danger）与 GitHub Sponsors 的粉色，
+     深色下都要换一档才够亮——写成 token 才能在一处翻面。 */
+  --ok: #1a7f37;
+  --warn: #b25000;
+  --danger: #c1121f;
+  --sponsor: #bf3989;
+  --sponsor-ink: #99286f;
   --band: #000000;
   --band-2: #161617;
   --band-line: #2d2d2f;
@@ -45,8 +52,72 @@
   /* 顶栏高度：底栏之外的东西要按它让位（锚点 scroll-margin、移动端面板起点）。 */
   --nav-h: 52px;
 }
-/* 暂定强制亮色主题：深色 token 块整体停用（保留 app 实拍面板的深色，
-   那是 app 界面的一部分）。恢复深色时把上一版的两个块加回来即可。 */
+/*
+ * ============ 深色 token ============
+ *
+ * 一套值、两个入口，两块的声明必须逐字相同（tool/lang-routes.test.mjs 逐条比对）：
+ *   ① @media (prefers-color-scheme: dark) + :root:not([data-theme="light"])
+ *      —— 没有 JS（或 dev 里 /site.js 还没插进来）时系统深色照样是深色，不会先闪一屏白。
+ *   ② :root[data-theme="dark"]
+ *      —— /site.js 把「跟随系统 / 亮 / 暗」解析成实际那一档写在 <html data-theme> 上，
+ *         顶栏那颗钮切的就是它。访客显式选了亮色时 ① 被 :not([data-theme="light"]) 让开。
+ * CSS 不能把一组声明同时挂到 @media 内外，所以只能抄两份，由单测守住不漂。
+ *
+ * app 实拍面（--app-*）不在这里翻面：那是 app 深色主题的实测值，是界面本身的一部分，
+ * 跟站点主题无关。--band-* 会翻面，但只是从「黑底」挪到深色页上的抬升面，仍是深色。
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #000000;
+    --alt: #161617;
+    --ink: #f5f5f7;
+    --ink-2: #a1a1a6;
+    --hairline: #48484a;
+    --link: #2997ff;
+    --link-ink: #ffffff;
+    --accent: #9a98ff;
+    --card: #1d1d1f;
+    --card-shadow: 0 20px 44px rgba(0, 0, 0, 0.6);
+    --band: #1d1d1f;
+    --band-2: #2c2c2e;
+    --band-line: #3a3a3c;
+    --band-ink: #f5f5f7;
+    --band-ink-2: #98989d;
+    --band-accent: #9a98ff;
+    --band-link: #2997ff;
+    --ok: #3fb950;
+    --warn: #ff9f45;
+    --danger: #ff6b6b;
+    --sponsor: #db61a2;
+    --sponsor-ink: #ff9dd3;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #000000;
+  --alt: #161617;
+  --ink: #f5f5f7;
+  --ink-2: #a1a1a6;
+  --hairline: #48484a;
+  --link: #2997ff;
+  --link-ink: #ffffff;
+  --accent: #9a98ff;
+  --card: #1d1d1f;
+  --card-shadow: 0 20px 44px rgba(0, 0, 0, 0.6);
+  --band: #1d1d1f;
+  --band-2: #2c2c2e;
+  --band-line: #3a3a3c;
+  --band-ink: #f5f5f7;
+  --band-ink-2: #98989d;
+  --band-accent: #9a98ff;
+  --band-link: #2997ff;
+  --ok: #3fb950;
+  --warn: #ff9f45;
+  --danger: #ff6b6b;
+  --sponsor: #db61a2;
+  --sponsor-ink: #ff9dd3;
+}
 
 * { margin: 0; box-sizing: border-box; }
 /* 滚动条槽位常驻：查词/制卡预览会把背景滚动锁成 body{overflow:hidden}，那会连带
@@ -54,7 +125,9 @@
    （最扎眼的是漫画那张居中大图）。留住槽位后，锁与不锁的布局宽度完全一致，
    不必在每个上锁点补偿 padding。叠加式滚动条（macOS / 移动端）本就不占位，
    该属性对它们无效也无害。 */
-html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+/* 底色也给 html：i18n-pending 期间 body 是 visibility:hidden，只挂在 body 上的底色
+   在某些引擎里来不及铺满画布，深色访客会先看到一帧白。 */
+html { scroll-behavior: smooth; scrollbar-gutter: stable; background: var(--ground); }
 body {
   background: var(--ground);
   color: var(--ink);
@@ -237,6 +310,25 @@ body {
   .site-nav-lang-menu { right: -8px; top: calc(var(--nav-h) / 2 + 22px); }
 }
 
+/* ============================== 深浅色开关 ============================== */
+/* 一颗钮、两档，不做下拉：语言那个菜单是 18 项、非有列表不可，主题只有「现在这样」
+   和「反过来」，多一层下拉只是多一次点击。首次进站跟随系统（不写 localStorage），
+   点过之后记住显式选择，系统再变也不动——那是访客当面推翻过的判断。
+   图标画的是**点下去会变成什么**：亮色时是月亮，深色时是太阳。属性还没写上（JS 没跑）
+   时按亮色画，与 :root 的亮色 token 同一档。 */
+.site-nav-theme {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; padding: 0; margin: 0;
+  background: none; border: 0; border-radius: 8px;
+  color: var(--ink); cursor: pointer;
+}
+.site-nav-theme:hover { color: var(--link); }
+.site-nav-theme:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.site-nav-theme svg { width: 17px; height: 17px; fill: currentColor; display: block; }
+.site-nav-theme .site-nav-theme-sun { display: none; }
+:root[data-theme="dark"] .site-nav-theme .site-nav-theme-moon { display: none; }
+:root[data-theme="dark"] .site-nav-theme .site-nav-theme-sun { display: block; }
+
 /* ============================== 回到顶部 ============================== */
 /* 顶栏里原来那个「回到开头」文字链砍掉，换成滚过首屏才出现的浮动小钮。 */
 .site-totop {
@@ -282,6 +374,7 @@ html.i18n-pending body { visibility: hidden; }
  *       └ GitHub 那一项末尾带 <span class="site-nav-star" data-fushi-stars-host><svg/><span data-fushi-stars="compact"></span></span>
  *         —— /site.js 拉到 star 数才给它加 .on；首页引导卡片用同一组 data-fushi-stars* 属性。
  *     <div class="site-nav-lang"><button class="site-nav-lang-btn">🌐 当前语言 ⌄</button><ul class="site-nav-lang-menu" hidden>…</ul></div>
+ *     <button class="site-nav-theme" aria-pressed="false">☾/☀</button>   ← 深浅色，/site.js 写 <html data-theme> 并翻 aria-pressed
  *     <a class="btn" href="/download">下载</a>
  *   </div>
  * </nav>
