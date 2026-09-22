@@ -278,7 +278,7 @@ html.i18n-pending body { visibility: hidden; }
  *   <div class="site-nav-right">
  *     <input class="site-nav-check" type="checkbox" id="site-nav-check">
  *     <label class="site-nav-burger" for="site-nav-check">…</label>
- *     <span class="site-nav-links">…</span>   ← 只放「怎么开始」+ 三个社区图标；「功能」不进顶栏（首页本身就是功能长页）
+ *     <span class="site-nav-links">…</span>   ← 只放「怎么开始」「常见问题」+ 三个社区图标；「功能」不进顶栏（首页本身就是功能长页）
  *       └ GitHub 那一项末尾带 <span class="site-nav-star" data-fushi-stars-host><svg/><span data-fushi-stars="compact"></span></span>
  *         —— /site.js 拉到 star 数才给它加 .on；首页引导卡片用同一组 data-fushi-stars* 属性。
  *     <div class="site-nav-lang"><button class="site-nav-lang-btn">🌐 当前语言 ⌄</button><ul class="site-nav-lang-menu" hidden>…</ul></div>
@@ -287,8 +287,9 @@ html.i18n-pending body { visibility: hidden; }
  * </nav>
  * …
  * <a class="site-totop" href="#top">↑</a>   ← 页面末尾，/site.js 按滚动距离显隐
- * 底栏：<nav class="site-footer-links">怎么开始 · 下载 · GitHub/Discord/QQ 三个图标（a.site-footer-ico）</nav>
- * Layout.vue 里顶栏与底栏还要带 vp-raw（VitePress 路由放行，首页不在它的路由表里）。
+ * 底栏：<nav class="site-footer-links">怎么开始 · 常见问题 · 下载 · GitHub/Discord/QQ 三个图标（a.site-footer-ico）</nav>
+ * Layout.vue 里 logo 链接与回顶钮带 vp-raw（VitePress 路由放行：首页是静态页不在它的路由表里；
+ * 其余站内链接在 VitePress 页之间走客户端路由，不整页刷新）。
  *
  * 注意顺序：checkbox 必须排在 .site-nav-links 前面，:checked ~ 才选得到它。
  * 可翻译文案都挂 data-i18n / data-i18n-attr，键名见 public/i18n/zh-CN.json。

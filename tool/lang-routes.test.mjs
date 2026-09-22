@@ -7,6 +7,7 @@ import {
   CHROME_KEYS, DEFAULT_LANG, LANGS, NAMES, PAGES, PREFIX, PREFIX_ALTERNATION, langOfPath, localizeHref, routeFor, seoHead,
 } from '../.vitepress/theme/lang-routes.mjs';
 import { renderHome } from './build_lang_routes.mjs';
+import { renderZhHk } from './build_faq_zh_hk.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..');
@@ -29,6 +30,9 @@ test('routeFor / localizeHref / langOfPath 三者互逆', () => {
   assert.equal(localizeHref('/de', 'ko'), '/ko/');
   assert.equal(localizeHref('/de/', 'en'), '/');
   assert.equal(localizeHref('/privacy', 'de'), '/privacy', '没有语言版本的页面原样');
+  assert.equal(localizeHref('/faq', 'de'), '/faq', '常见问题不分语言');
+  assert.equal(localizeHref('/faq/anki', 'ja'), '/faq/anki');
+  assert.equal(langOfPath('/faq/anki'), null);
   assert.equal(localizeHref('/releases/latest/windows', 'de'), '/releases/latest/windows');
   assert.equal(localizeHref('https://github.com/x', 'de'), 'https://github.com/x');
   assert.equal(localizeHref('#top', 'de'), '#top');
@@ -88,6 +92,24 @@ test('页壳用到的 data-i18n 键都在 CHROME_KEYS 里，17 份字典都有�
   }
   const js = read('public/site.js');
   for (const c of LANGS) assert.ok(js.includes("['" + c + "', '" + NAMES[c] + "']"), 'site.js LANGS 缺 ' + c + ' 的自称');
+});
+
+test('常见问题：每篇 faq/*.md 都有 title；顶栏 / 底栏两处页壳都有入口，且链接不带语言前缀', () => {
+  const files = readdirSync(join(ROOT, 'faq')).filter((f) => f.endsWith('.md'));
+  assert.ok(files.length > 0, 'faq/ 下至少要有一篇');
+  for (const f of files) {
+    const md = read('faq/' + f);
+    const fm = /^---\n([\s\S]*?)\n---/.exec(md.split('\r\n').join('\n'));
+    assert.ok(fm && /^title:\s*\S/m.test(fm[1]), 'faq/' + f + ' 缺 title（就是问题本身）');
+    assert.ok(!/^\s*# /m.test(md.slice(fm[0].length)), 'faq/' + f + ' 正文不要写一级标题，页壳会渲染 title');
+  }
+  for (const f of ['public/index.html', '.vitepress/theme/Layout.vue']) {
+    const s = read(f);
+    assert.equal((s.match(/data-i18n="nav\.faq"/g) || []).length, 2, f + ' 顶栏 + 底栏各一个「常见问题」');
+    assert.ok(/href="\/faq"/.test(s), f + ' 常见问题入口应是 /faq');
+    assert.ok(!/href="\/[a-z-]+\/faq"/.test(s), f + ' 常见问题不分语言，不能带前缀');
+    assert.ok(!s.includes('nav.blog'), f + ' 博客已并入常见问题');
+  }
 });
 
 test('首页所有 data-i18n 文案在 17 份字典中都有翻译', () => {
@@ -160,4 +182,43 @@ test('renderHome：文案、属性、站内链接、head、内联字典按语言
 
 test('renderHome 拒绝缺 meta 键的字典和已经烤过的模板', () => {
   assert.throws(() => renderHome('<html lang="zh-CN"><title>x</title>', {}, 'en'), /lacks meta\.title/);
+});
+test('常见问题：每篇都有中文原文 faq/<slug>.md、英文版 <slug>.en.md 与繁体版 <slug>.zh-HK.md，且 order / draft / 分组成对', () => {
+  const files = readdirSync(join(ROOT, 'faq')).filter((f) => f.endsWith('.md'));
+  const fmOf = (f) => {
+    const md = read('faq/' + f).split('\r\n').join('\n');
+    const fm = /^---\n([\s\S]*?)\n---/.exec(md)[1];
+    const get = (k) => { const m = new RegExp('^' + k + ':\\s*(.*)$', 'm').exec(fm); return m ? m[1].trim().replace(/^"|"$/g, '') : ''; };
+    return { lang: get('lang'), category: get('category'), order: get('order'), draft: get('draft') };
+  };
+  const TRANSLATIONS = ['en', 'zh-HK'];
+  const isTranslation = (f) => /\.[a-z]{2}(-[A-Za-z]+)?\.md$/.test(f);
+  const zh = files.filter((f) => !isTranslation(f));
+  const categoryMap = new Map();
+  for (const f of zh) {
+    const slug = f.replace(/\.md$/, '');
+    const a = fmOf(f);
+    assert.ok(!a.lang || a.lang === 'zh-CN', 'faq/' + f + ' 原文应是 zh-CN（翻译放 <slug>.<lang>.md）');
+    for (const lang of TRANSLATIONS) {
+      const tf = slug + '.' + lang + '.md';
+      assert.ok(files.includes(tf), 'faq/' + f + ' 缺 ' + lang + ' 版 faq/' + tf + '（CLAUDE.md：新文章必须中 / 英 / 繁各一份）');
+      const b = fmOf(tf);
+      if (lang === 'zh-HK') assert.equal(read('faq/' + tf), renderZhHk(read('faq/' + f)), 'faq/' + tf + ' 与简体原文不同步：重跑 npm run faq:zh-hk（生成物不要手改）');
+      assert.equal(b.lang, lang, 'faq/' + tf + ' 要写 lang: ' + lang);
+      assert.equal(b.order, a.order, 'faq/' + slug + ' 的 ' + lang + ' 版 order 要和原文一致');
+      assert.equal(b.draft, a.draft, 'faq/' + slug + ' 的 ' + lang + ' 版 draft 要和原文一致');
+      // 同一个中文分组必须始终对应同一个译名，不然那种语言的侧栏会裂成两组
+      const key = lang + '|' + a.category;
+      if (categoryMap.has(key)) assert.equal(b.category, categoryMap.get(key), 'faq/' + slug + ' 分组「' + a.category + '」的 ' + lang + ' 译名与其他文章不一致');
+      else categoryMap.set(key, b.category);
+    }
+  }
+  for (const f of files.filter(isTranslation)) {
+    const m = /^(.*)\.([a-z]{2}(?:-[A-Za-z]+)?)\.md$/.exec(f);
+    assert.ok(zh.includes(m[1] + '.md'), 'faq/' + f + ' 没有对应的中文原文');
+    assert.ok(TRANSLATIONS.includes(m[2]), 'faq/' + f + ' 的语言 ' + m[2] + ' 不在支持的翻译列表里');
+    const md = read('faq/' + f);
+    assert.ok(!/\]\(\/faq\/[a-z0-9-]+(#[^)]*)?\)/.test(md), 'faq/' + f + ' 站内链接要指向同语言版本 /faq/<slug>.' + m[2]);
+    if (m[2] === 'en') assert.ok(!/\]\(\/zh-cn\//.test(md), 'faq/' + f + ' 不要链到 /zh-cn/ 页面，用默认路由');
+  }
 });

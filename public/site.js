@@ -49,7 +49,7 @@
   var SOURCE = 'zh-CN';
   /** 语言 → 路径前缀，与 .vitepress/theme/lang-routes.mjs 同一张表（tool/lang-routes.test.mjs 守两边一致）。 */
   var LANG_PREFIX = { en: '', 'zh-CN': '/zh-cn', 'zh-HK': '/zh-hk', ja: '/ja', ko: '/ko', de: '/de', es: '/es', fr: '/fr', it: '/it', nl: '/nl', 'pt-BR': '/pt-br', ru: '/ru', tr: '/tr', vi: '/vi', th: '/th', id: '/id', ar: '/ar' };
-  /** 有语言版本的页面；/privacy 只有英文。 */
+  /** 有语言版本的页面；/privacy 只有英文，/faq 下的文章各写各的语言。 */
   var LANG_PAGES = { '/': 1, '/download': 1, '/immersion': 1 };
   var LINK_RE = /^(?:\/(zh-cn|zh-hk|ja|ko|de|es|fr|it|nl|pt-br|ru|tr|vi|th|id|ar)(?=\/|$))?(\/[^?#]*)?([?#].*)?$/;
   var STORE = 'fushi-lang';
@@ -63,8 +63,13 @@
    * 这一页烤在 HTML 里的语言：读 <html lang>。脚本在 <head> 里同步跑，html 起始标签已经解析，
    * body 还没有——所以只能看这个属性，不能看正文。手写首页源文件是简体中文，构建后
    * 每种语言各烤一份（tool/build_lang_routes.mjs）；VitePress 页按目录 locale 出 <html lang>。
+   *
+   * 每次 apply 都重新读，不能缓存：VitePress 页之间是站内路由、不整页刷新，切到新页面时
+   * VitePress 会把 <html lang> 改成新页 locale 的语言（/faq 是英文、/zh-cn/immersion 是中文），
+   * Layout.vue 随后再调一次 apply()，此时「页面自带的语言」就是这个新值。
    */
-  var PAGE_SOURCE = matchTag(root.getAttribute('lang')) || SOURCE;
+  function pageSource() { return matchTag(root.getAttribute('lang')) || SOURCE; }
+  var PAGE_SOURCE = pageSource();
 
   /**
    * 这一页 URL 里的语言前缀：`/zh-cn/…` → `zh-CN`，默认路由（英文，无前缀）→ null。
@@ -273,7 +278,8 @@
   /** 把当前语言应用到页面。与本页烤的语言相同且从未切过 → 标记已是该语言，什么都不用换。 */
   function apply() {
     var code = resolve(state.choice);
-    if (code === PAGE_SOURCE && !state.dict) {
+    var source = pageSource();
+    if (code === source && !state.dict) {
       state.lang = code;
       root.lang = code; root.dir = RTL[code] ? 'rtl' : 'ltr';
       syncUrlLang(code);
@@ -281,6 +287,12 @@
       root.classList.remove(PENDING_CLASS);
       document.dispatchEvent(new CustomEvent('fushi:i18n', { detail: { lang: code, dict: INLINE || {} } }));
       return Promise.resolve();
+    }
+    // 站内路由切到一个别的语言烤的页面（中文访客进 /faq）而字典还没拉过：和首次加载一样，
+    // 拉到之前藏住 body，免得先闪一屏英文再换。字典已在手（Promise 缓存）时 then 在下一帧前就跑完，不用藏。
+    if (code !== source && !dicts[code]) {
+      root.classList.add(PENDING_CLASS);
+      setTimeout(function () { root.classList.remove(PENDING_CLASS); }, PENDING_TIMEOUT_MS);
     }
     return loadDict(code).then(function (dict) { applyDict(dict, code); }, function () {
       root.classList.remove(PENDING_CLASS);

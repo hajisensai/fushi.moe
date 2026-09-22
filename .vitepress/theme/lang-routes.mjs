@@ -36,7 +36,7 @@ export const PREFIX = {
   ar: '/ar',
 };
 
-/** 有语言版本的页面（无前缀的规范路径）。/privacy 只有英文，不在这里。 */
+/** 有语言版本的页面（无前缀的规范路径）。/privacy 只有英文、/faq 下的文章各写各的语言，都不在这里。 */
 export const PAGES = ['/', '/download', '/immersion'];
 
 export const RTL = { ar: true };
@@ -111,8 +111,11 @@ export const NAMES = {
  * 取这几句烤进 HTML；访客切语言时 site.js 再按同名 data-i18n 键换。
  */
 export const CHROME_KEYS = [
-  'nav.menu', 'nav.method', 'nav.qq', 'nav.language', 'nav.lang_auto', 'nav.download',
+  'nav.menu', 'nav.method', 'nav.faq', 'nav.qq', 'nav.language', 'nav.lang_auto', 'nav.download',
   'footer.sponsor', 'footer.legal', 'nav.totop',
+  // 常见问题不走语言路由（文章各写各的语言），列表页 / 文章页壳上的这几句由 SSR 按 root locale 烤，访客切语言时 site.js 再换
+  'faq.title', 'faq.lead', 'faq.search', 'faq.empty', 'faq.no_results', 'faq.back', 'faq.updated', 'faq.more',
+  'faq.toc', 'faq.outline',
 ];
 
 /**
