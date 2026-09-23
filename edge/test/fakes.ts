@@ -24,6 +24,30 @@ export function store(): MemoryHealthStore {
   return new MemoryHealthStore();
 }
 
+export type MemoryCache = Cache & { drop: (prefix: string) => void; keys: () => string[] };
+
+/** 只实现 match / put 的假 Workers Cache；drop 模拟条目按 max-age 到期被边缘清掉。 */
+export function memoryCache(): MemoryCache {
+  const entries = new Map<string, Response>();
+  const cache = {
+    async match(request: Request | string) {
+      const url = typeof request === 'string' ? request : request.url;
+      return entries.get(url)?.clone();
+    },
+    async put(request: Request | string, response: Response) {
+      const url = typeof request === 'string' ? request : request.url;
+      entries.set(url, response.clone());
+    },
+    drop(prefix: string) {
+      for (const k of [...entries.keys()]) if (k.startsWith(prefix)) entries.delete(k);
+    },
+    keys() {
+      return [...entries.keys()];
+    },
+  };
+  return cache as unknown as MemoryCache;
+}
+
 /** 按主机名编排的假 fetch，记录每次调用便于断言「有没有多打一次」。 */
 export function fakeFetch(
   routes: Record<string, () => Promise<Response> | Response>,

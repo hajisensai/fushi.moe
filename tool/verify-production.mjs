@@ -56,6 +56,19 @@ const slots = releases.body?.slots && Object.values(releases.body.slots).filter(
 check(releases.response.ok && Array.isArray(slots) && slots.length > 0,
   '/releases/api/latest 含应用安装包槽位');
 
+// 站内下载计数（Durable Object）必须在线：这是硬门。GitHub 那半靠共享出口 IP 打 api.github.com，
+// 第一次部署还没有陈旧副本时可能随机 403，只报不拦——它不是这次部署能决定的事。
+const downloads = await request('https://fushi.moe/api/downloads', { json: true, logBody: true });
+check(
+  downloads.response.ok && typeof downloads.body?.site?.total === 'number',
+  '/api/downloads 站内下载计数（Durable Object）在线',
+);
+if (typeof downloads.body?.total === 'number') {
+  console.log(`PASS /api/downloads 可显示的累计下载数：${downloads.body.total}${downloads.body.stale ? '（GitHub 侧为陈旧副本）' : ''}`);
+} else {
+  console.log('WARN /api/downloads 暂无 GitHub 侧计数（api.github.com 未取到且无陈旧副本），页面此时不显示下载数；稍后自动恢复。');
+}
+
 const primaryBuild = await request('https://fushi.moe/__build.json', { json: true });
 const cfBuild = await request('https://fushi-moe.pages.dev/__build.json', { json: true });
 check(
