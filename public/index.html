@@ -566,6 +566,45 @@
   }
 
 
+  /* ===== App 全貌：侧栏式模块列表当页签 + 整窗实机截图 ===== */
+  .overview .stage { max-width: 1180px; }
+  .ov { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 26px; align-items: start; }
+  .ov-nav { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .ov-tab {
+    display: block; width: 100%; text-align: start; cursor: pointer;
+    padding: 11px 14px; border: 0; border-radius: 14px; background: transparent; color: var(--ink);
+    font: inherit; transition: background 0.2s ease;
+  }
+  .ov-tab:hover { background: var(--alt); }
+  .ov-tab[aria-selected="true"] { background: var(--card); box-shadow: var(--card-shadow); }
+  .ov-tab:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+  .ov-tab b { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.3; }
+  .ov-tab[aria-selected="true"] b { color: var(--accent); }
+  .ov-tab span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
+  .ov-win { min-width: 0; border-radius: 16px; overflow: hidden; background: #1b1b1f; box-shadow: var(--card-shadow); }
+  .ov-bar { display: flex; align-items: center; gap: 7px; height: 30px; padding: 0 13px; background: #2a2a2f; }
+  .ov-bar i { width: 10px; height: 10px; border-radius: 50%; background: #55555c; }
+  .ov-bar em { margin-inline-start: 8px; font-style: normal; font-size: 12px; letter-spacing: 0.04em; color: #a1a1aa; }
+  .ov-shot { position: relative; aspect-ratio: 1440 / 900; }
+  .ov-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+  .ov-shot img[hidden] { display: none; }
+  .ov-cap { display: none; margin-top: 14px; text-align: center; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+  .ov-cap[hidden] { display: none !important; }
+  @media (max-width: 980px) {
+    .ov { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .ov-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .ov-tab { width: auto; padding: 8px 14px; border-radius: 999px; }
+    .ov-tab b { font-size: 14px; }
+    .ov-tab span { display: none; }
+    .ov-cap { display: block; }
+  }
+  @media (max-width: 740px) {
+    .ov-win { border-radius: 12px; }
+    .ov-bar { height: 22px; padding: 0 10px; gap: 5px; }
+    .ov-bar i { width: 7px; height: 7px; }
+    .ov-bar em { font-size: 10.5px; }
+  }
+
   .js .rev { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .js .rev.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) {
@@ -642,6 +681,46 @@
     </aside>
   </div>
 </header>
+
+<section class="feature overview alt-band" id="overview">
+  <div class="head rev">
+    <p class="eyebrow" data-i18n="home.overview.eyebrow">App 全貌</p>
+    <h2 class="h-section" data-i18n="home.overview.title">一个 App，装下全部</h2>
+    <p class="copy" data-i18n="home.overview.copy">打开 Fushi，左侧导航栏就是全部入口：书架、漫画、视频、游戏、在线来源和词典都在同一个窗口里。下面是 App 的真实界面。</p>
+  </div>
+  <div class="stage rev ov">
+    <div class="ov-nav" role="tablist" aria-label="Fushi 模块" data-i18n-attr="aria-label=home.overview.nav_label">
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-home" aria-controls="ov-panel" aria-selected="true" tabindex="0" data-ov="home"><b data-i18n="home.overview.tab.home">首页</b><span data-i18n="home.overview.desc.home">继续阅读 / 观看，今日学习一屏看完</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-books" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="books"><b data-i18n="home.overview.tab.books">书架</b><span data-i18n="home.overview.desc.books">小说、EPUB、有声书，同步朗读</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-video" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="video"><b data-i18n="home.overview.tab.video">视频</b><span data-i18n="home.overview.desc.video">本地、媒体服务器与在线源，字幕查词</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-manga" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="manga"><b data-i18n="home.overview.tab.manga">漫画</b><span data-i18n="home.overview.desc.manga">本地与在线漫画，OCR 点字查词</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-games" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="games"><b data-i18n="home.overview.tab.games">游戏</b><span data-i18n="home.overview.desc.games">Galgame 库，台词 Hook 查词（Windows）</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-browse" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="browse"><b data-i18n="home.overview.tab.browse">浏览</b><span data-i18n="home.overview.desc.browse">来源、扩展、发现与下载</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-settings" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="settings"><b data-i18n="home.overview.tab.settings">设置</b><span data-i18n="home.overview.desc.settings">主题、界面大小与功能模块开关</span></button>
+    </div>
+    <div class="ov-main">
+      <div class="ov-win" id="ov-panel" role="tabpanel" aria-labelledby="ov-tab-home">
+        <div class="ov-bar" aria-hidden="true"><i></i><i></i><i></i><em>Fushi</em></div>
+        <div class="ov-shot">
+          <img src="/overview/home.jpg" width="1440" height="900" fetchpriority="low" decoding="async" data-ov="home" alt="Fushi 首页实机截图" data-i18n-attr="alt=home.overview.alt.home">
+          <img src="/overview/books.jpg" width="1440" height="900" loading="lazy" decoding="async" data-ov="books" alt="Fushi 书架实机截图" data-i18n-attr="alt=home.overview.alt.books" hidden>
+          <img src="/overview/video.jpg" width="1440" height="900" loading="lazy" decoding="async" data-ov="video" alt="Fushi 视频库实机截图" data-i18n-attr="alt=home.overview.alt.video" hidden>
+          <img src="/overview/manga.jpg" width="1440" height="900" loading="lazy" decoding="async" data-ov="manga" alt="Fushi 漫画库实机截图" data-i18n-attr="alt=home.overview.alt.manga" hidden>
+          <img src="/overview/games.jpg" width="1440" height="900" loading="lazy" decoding="async" data-ov="games" alt="Fushi 游戏库实机截图" data-i18n-attr="alt=home.overview.alt.games" hidden>
+          <img src="/overview/browse.jpg" width="1440" height="900" loading="lazy" decoding="async" data-ov="browse" alt="Fushi 浏览页实机截图" data-i18n-attr="alt=home.overview.alt.browse" hidden>
+          <img src="/overview/settings.jpg" width="1440" height="900" loading="lazy" decoding="async" data-ov="settings" alt="Fushi 设置页实机截图" data-i18n-attr="alt=home.overview.alt.settings" hidden>
+        </div>
+      </div>
+      <p class="ov-cap" data-ov="home" data-i18n="home.overview.desc.home">继续阅读 / 观看，今日学习一屏看完</p>
+      <p class="ov-cap" data-ov="books" data-i18n="home.overview.desc.books" hidden>小说、EPUB、有声书，同步朗读</p>
+      <p class="ov-cap" data-ov="video" data-i18n="home.overview.desc.video" hidden>本地、媒体服务器与在线源，字幕查词</p>
+      <p class="ov-cap" data-ov="manga" data-i18n="home.overview.desc.manga" hidden>本地与在线漫画，OCR 点字查词</p>
+      <p class="ov-cap" data-ov="games" data-i18n="home.overview.desc.games" hidden>Galgame 库，台词 Hook 查词（Windows）</p>
+      <p class="ov-cap" data-ov="browse" data-i18n="home.overview.desc.browse" hidden>来源、扩展、发现与下载</p>
+      <p class="ov-cap" data-ov="settings" data-i18n="home.overview.desc.settings" hidden>主题、界面大小与功能模块开关</p>
+    </div>
+  </div>
+</section>
 
 <section class="feature" id="sec-a">
   <div class="head rev">
@@ -7471,6 +7550,37 @@ const FUSHI_CONTENT_CSS = "/*\n *  content.css — GENERATED, DO NOT EDIT BY HAN
       ankiIo.observe(lapisDemoEl);
     }
 
+  })();
+
+  // App 全貌：模块页签（WAI-ARIA tabs，左右/上下方向键 + Home/End 切换）
+  (function () {
+    const tabs = Array.from(document.querySelectorAll('.ov-tab'));
+    const panel = document.getElementById('ov-panel');
+    if (!tabs.length || !panel) return;
+    const views = Array.from(document.querySelectorAll('.ov-shot img[data-ov], .ov-cap[data-ov]'));
+    function select(tab, focus) {
+      tabs.forEach(t => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      views.forEach(v => { v.hidden = v.dataset.ov !== tab.dataset.ov; });
+      panel.setAttribute('aria-labelledby', tab.id);
+      if (focus) tab.focus();
+    }
+    const STEP = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab, false));
+      tab.addEventListener('keydown', (e) => {
+        let next = -1;
+        if (e.key in STEP) next = (i + STEP[e.key] + tabs.length) % tabs.length;
+        if (e.key === 'Home') next = 0;
+        if (e.key === 'End') next = tabs.length - 1;
+        if (next < 0) return;
+        e.preventDefault();
+        select(tabs[next], true);
+      });
+    });
   })();
 
   const io = new IntersectionObserver(entries => {
