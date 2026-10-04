@@ -567,42 +567,67 @@
 
 
   /* ===== App 全貌：侧栏式模块列表当页签 + 整窗实机截图 ===== */
-  .overview .stage { max-width: 1180px; }
-  .ov { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 26px; align-items: start; }
-  .ov-nav { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .overview .stage { max-width: 1200px; }
+  .ov { display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: 32px; align-items: center; }
+  .ov-nav { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; }
   .ov-tab {
-    display: block; width: 100%; text-align: start; cursor: pointer;
-    padding: 11px 14px; border: 0; border-radius: 14px; background: transparent; color: var(--ink);
-    font: inherit; transition: background 0.2s ease;
+    position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 13px; align-items: center;
+    width: 100%; text-align: start; cursor: pointer;
+    padding: 10px 14px 10px 12px; border: 0; border-radius: 16px; background: transparent; color: var(--ink);
+    font: inherit; transition: background 0.2s ease, box-shadow 0.2s ease;
   }
-  .ov-tab:hover { background: var(--alt); }
-  .ov-tab[aria-selected="true"] { background: var(--card); box-shadow: var(--card-shadow); }
+  .ov-tab:hover { background: rgba(0, 0, 0, 0.04); }
+  .ov-tab[aria-selected="true"] { background: var(--card); box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08); }
+  .ov-tab[aria-selected="true"]::before {
+    content: ""; position: absolute; inset-inline-start: -10px; top: 14px; bottom: 14px;
+    width: 4px; border-radius: 4px; background: var(--accent);
+  }
   .ov-tab:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
-  .ov-tab b { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.3; }
-  .ov-tab[aria-selected="true"] b { color: var(--accent); }
-  .ov-tab span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.5; color: var(--ink-2); }
-  .ov-win { min-width: 0; border-radius: 16px; overflow: hidden; background: #1b1b1f; box-shadow: var(--card-shadow); }
-  .ov-bar { display: flex; align-items: center; gap: 7px; height: 30px; padding: 0 13px; background: #2a2a2f; }
-  .ov-bar i { width: 10px; height: 10px; border-radius: 50%; background: #55555c; }
-  .ov-bar em { margin-inline-start: 8px; font-style: normal; font-size: 12px; letter-spacing: 0.04em; color: #a1a1aa; }
+  .ov-ico {
+    grid-row: span 2; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(88, 86, 214, 0.1); color: var(--accent); transition: background 0.2s ease, color 0.2s ease;
+  }
+  .ov-ico svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .ov-tab[aria-selected="true"] .ov-ico { background: var(--accent); color: #fff; }
+  .ov-tab b { display: block; font-size: 16px; font-weight: 600; line-height: 1.3; }
+  .ov-tab span { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
+  .ov-main { min-width: 0; }
+  .ov-win {
+    border-radius: 20px; overflow: hidden; background: var(--card);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 30px 70px rgba(88, 86, 214, 0.16);
+  }
   .ov-shot { position: relative; aspect-ratio: 1440 / 900; }
   .ov-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+  .ov-shot img:not([hidden]) { animation: ov-in 0.35s ease; }
   .ov-shot img[hidden] { display: none; }
-  .ov-cap { display: none; margin-top: 14px; text-align: center; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); }
+  @keyframes ov-in { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .ov-shot img:not([hidden]) { animation: none; } }
+  .ov-cap { display: none; margin-top: 14px; text-align: center; font-size: 14px; line-height: 1.6; color: var(--ink-2); }
   .ov-cap[hidden] { display: none !important; }
   @media (max-width: 980px) {
-    .ov { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-    .ov-nav { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px; }
-    .ov-tab { width: auto; padding: 8px 14px; border-radius: 999px; }
-    .ov-tab b { font-size: 14px; }
+    .ov { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .ov-nav {
+      flex-direction: row; gap: 8px; overflow-x: auto; scrollbar-width: none;
+      margin: 0 -16px; padding: 4px 16px 8px; scroll-padding-inline: 16px;
+    }
+    .ov-nav::-webkit-scrollbar { display: none; }
+    .ov-tab {
+      flex: none; width: auto; grid-template-columns: auto auto; column-gap: 7px;
+      padding: 7px 15px 7px 8px; border-radius: 999px; background: var(--card); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .ov-tab[aria-selected="true"] { background: var(--accent); box-shadow: 0 6px 16px rgba(88, 86, 214, 0.3); }
+    .ov-tab[aria-selected="true"]::before { display: none; }
+    .ov-tab[aria-selected="true"] b { color: #fff; }
+    .ov-tab[aria-selected="true"] .ov-ico { background: rgba(255, 255, 255, 0.2); }
+    .ov-ico { grid-row: auto; width: 28px; height: 28px; border-radius: 999px; }
+    .ov-ico svg { width: 16px; height: 16px; }
+    .ov-tab b { font-size: 14.5px; white-space: nowrap; }
     .ov-tab span { display: none; }
     .ov-cap { display: block; }
   }
   @media (max-width: 740px) {
-    .ov-win { border-radius: 12px; }
-    .ov-bar { height: 22px; padding: 0 10px; gap: 5px; }
-    .ov-bar i { width: 7px; height: 7px; }
-    .ov-bar em { font-size: 10.5px; }
+    .ov-win { border-radius: 12px; box-shadow: 0 16px 40px rgba(88, 86, 214, 0.14); }
   }
 
   .js .rev { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -690,17 +715,16 @@
   </div>
   <div class="stage rev ov">
     <div class="ov-nav" role="tablist" aria-label="Fushi 模块" data-i18n-attr="aria-label=home.overview.nav_label">
-      <button class="ov-tab" type="button" role="tab" id="ov-tab-home" aria-controls="ov-panel" aria-selected="true" tabindex="0" data-ov="home"><b data-i18n="home.overview.tab.home">首页</b><span data-i18n="home.overview.desc.home">继续阅读 / 观看，今日学习一屏看完</span></button>
-      <button class="ov-tab" type="button" role="tab" id="ov-tab-books" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="books"><b data-i18n="home.overview.tab.books">书架</b><span data-i18n="home.overview.desc.books">小说、EPUB、有声书，同步朗读</span></button>
-      <button class="ov-tab" type="button" role="tab" id="ov-tab-video" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="video"><b data-i18n="home.overview.tab.video">视频</b><span data-i18n="home.overview.desc.video">本地、媒体服务器与在线源，字幕查词</span></button>
-      <button class="ov-tab" type="button" role="tab" id="ov-tab-manga" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="manga"><b data-i18n="home.overview.tab.manga">漫画</b><span data-i18n="home.overview.desc.manga">本地与在线漫画，OCR 点字查词</span></button>
-      <button class="ov-tab" type="button" role="tab" id="ov-tab-games" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="games"><b data-i18n="home.overview.tab.games">游戏</b><span data-i18n="home.overview.desc.games">Galgame 库，台词 Hook 查词（Windows）</span></button>
-      <button class="ov-tab" type="button" role="tab" id="ov-tab-browse" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="browse"><b data-i18n="home.overview.tab.browse">浏览</b><span data-i18n="home.overview.desc.browse">来源、扩展、发现与下载</span></button>
-      <button class="ov-tab" type="button" role="tab" id="ov-tab-settings" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="settings"><b data-i18n="home.overview.tab.settings">设置</b><span data-i18n="home.overview.desc.settings">主题、界面大小与功能模块开关</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-home" aria-controls="ov-panel" aria-selected="true" tabindex="0" data-ov="home"><i class="ov-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></svg></i><b data-i18n="home.overview.tab.home">首页</b><span data-i18n="home.overview.desc.home">继续阅读 / 观看，今日学习一屏看完</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-books" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="books"><i class="ov-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19.5v-15A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5 1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M9 7.5h6"/></svg></i><b data-i18n="home.overview.tab.books">书架</b><span data-i18n="home.overview.desc.books">小说、EPUB、有声书，同步朗读</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-video" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="video"><i class="ov-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></i><b data-i18n="home.overview.tab.video">视频</b><span data-i18n="home.overview.desc.video">本地、媒体服务器与在线源，字幕查词</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-manga" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="manga"><i class="ov-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M2.5 5.5c3-1.5 6-1.5 9.5 1 3.5-2.5 6.5-2.5 9.5-1V19c-3-1.5-6-1.5-9.5 1-3.5-2.5-6.5-2.5-9.5-1z"/><path d="M12 6.5V20"/></svg></i><b data-i18n="home.overview.tab.manga">漫画</b><span data-i18n="home.overview.desc.manga">本地与在线漫画，OCR 点字查词</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-games" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="games"><i class="ov-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 7h10a5 5 0 0 1 4.9 6l-.7 3.4a2.5 2.5 0 0 1-4.3 1.2L14.5 15h-5l-2.4 2.6a2.5 2.5 0 0 1-4.3-1.2L2.1 13A5 5 0 0 1 7 7z"/><path d="M7.5 10v3M6 11.5h3"/><circle cx="16" cy="10.5" r=".6"/><circle cx="17.5" cy="12.5" r=".6"/></svg></i><b data-i18n="home.overview.tab.games">游戏</b><span data-i18n="home.overview.desc.games">Galgame 库，台词 Hook 查词（Windows）</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-browse" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="browse"><i class="ov-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg></i><b data-i18n="home.overview.tab.browse">浏览</b><span data-i18n="home.overview.desc.browse">来源、扩展、发现与下载</span></button>
+      <button class="ov-tab" type="button" role="tab" id="ov-tab-settings" aria-controls="ov-panel" aria-selected="false" tabindex="-1" data-ov="settings"><i class="ov-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></i><b data-i18n="home.overview.tab.settings">设置</b><span data-i18n="home.overview.desc.settings">主题、界面大小与功能模块开关</span></button>
     </div>
     <div class="ov-main">
       <div class="ov-win" id="ov-panel" role="tabpanel" aria-labelledby="ov-tab-home">
-        <div class="ov-bar" aria-hidden="true"><i></i><i></i><i></i><em>Fushi</em></div>
         <div class="ov-shot">
           <img src="/overview/home.jpg" width="1440" height="900" fetchpriority="low" decoding="async" data-ov="home" alt="Fushi 首页实机截图" data-i18n-attr="alt=home.overview.alt.home">
           <img src="/overview/books.jpg" width="1440" height="900" loading="lazy" decoding="async" data-ov="books" alt="Fushi 书架实机截图" data-i18n-attr="alt=home.overview.alt.books" hidden>
