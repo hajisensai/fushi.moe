@@ -64,6 +64,25 @@
   .hero .copy { max-width: 560px; margin: 26px 0 0; }
   .hero .plats { margin-top: 26px; font-size: 12px; letter-spacing: 0.14em; color: var(--ink-2); }
   .hero .btns { display: flex; justify-content: flex-start; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+  /* hero 次级 CTA：Star / 赞助放在下载旁边，首屏就能看到；Star 数只有真拿到才显示 */
+  .hero .btns { align-items: center; gap: 10px; }
+  .hero-pill {
+    display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 18px;
+    border-radius: 980px; font-size: 16px; line-height: 1; text-decoration: none; color: var(--ink);
+    background: var(--card); border: 1px solid color-mix(in srgb, var(--hairline) 90%, transparent);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .hero-pill:hover { background: var(--alt); }
+  .hero-pill svg { width: 17px; height: 17px; flex: none; display: block; }
+  .hero-star svg { fill: #e3a008; }
+  .hero-sponsor svg { fill: #bf3989; }
+  .hero-sponsor:hover { border-color: color-mix(in srgb, #bf3989 45%, var(--hairline)); }
+  .hero-pill-n {
+    display: none; margin-inline-start: 3px; padding: 3px 8px; border-radius: 980px;
+    font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; background: var(--alt); color: var(--ink-2);
+  }
+  .hero-pill-n.on { display: inline-block; }
+  .hero-gh { margin-top: 14px; font-size: 15px; }
   .hero-panel {
     background: var(--card); border-radius: 26px; padding: clamp(22px, 2.6vw, 34px);
     box-shadow: var(--card-shadow);
@@ -691,7 +710,8 @@
       <p class="eyebrow"><a href="https://www.gnu.org/licenses/gpl-3.0.html" data-i18n="home.hero.eyebrow">免费开源 · GPLv3</a></p>
       <h1 class="h-hero" data-i18n="home.hero.title">搜索、下载、播放<br>阅读、查词、制卡<br>都在 Fushi</h1>
       <p class="copy copy-2" data-i18n="home.hero.copy">动漫、漫画、小说、有声书、Galgame。<br>搜到、下好、自动追更——一个 app 全搞定。</p>
-      <div class="btns"><a class="btn" href="/download" data-i18n="home.cta.download">立即下载</a><a class="more" style="align-self:center;padding:12px 6px" href="https://github.com/hajisensai/Fushi" data-i18n="home.closing.github">在 GitHub 上查看</a></div>
+      <div class="btns"><a class="btn" href="/download" data-i18n="home.cta.download">立即下载</a><a class="hero-pill hero-star" href="https://github.com/hajisensai/Fushi" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2.6l2.95 5.98 6.6.96-4.78 4.66 1.13 6.57L12 17.67l-5.9 3.1 1.13-6.57L2.45 9.54l6.6-.96z"/></svg><span data-i18n="home.hero.star">Star</span><span class="hero-pill-n" data-fushi-stars-host><span data-fushi-stars="compact"></span></span></a><a class="hero-pill hero-sponsor" href="https://github.com/sponsors/hajisensai" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.5 2.9c-2.2 0-4.1 1.2-5.5 3-1.4-1.8-3.3-3-5.5-3C2.9 2.9.5 5.8.5 9.1c0 5.4 5.1 9.1 11.5 13 6.4-3.9 11.5-7.6 11.5-13 0-3.3-2.4-6.2-6-6.2z"/></svg><span data-i18n="home.hero.sponsor">赞助</span></a></div>
+      <p class="hero-gh"><a class="more" href="https://github.com/hajisensai/Fushi" data-i18n="home.closing.github">在 GitHub 上查看</a></p>
       <p class="plats">Windows · macOS · Android · iOS</p>
     </div>
     <aside class="hero-panel" id="acgn">
@@ -711,7 +731,6 @@
   <div class="head rev">
     <p class="eyebrow" data-i18n="home.overview.eyebrow">App 全貌</p>
     <h2 class="h-section" data-i18n="home.overview.title">一个 App，装下全部</h2>
-    <p class="copy" data-i18n="home.overview.copy">打开 Fushi，左侧导航栏就是全部入口：书架、漫画、视频、游戏、在线来源和词典都在同一个窗口里。下面是 App 的真实界面。</p>
   </div>
   <div class="stage rev ov">
     <div class="ov-nav" role="tablist" aria-label="Fushi 模块" data-i18n-attr="aria-label=home.overview.nav_label">
