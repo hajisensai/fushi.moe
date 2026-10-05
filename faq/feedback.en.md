@@ -7,6 +7,6 @@ date: 2026-09-19
 lang: en
 ---
 
-Open an [issue](https://github.com/hajisensai/Fushi/issues) on GitHub, or come talk on [Discord](https://discord.gg/WhjwyGmm7f) / the [QQ group](https://qm.qq.com/q/Sx2nWTvJCw).
+Open an [issue](https://github.com/hajisensai/Fushi/issues) on GitHub, or come talk on [Discord](https://discord.gg/WhjwyGmm7f) / the [QQ group](https://qm.qq.com/q/Sx2nWTvJCw). For anything you would rather not post publicly, email [contact@fushi.moe](mailto:contact@fushi.moe).
 
 When reporting a bug, include the platform, version and steps to reproduce; a screenshot or log helps even more.

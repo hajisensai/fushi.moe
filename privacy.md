@@ -80,6 +80,7 @@ If you have questions about this privacy policy, you can reach us at:
 
 - GitHub: [github.com/hajisensai/Fushi/issues](https://github.com/hajisensai/Fushi/issues)
 - Discord: [discord.gg/WhjwyGmm7f](https://discord.gg/WhjwyGmm7f)
+- Email: [contact@fushi.moe](mailto:contact@fushi.moe)
 
 ## Changes
 
