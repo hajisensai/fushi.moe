@@ -7,6 +7,6 @@ date: 2026-09-19
 lang: zh-HK
 ---
 
-在 GitHub 提 [Issue](https://github.com/hajisensai/Fushi/issues)，或到 [Discord](https://discord.gg/WhjwyGmm7f) / [QQ 群](https://qm.qq.com/q/Sx2nWTvJCw)聊。
+在 GitHub 提 [Issue](https://github.com/hajisensai/Fushi/issues)，或到 [Discord](https://discord.gg/WhjwyGmm7f) / [QQ 群](https://qm.qq.com/q/Sx2nWTvJCw)聊。不方便公開的事可以發郵件到 [contact@fushi.moe](mailto:contact@fushi.moe)。
 
 反饋 bug 時請帶上平臺、版本號和復現步驟，能附截圖或日誌更好。
