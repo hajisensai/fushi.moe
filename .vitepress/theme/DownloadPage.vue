@@ -102,7 +102,7 @@ const PLATFORMS = [
   { slot: 'android-x64',       nameZh: 'Android (x86_64)',  noteKey: 'dl.p_android_x64',       noteZh: '模拟器 / x86 平板',                   channels: ['stable'] },
   { slot: 'android-universal', nameZh: 'Android',           noteKey: 'dl.p_android_universal', noteZh: '通用包，含全部架构，体积较大',         channels: ['debug'] },
   { slot: 'windows',           nameZh: 'Windows',           noteKey: 'dl.p_windows',           noteZh: '含 Galgame 语音挖掘、桌面划词',        channels: ['stable', 'debug'] },
-  { slot: 'macos',             nameZh: 'macOS',             noteKey: 'dl.p_macos',             noteZh: 'Apple Silicon 与 Intel 通用',         channels: ['stable', 'debug'] },
+  { slot: 'macos',             nameZh: 'macOS',             noteKey: 'dl.p_macos',             noteZh: '仅支持 Apple Silicon（M 系列芯片）',  channels: ['stable', 'debug'] },
   { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装',                 channels: ['stable', 'debug'], testflight: true },
 ]
 
@@ -114,7 +114,8 @@ const SLOT_PATTERNS = {
   'android-universal': /^fushi-.*-debug\.apk$/,
   windows:             /^fushi-.*-windows-setup\.exe$/,
   'windows-portable':  /^fushi-.*-windows-x64\.zip$/,
-  macos:               /^fushi-.*-macos\.zip$/,
+  // 正式版历来叫 -macos.zip；调试版从 2.10 起改出 Apple Silicon 专用的 -macos-arm64.zip。
+  macos:               /^fushi-.*-macos(?:-arm64)?\.zip$/,
   ios:                 /^fushi-.*-ios\.ipa$/,
 }
 
@@ -128,6 +129,8 @@ const choice = ref('auto')             // 'auto' | 'cf' | 'gh'
 const probed = ref({})                 // id -> { ok, ms }
 const probing = ref(true)
 const release = ref(null)              // { channel, tag, version, slots }
+/** 调试版里某个平台这一轮没出包（例如桌面构建挂了）时，用正式版的同平台包顶上，而不是把人甩到 Releases 列表。 */
+const stableRelease = ref(null)
 const metaSource = ref('')             // 清单是从哪拿到的
 const loadingRelease = ref(false)
 /** slot -> 分片下载任务状态 */
@@ -171,12 +174,12 @@ async function probe(id, url, opts) {
 }
 
 /** 把 update-manifest 分支的静态 JSON 按槽位收敛（与 Worker 的 latestManifestResponse 同形）。 */
-function slotsFromPublished(d) {
+function slotsFromPublished(d, path) {
   const slots = {}
   for (const [slot, re] of Object.entries(SLOT_PATTERNS)) {
     const a = (d.assets ?? []).find((x) => re.test(x.name))
     slots[slot] = a ? {
-      url: DL_BASE + '/' + channelDef.value.path + '/' + slot,
+      url: DL_BASE + '/' + path + '/' + slot,
       githubUrl: a.browser_download_url,
       name: a.name,
       size: typeof a.size === 'number' ? a.size : 0,
@@ -190,53 +193,76 @@ function slotsFromPublished(d) {
  * Worker 应答里必须带回同一个 channel——老版本 Worker 会无视 ?channel= 直接回正式版清单，
  * 那种应答不能当调试版用。
  */
-async function loadRelease() {
-  const want = channel.value
-  loadingRelease.value = true
-  release.value = null
-  metaSource.value = ''
+async function fetchManifest(def) {
   try {
     const r = await withTimeout(
-      fetch(DL_BASE + '/api/latest?channel=' + want, { cache: 'no-store' }),
+      fetch(DL_BASE + '/api/latest?channel=' + def.id, { cache: 'no-store' }),
       PROBE_TIMEOUT_MS,
     )
     if (r.ok) {
       const d = await r.json()
-      const got = d.channel ?? 'stable'
-      if (got === want && want === channel.value) {
-        release.value = { channel: got, tag: d.tag, version: d.version ?? '', slots: d.slots }
-        metaSource.value = 'fushi.moe'
-        loadingRelease.value = false
-        return
+      if ((d.channel ?? 'stable') === def.id) {
+        return { channel: def.id, path: def.path, tag: d.tag, version: d.version ?? '', slots: d.slots, source: 'fushi.moe' }
       }
     }
   } catch { /* 落到下一条 */ }
 
   try {
     const r = await withTimeout(
-      fetch(GH_MANIFEST_BASE + channelDef.value.manifest, { cache: 'no-store' }),
+      fetch(GH_MANIFEST_BASE + def.manifest, { cache: 'no-store' }),
       PROBE_TIMEOUT_MS,
     )
-    if (r.ok && want === channel.value) {
+    if (r.ok) {
       const d = await r.json()
-      release.value = { channel: want, tag: d.tag, version: d.version ?? '', slots: slotsFromPublished(d) }
-      metaSource.value = 'GitHub 静态清单'
-      loadingRelease.value = false
-      return
+      return { channel: def.id, path: def.path, tag: d.tag, version: d.version ?? '', slots: slotsFromPublished(d, def.path), source: 'GitHub 静态清单' }
     }
   } catch { /* 静态表兜底 */ }
+  return null
+}
 
-  if (want === channel.value) loadingRelease.value = false
+async function loadRelease() {
+  const want = channel.value
+  const def = channelDef.value
+  loadingRelease.value = true
+  release.value = null
+  metaSource.value = ''
+  const [main, stable] = await Promise.all([
+    fetchManifest(def),
+    want === 'stable' ? null : (stableRelease.value ?? fetchManifest(CHANNELS[0])),
+  ])
+  if (stable) stableRelease.value = stable
+  if (want !== channel.value) return
+  if (main) {
+    release.value = main
+    metaSource.value = main.source
+  }
+  loadingRelease.value = false
+}
+
+/**
+ * 某个平台实际要发的是哪一版：当前通道有就用它；调试版缺这个平台时退回正式版的同平台包。
+ * @returns {{ rel: object, info: object, fallback: boolean } | null}
+ */
+function pickFor(slot) {
+  const info = release.value?.slots?.[slot]
+  if (info) return { rel: release.value, info, fallback: false }
+  if (channel.value !== 'stable') {
+    const s = stableRelease.value?.slots?.[slot]
+    if (s) return { rel: stableRelease.value, info: s, fallback: true }
+  }
+  return null
 }
 
 function hrefFor(slot) {
   if (slot === 'ios' && IOS_TESTFLIGHT_URL) return IOS_TESTFLIGHT_URL
-  const info = release.value?.slots?.[slot]
-  if (!info) return 'https://github.com/' + GH_REPO + '/releases' + (channel.value === 'stable' ? '/latest' : '')
-  if (activeMirror.value === 'cf') return DL_BASE + '/' + channelDef.value.path + '/' + slot
+  const picked = pickFor(slot)
+  // 清单两个源都拿不到时的最后退路：正式版最新一版的发布页（不是整个 Releases 列表）。
+  if (!picked) return 'https://github.com/' + GH_REPO + '/releases/latest'
+  const { rel, info } = picked
+  if (activeMirror.value === 'cf') return DL_BASE + '/' + rel.path + '/' + slot
   return info.githubUrl || (
     'https://github.com/' + GH_REPO + '/releases/download/' +
-    encodeURIComponent(release.value.tag) + '/' + encodeURIComponent(info.name)
+    encodeURIComponent(rel.tag) + '/' + encodeURIComponent(info.name)
   )
 }
 
@@ -245,17 +271,22 @@ function hrefFor(slot) {
  * （用对方的 Content-Disposition），但属性本身仍让 VitePress 路由放行。
  */
 function downloadNameFor(slot) {
-  return release.value?.slots?.[slot]?.name || 'fushi'
+  return pickFor(slot)?.info.name || 'fushi'
 }
 
 /** GitHub 原始直链：给 IDM / aria2 这类自带多线程的下载器。 */
 function githubUrlFor(slot) {
-  const info = release.value?.slots?.[slot]
-  return (info && info.githubUrl) || ''
+  return pickFor(slot)?.info.githubUrl || ''
+}
+
+/** 调试版缺包、退回正式版时，在下载链接下注明给的是哪一版。 */
+function fallbackVersionFor(slot) {
+  const picked = pickFor(slot)
+  return picked && picked.fallback ? (picked.rel.version || picked.rel.tag) : ''
 }
 
 function sizeFor(slot) {
-  const bytes = release.value?.slots?.[slot]?.size
+  const bytes = pickFor(slot)?.info.size
   if (!bytes) return ''
   return (bytes / 1024 / 1024).toFixed(0) + ' MB'
 }
@@ -401,14 +432,13 @@ function chunkSupported() {
 /** 点击「下载」：能分片就在页内分片并发下；否则让 <a> 照常导航。 */
 function onDownloadClick(e, slot) {
   if (slot === 'ios' && IOS_TESTFLIGHT_URL) return
-  const info = release.value?.slots?.[slot]
-  if (!info || !chunkSupported() || jobs[slot]) return
+  const picked = pickFor(slot)
+  if (!picked || !chunkSupported() || jobs[slot]) return
   e.preventDefault()
-  startChunked(slot, info).catch(() => {})
+  startChunked(slot, picked.info, picked.rel.tag).catch(() => {})
 }
 
-async function startChunked(slot, info) {
-  const tag = release.value.tag
+async function startChunked(slot, info, tag) {
   const controller = new AbortController()
   const job = reactive({ state: 'probing', pct: 0, speed: '', split: '', error: '', reasons: [], verify: '', href: hrefFor(slot), controller })
   jobs[slot] = job
@@ -630,6 +660,7 @@ onMounted(async () => {
             {{ t('dl.download', '下载') }}<span v-if="sizeFor(p.slot)"> · {{ sizeFor(p.slot) }}</span>
           </a>
           <a v-if="githubUrlFor(p.slot)" class="dl-direct" :href="githubUrlFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" :title="t('dl.direct_link_hint', 'IDM / aria2 等下载器可直接对它多线程')">{{ t('dl.direct_link', 'GitHub 直链') }}</a>
+          <span v-if="fallbackVersionFor(p.slot)" class="dl-fallback-note">{{ t('dl.debug_fallback', '调试版暂缺，此为正式版') }} {{ fallbackVersionFor(p.slot) }}</span>
         </template>
         <div v-else class="dl-job" :class="jobs[p.slot].state">
           <template v-if="jobs[p.slot].state === 'probing'">
@@ -823,6 +854,7 @@ onMounted(async () => {
   font-size: 12px; font-weight: 400; color: var(--ink-2);
 }
 .dl-table td:last-child a.dl-direct:hover { color: var(--link); }
+.dl-fallback-note { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-2); }
 .dl-job { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 13px; }
 .dl-job button {
   align-self: flex-start;

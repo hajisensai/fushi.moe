@@ -128,6 +128,14 @@ describe('parseChannel / slots', () => {
     expect(m.version).toBe('1.3.0-debug.777');
   });
 
+  it('macOS 槽位同时认老的 -macos.zip 和调试版的 -macos-arm64.zip', () => {
+    const asset = (name: string) => ({ name, browser_download_url: 'https://example.invalid/' + name, size: 1 });
+    const legacy = manifestFromPublished({ tag: 'v2.9.1', assets: [asset('fushi-2.9.1-macos.zip')] })!;
+    expect(resolveSlot(legacy, 'macos')?.name).toBe('fushi-2.9.1-macos.zip');
+    const arm = manifestFromPublished({ tag: 'v2.10.0-debug.1', assets: [asset('fushi-2.10.0-debug.1-macos-arm64.zip')] })!;
+    expect(resolveSlot(arm, 'macos')?.name).toBe('fushi-2.10.0-debug.1-macos-arm64.zip');
+  });
+
   it('静态清单里 channel 写 formal 也归到 stable', () => {
     expect(manifestFromPublished(JSON.parse(STABLE))!.channel).toBe('stable');
   });
