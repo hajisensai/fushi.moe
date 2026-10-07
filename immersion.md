@@ -189,7 +189,7 @@ head:
 .immersion .term[data-tip]::after {
   display: none; position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 5;
   max-width: min(420px, 100%); padding: 12px 14px; border-radius: 12px;
-  background: var(--ink); color: var(--band-ink); text-align: left; white-space: normal;
+  background: var(--ink); color: var(--ground); text-align: left; white-space: normal;
   font-size: 14px; line-height: 1.5; font-weight: 400; letter-spacing: 0;
 }
 .immersion .term[data-tip]::after { content: attr(data-tip); }

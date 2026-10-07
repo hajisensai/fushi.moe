@@ -1,5 +1,8 @@
 /*
- * fushi.moe 站点脚本：界面语言 + 顶栏语言菜单 + 浮动「回到顶部」。
+ * fushi.moe 站点脚本：深浅色主题 + 界面语言 + 顶栏语言菜单 + 浮动「回到顶部」。
+ *
+ * 主题那一段在文件最前面（<body> 解析之前就把 <html data-theme> 写好，不闪），
+ * 与语言互不相干：语言要等字典、主题不等任何东西。深色 token 在 public/chrome.css。
  *
  * 语言集合与 app 的界面语言完全一致（17 种，fushi/lib/i18n/*.i18n.json）。
  * 源标记是简体中文（SOURCE，字典源语言）；构建后每种语言各烤一份静态页
@@ -58,6 +61,83 @@
   var PENDING_TIMEOUT_MS = 2500;
 
   var root = document.documentElement;
+
+  /* ------------------------------ 深浅色主题 ------------------------------ */
+  /*
+   * 这一段必须排在文件最前面做完：脚本同步挂在 <head>，此刻 <body> 还没解析，
+   * 把 <html data-theme> 写好就不会先闪一屏亮色再翻面（i18n 那套藏 body 的办法
+   * 在这里用不上——主题不需要等任何网络请求）。
+   *
+   * 三档选择 auto / light / dark 存 localStorage，写到 <html> 上的却只有解析后的
+   * light | dark 两档（深色 token 的选择器见 public/chrome.css）：CSS 只关心现在是哪档，
+   * 「跟随系统」是选择、不是一种配色。没选过（auto）时跟着系统实时变；显式选过就钉住，
+   * 系统再变也不动——那是访客当面推翻过的判断。
+   */
+  var THEME_STORE = 'fushi-theme';
+  var THEMES = ['light', 'dark'];
+  var darkMq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+  function readTheme() {
+    try {
+      var v = localStorage.getItem(THEME_STORE);
+      if (THEMES.indexOf(v) >= 0) return v;
+    } catch (_) { /* 隐私模式读不到 → 跟随系统 */ }
+    return 'auto';
+  }
+
+  /** auto → 系统当前那一档；显式选择原样返回。拿不到 matchMedia 的旧引擎按亮色。 */
+  function resolveTheme(choice) {
+    if (choice !== 'auto') return choice;
+    return darkMq && darkMq.matches ? 'dark' : 'light';
+  }
+
+  var themeChoice = readTheme();
+
+  function applyTheme() {
+    root.setAttribute('data-theme', resolveTheme(themeChoice));
+    syncThemeButtons();
+  }
+
+  /** 顶栏那颗钮：aria-pressed 就是「现在是不是深色」，图标由 CSS 按 <html data-theme> 换。 */
+  function syncThemeButtons() {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    var btns = document.querySelectorAll('.site-nav-theme');
+    for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', dark ? 'true' : 'false');
+  }
+
+  /** 点一下 = 切到当前看到的那档的反面，并记成显式选择。 */
+  function setTheme(choice) {
+    if (choice !== 'auto' && THEMES.indexOf(choice) < 0) return;
+    themeChoice = choice;
+    try {
+      if (choice === 'auto') localStorage.removeItem(THEME_STORE);
+      else localStorage.setItem(THEME_STORE, choice);
+    } catch (_) { /* 存不了不影响本次 */ }
+    applyTheme();
+    document.dispatchEvent(new CustomEvent('fushi:theme', { detail: { theme: resolveTheme(themeChoice), choice: themeChoice } }));
+  }
+
+  applyTheme();
+
+  // 没选过时跟着系统实时变（改系统外观时页面当场翻面，不用刷新）。
+  if (darkMq) {
+    var onSystemTheme = function () { if (themeChoice === 'auto') applyTheme(); };
+    if (darkMq.addEventListener) darkMq.addEventListener('change', onSystemTheme);
+    else if (darkMq.addListener) darkMq.addListener(onSystemTheme);
+  }
+
+  function wireThemeButtons() {
+    var btns = document.querySelectorAll('.site-nav-theme');
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].__fushiThemeWired) continue;
+      btns[i].__fushiThemeWired = true;
+      btns[i].addEventListener('click', function () {
+        setTheme(resolveTheme(themeChoice) === 'dark' ? 'light' : 'dark');
+      });
+    }
+    syncThemeButtons();
+  }
+
   var codes = LANGS.map(function (l) { return l[0]; });
   /**
    * 这一页烤在 HTML 里的语言：读 <html lang>。脚本在 <head> 里同步跑，html 起始标签已经解析，
@@ -454,6 +534,7 @@
   }
 
   function wireChrome() {
+    wireThemeButtons();
     wireLangMenus();
     var totop = document.querySelector('.site-totop');
     if (totop) {
@@ -493,6 +574,13 @@
     apply: function () { state.ready = apply(); return state.ready; },
     wire: wireChrome,
     detect: detect,
+  };
+
+  window.fushiTheme = {
+    get theme() { return resolveTheme(themeChoice); },
+    get choice() { return themeChoice; },
+    set: setTheme,
+    apply: applyTheme,
   };
 
   window.fushiStars = {
