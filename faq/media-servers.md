@@ -1,9 +1,9 @@
 ---
 title: "Jellyfin、Emby、Plex 是什么？和 Fushi 有什么关系？"
-description: "它们是「媒体服务器」：装在 NAS 或一台常开的电脑上，把硬盘里的视频整理成带海报的库，手机、电视、别的电脑都能连上去看。Fushi 可以直接当 Jellyfin / Emby 的客户端，也有自己的一套（互联）。"
+description: "它们是「媒体服务器」：装在 NAS 或一台常开的电脑上，把硬盘里的视频整理成带海报的库，手机、电视、别的电脑都能连上去看。Fushi 可以直接当 Jellyfin / Emby / Plex 的客户端，也有自己的一套（互联）。"
 category: "字幕与视频常识"
 order: 250
-date: 2026-09-20
+date: 2026-10-07
 ---
 
 ## 媒体服务器是什么
@@ -35,9 +35,9 @@ date: 2026-09-20
 ## 几个会碰到的词
 
 - **NAS**：网络存储，本质是一台装着很多硬盘、常年开机的小电脑（群晖、威联通、自己攒的）。媒体服务器最常装在上面。
-- **直接播放 vs 转码**：客户端能直接解码的文件，服务器就原样把文件流过去（direct play），几乎不耗 CPU；客户端不支持的格式（比如电视不认 HEVC 10-bit），服务器要实时转码成它认的格式，很吃 CPU / GPU。Fushi 用 libmpv，什么都能解，走的都是直接播放。
+- **直接播放 vs 转码**：客户端能直接解码的文件，服务器就原样把文件流过去（direct play），几乎不耗 CPU；客户端不支持的格式（比如电视不认 HEVC 10-bit），服务器要实时转码成它认的格式，很吃 CPU / GPU。Fushi 用 libmpv，什么都能解，播 Jellyfin / Emby / Plex 时一般都走直接播放。
 - **刮削器 / 元数据**：服务器认作品、拉海报的那一套，见[刮削是什么](/faq/scraping)。
-- **SMB / WebDAV / SFTP**：不是媒体服务器，是**网络共享文件夹**协议——只把硬盘上的目录共享出来，没有海报墙和进度，但胜在简单。Jellyfin 之类的服务器本身也常常是从一个 SMB 共享目录里读文件；Fushi 这边认的是 WebDAV（视频、书）和 SFTP / FTP（书）。
+- **SMB / WebDAV / SFTP**：不是媒体服务器，是**网络共享文件夹**协议——只把硬盘上的目录共享出来，没有海报墙和进度，但胜在简单。Jellyfin 之类的服务器本身也常常是从一个 SMB 共享目录里读文件；Fushi 这边认的是 WebDAV（视频、书）和 SFTP / FTP（书），另外也能接 AList / OpenList 这类网盘聚合站。
 - **OPDS**：书的那一边的标准。Calibre-Web、Komga、Kavita 这类书库 / 漫画库服务器通过 OPDS 目录把书列出来，阅读器连上去下载。
 - **DLNA**：老一代的局域网投放协议，电视和音箱都支持，功能很少，现在主要是兼容用。
 
@@ -45,9 +45,11 @@ date: 2026-09-20
 
 Fushi 不是媒体服务器，它是播放器 + 学习工具：**播放时点字幕上的词查词、制卡**才是它的核心。但它可以从这些地方拿视频：
 
-- **Jellyfin / Emby**：在 Fushi 里登录你的服务器，服务器上的视频直接出现在 Fushi 的视频库里，点了就串流播，字幕轨照样能点词，进度和服务器双向同步。配置方法见[怎么让 Fushi 播 Jellyfin / Emby 上的番剧](/faq/jellyfin-setup)。
+- **Jellyfin / Emby / Plex**：在 Fushi 里登录你的服务器，视频库的「媒体服务器」分区里按服务器自己的目录浏览，点了就串流播，字幕轨照样能点词，Jellyfin / Emby 的进度和服务器双向同步。配置方法见[怎么让 Fushi 播 Jellyfin / Emby / Plex 上的番剧](/faq/jellyfin-setup)。
 - **WebDAV**：视频来源里加一个 WebDAV 远程库，原地串流；书也能从 SFTP / FTP / WebDAV 远端书架读。
-- **OPDS**：在发现页里加 Calibre-Web、Komga、Kavita 这类服务器，浏览并下载书和漫画。
+- **AList / OpenList**：在 **设置 → 在线服务** 里加站点，浏览并下载上面的文件。
+- **Audiobookshelf**：自建的有声书服务器，同样在 **设置 → 在线服务** 里添加，浏览并下载上面的有声书。
+- **OPDS**：在 **设置 → 在线服务** 里加 Calibre-Web、Komga、Kavita 这类 OPDS 书目服务器，到「发现」页浏览并下载书和漫画。
 - **Fushi 互联**：不想装服务器的话，Fushi 自己就能当「主机」——电脑上的 Fushi 开一个开关，手机上的 Fushi 连上去看电脑的番剧、书、漫画，还能用电脑的词典和 Anki。见[Fushi 互联](/faq/interconnect)。
 
-Plex 目前不支持；Plex 用户可以把同一批文件用 WebDAV 共享出来给 Fushi 当远程库，或者在旁边再装一个 Jellyfin（两者可以指向同一个目录，互不干扰）。
+Plex 的登录方式和另外两家不一样：用 Plex 账号在浏览器里授权，或者手动填服务器地址和 X-Plex-Token，见[配置那篇](/faq/jellyfin-setup#plex)。

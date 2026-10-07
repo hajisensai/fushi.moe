@@ -3,7 +3,7 @@ title: "I can't follow yet — how do I use a secondary (bilingual) subtitle, an
 description: "Primary subtitle in Japanese for tapping words; a second track in your native language as a reference, blurred, revealed on hover only when you're lost. Once you can follow the plot, hide the secondary track; later blur the primary one too to train listening. Four steps, all in the player's subtitle settings."
 category: "Video"
 order: 81
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -30,7 +30,7 @@ The secondary track has its own:
 | 3. Subtitles read smoothly | **Blurred**, reveal on pause / hover | Hidden | Listening — check the subtitle only when you didn't catch it |
 | 4. Listening smoothly | Hidden | Hidden | Pure listening, occasionally verify in the subtitle list |
 
-The settings live under **Video settings → Subtitles**: "Obscure" for the primary track and "Secondary subtitle obscure" for the secondary each offer off / blur / hide; "Reveal on pause or hover" decides whether a blurred subtitle shows temporarily when you pause, look up, hover (desktop) or tap (mobile). During playback the shortcuts **Cycle secondary subtitle obscure** and **Hide secondary subtitle** switch on the fly.
+The settings live under **Video settings → Subtitles**: "Obscure subtitles" for the primary track and "Obscure secondary subtitle" for the secondary each offer off / blur / hide; "Reveal when paused or hovered" decides whether a blurred subtitle shows temporarily when you pause, look up, hover (desktop) or tap (mobile). During playback the shortcuts **Cycle secondary subtitle obscure** and **Hide secondary subtitle** switch on the fly.
 
 Don't follow the table rigidly: the first episodes of a show at stage 1, drifting into stage 2 as you go, then back a step for a harder show — all normal.
 
@@ -45,4 +45,4 @@ Don't follow the table rigidly: the first episodes of a show at stage 1, driftin
 
 - **No track to choose in the secondary menu**: there's no second-language subtitle file in the folder and the mkv has a single track; find one on [Jimaku](https://jimaku.cc) or similar, or just go without.
 - **The two tracks don't line up**: give the secondary track its own offset.
-- **It's blurred but shows whenever I pause**: that's "Reveal on pause or hover" doing its job — turn it off to keep it blurred no matter what.
+- **It's blurred but shows whenever I pause**: that's "Reveal when paused or hovered" doing its job — turn it off to keep it blurred no matter what.

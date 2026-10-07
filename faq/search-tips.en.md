@@ -1,9 +1,9 @@
 ---
 title: "Can't find an anime or manga? Search in romaji or Japanese"
-description: "On the index sites Fushi uses (Nyaa and friends) release titles are almost always romaji (Sousou no Frieren), then the Japanese original; translated titles rarely match. In anime downloads pick the show first and the Nyaa query fills itself with the original title / aliases; when editing it yourself: romaji > kana / kanji > English, never a local translation."
+description: "On the index sites Fushi uses (Nyaa and friends) release titles are almost always romaji (Sousou no Frieren), then the Japanese original; translated titles rarely match. In Fushi you find the work first and the resource search uses its original title / aliases automatically; when editing the query yourself: romaji > kana / kanji > English, never a local translation."
 category: "Downloads"
 order: 97
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -23,12 +23,12 @@ The same show may appear in all three spellings, but **romaji is by far the most
 
 ## Searching in Fushi
 
-**Anime downloads** is two steps: first find the **show**, then the **releases**.
+Downloading anime in Fushi is always two steps: first find the **work**, then the **releases**.
 
-1. The show search uses AniList, which finds entries by English, Japanese, romaji or Chinese titles;
-2. once you select the show, the **Nyaa query** below is filled with its **original title / aliases** (romaji and Japanese) — just search.
+1. The first step searches metadata databases (the search box in **Browse → Discover**, backed by AniList / TMDB and others), which find entries by English, Japanese, romaji or Chinese titles;
+2. on the work's page, "Search resources" queries the index sites with the work's **original title / aliases** (romaji and Japanese) — no query to write. The "Anime download" dialog that opens when you fill in episodes of a collection works the same way: once the show is selected, the **Nyaa search terms** are filled with its original title — just search.
 
-If results are too few or too noisy, edit the query yourself. Rules of thumb:
+If results are too few or too noisy (in the "Anime download" dialog), edit the query yourself. Rules of thumb:
 
 - **Romaji first**: `Sousou no Frieren`, `Kimetsu no Yaiba`. The "Romaji" title on AniList is the spelling index sites use most.
 - **Japanese original second**: `葬送のフリーレン` — Japanese BD groups and some fansubbers use it.
@@ -49,5 +49,5 @@ No need to learn the rules — two shortcuts:
 ## Common situations
 
 - **Show found, zero releases**: try a shorter query; very old or obscure shows may have 0 seeders — see [the BT article](/faq/bittorrent.en#common-situations).
-- **Results are all subbed**: use the "raw" filter, or add `raw` to the query.
+- **Results are all subbed**: pick the "Raw" filter in the "Anime download" dialog, or add `raw` to the query.
 - **Manga only shows serialised chapters, no volumes**: volumes on Nyaa are usually written `第01巻` / `v01`; try the Japanese title plus `巻`.

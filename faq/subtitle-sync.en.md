@@ -1,9 +1,9 @@
 ---
 title: "Subtitles don't line up with the picture (early or late) — what do I do?"
-description: "Subtitles off by a fixed few seconds throughout means subtitle and video are different versions (BD vs. WEB, with or without the OP); drift that grows over the episode means different frame rates. Fushi's player has \"Subtitle sync\" with a slider, auto-align and waveform alignment, remembered per episode."
+description: "Subtitles off by a fixed few seconds throughout means subtitle and video are different versions (BD vs. WEB, with or without the OP); drift that grows over the episode means different frame rates. Fushi's player has \"Subtitle sync\" with a slider, auto-align and waveform alignment, remembered per episode; the subtitle menu can also align to embedded subtitles or retime line by line with a speech model."
 category: "Subtitles & video basics"
 order: 240
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -30,14 +30,20 @@ The player's quick settings have **Subtitle sync**:
 
 The offset is **remembered per episode**: switching episodes or reopening keeps it. Mining also cuts audio and picture with the offset applied, so cards never grab the neighbouring line.
 
+The player's **subtitle menu** has two more alignment tools:
+
+- **Align to embedded subtitles** (local videos): when the video carries its own text subtitle track (even an English one), its line onsets are used as the reference to time your external subtitle. If they don't match (wrong episode, different cut) nothing changes. When anime downloads match subtitles for a video with an embedded track, they have already been aligned this way once.
+- **Retime with speech model**: on-device speech recognition listens to the episode and retimes every line, producing a new subtitle file — it fixes fixed offsets as well as the frame-rate drift and segment shifts below, without changing a single character of the text or its order. You need to download a speech model and pick the right speech language first, and a full episode takes a while.
+
 ## Still drifting after alignment
 
 Then it's the frame rate and a fixed offset won't save it. Options:
 
+- try **Retime with speech model** in the subtitle menu first — it times every line instead of relying on one offset;
 - get a subtitle on [Jimaku](https://jimaku.cc) **for your video's version** — entries often list both BD and WEB versions and the filename says which;
 - or get the video version that matches the subtitle;
 - to fix it yourself, use [Aegisub](https://aegisub.org/) or [Subtitle Edit](https://www.nikse.dk/subtitleedit): "frame rate conversion" or "two-point sync" stretches the subtitle to the right length; then put it back.
 
 ## Picking the right version up front saves the trouble
 
-If the subtitle Fushi's anime downloads matched with "With subtitles" doesn't fit, add one by hand: check whether the release name says **BDRip** or **WEB-DL** ([reading release names](/faq/release-names.en)) and import the matching version from Jimaku.
+If the subtitle Fushi's anime downloads matched with "Include subtitles" doesn't fit, add one by hand: check whether the release name says **BDRip** or **WEB-DL** ([reading release names](/faq/release-names.en)) and import the matching version from Jimaku.

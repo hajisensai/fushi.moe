@@ -3,7 +3,7 @@ title: "Glossary: what do the words in these articles mean?"
 description: "Immersion, SRS, mining, raw, furigana, pitch accent, frequency, monolingual dictionary, OCR, transcription, hook, scraping, seeding, extension / source / repository, interconnect, debug build… grouped by topic, one line each. Come back here whenever another article uses a word you don't know."
 category: "About Fushi"
 order: 35
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -36,10 +36,10 @@ Grouped by topic, a sentence or two each. Linked terms have a whole article.
 
 - **Lookup popup**: the dictionary window that opens when you tap a word — definitions, pitch accent, frequency, audio and the plus all live in it.
 - **Yomitan**: the browser lookup extension (formerly Yomichan); its dictionary format became the de facto standard and Fushi reads it directly. [What Shift lookup is](/faq/browser-lookup.en).
-- **Yomitan dictionaries / MDX / DSL**: the three dictionary formats Fushi accepts, [how to import them](/faq/dictionaries.en).
+- **Yomitan dictionaries / MDX / DSL / StarDict**: the dictionary formats Fushi accepts, [how to import them](/faq/dictionaries.en).
 - **Recommended pack**: the 9.5 GB one-tap download in onboarding — dictionaries, pitch accent, frequency, pronunciation library. [Can I skip it](/faq/pack.en).
 - **Pronunciation library / audio sources**: where the word audio behind the speaker button comes from; local libraries and online sources can both be configured.
-- **Global lookup**: select text in another app and call Fushi's lookup with a shortcut (Windows) or the text menu (Android).
+- **Global lookup**: select text in another app and call Fushi's lookup with a shortcut (Windows / macOS) or the text menu / floating ball (Android).
 - **Deinflection**: turning 食べなかった back into 食べる before looking it up. Dictionaries list base forms; this is why any inflected form still finds the entry.
 
 ## Subtitles and video
@@ -53,7 +53,7 @@ Grouped by topic, a sentence or two each. Linked terms have a whole article.
 - **BDRip / WEB-DL / TVRip, release group, batch**: where a release came from and how it was published. [Reading release names](/faq/release-names.en).
 - **Scraping**: recognising a show from its filename and fetching poster, synopsis and episode list from the web. [What it is and how to use it](/faq/scraping.en).
 - **Metadata**: the data scraping brings back. **NFO**: the file format that stores it next to the video; Jellyfin / Kodi read it too.
-- **Jellyfin / Emby / Plex**: media servers that live on a NAS and stream video to your devices. [What they are](/faq/media-servers.en), [how to connect](/faq/jellyfin-setup.en).
+- **Jellyfin / Emby / Plex**: media servers that live on a NAS and stream video to your devices; Fushi connects to all three directly. [What they are](/faq/media-servers.en), [how to connect](/faq/jellyfin-setup.en).
 - **Streaming / transcoding**: playing while transferring / the server converting video in real time into something the client can play.
 
 ## Manga and books
@@ -67,10 +67,12 @@ Grouped by topic, a sentence or two each. Linked terms have a whole article.
 
 ## Online sources and downloads
 
-- **Extension / source / repository**: an extension is an APK containing one or more online sources (adapters for a website); a repository is the address listing installable extensions. Fushi is compatible with **Mihon** (manga) and **Aniyomi** (video) extensions. [Installing them](/faq/mihon.en).
+- **Extension / source / repository**: an extension is an APK containing one or more online sources (adapters for a website); a repository is the address listing installable extensions. Fushi is compatible with **Mihon** (manga) and **Aniyomi** (video) extensions, and uses **LNReader** plugins for novels. [Installing them](/faq/mihon.en).
 - **Stream (hoster)**: the different playback origins for the same episode in a video source, varying in quality and availability.
 - **BT / torrent / magnet link / seeding / tracker / DHT**: all explained in [the BT article](/faq/bittorrent.en).
-- **Nyaa**: the largest index of Japanese anime releases and the default search source in Fushi's anime downloads; **Torznab**: a unified index-site API provided by Jackett / Prowlarr.
+- **Nyaa**: the largest index of Japanese anime releases and Fushi's default source when searching anime releases; **Torznab**: a unified index-site API provided by Jackett / Prowlarr.
+- **Browse**: a bottom-bar module holding Discover, online sources, extensions and download tasks (absent on iOS).
+- **AI download**: tell an AI the title and it finds the work, picks a release and downloads or subscribes, using an AI provider you configure. [How it works](/faq/ai-download.en).
 - **qBittorrent**: a common BT client that Fushi can drive externally.
 - **Subscription**: having Fushi check for new episodes periodically and download them automatically.
 - **AniList / MAL / AniDB / VNDB / Bangumi**: databases of works that Fushi uses to identify shows, fetch details and record progress.
@@ -85,9 +87,9 @@ Grouped by topic, a sentence or two each. Linked terms have a whole article.
 
 ## Fushi's own
 
-- **Interconnect**: direct LAN connection between Fushi devices, one as the **host** sharing its library, the others as **clients**. [Setting it up](/faq/interconnect.en).
-- **fushi_server**: a Fushi host without a GUI, run on a NAS.
+- **Interconnect**: direct connection between Fushi devices, one as the **host** sharing its library, the others as **clients**; LAN at home, and from outside it picks a working route automatically or goes through a P2P tunnel. [Setting it up](/faq/interconnect.en).
+- **fushi_server / Fushi server**: a Fushi host without a GUI, run on a NAS or server, that downloads, transcribes and OCRs for your devices.
 - **Stable / debug**: the two download channels; debug gets new features first. [The difference](/faq/channels.en).
-- **Onboarding**: the setup wizard on first launch; rerun it from Settings → System.
+- **Onboarding**: the setup wizard on first launch; rerun it from Settings → System and about.
 - **Browser extension**: Fushi's own extension for lookups on any web page. [Shift lookup](/faq/browser-lookup.en).
 - **Cloud backup / Sync & backup**: backing data up to Google Drive / WebDAV or a local file, [where your data lives](/faq/data.en).

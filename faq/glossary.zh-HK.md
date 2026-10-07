@@ -3,7 +3,7 @@ title: "名詞解釋：這些文章裡的詞都是什麼意思？"
 description: "沉浸、SRS、制卡、生肉、振假名、音調、詞頻、日日詞典、OCR、轉錄、hook、刮削、做種、擴充套件 / 源 / 倉庫、互聯、除錯版……按主題分組，一句話一個，看別的文章遇到不懂的詞回來查。"
 category: "關於 Fushi"
 order: 35
-date: 2026-09-20
+date: 2026-10-07
 lang: zh-HK
 ---
 
@@ -36,10 +36,10 @@ lang: zh-HK
 
 - **查詞彈窗**：點詞後彈出的詞典視窗，釋義、音調、詞頻、發音、加號都在裡面。
 - **Yomitan**：瀏覽器查詞擴充套件（前身 Yomichan），它的詞典格式成了事實標準，Fushi 直接用。[Shift 查詞是什麼](/faq/browser-lookup.zh-HK)。
-- **Yomitan 詞典 / MDX / DSL**：Fushi 認的三種詞典格式，[怎麼匯入](/faq/dictionaries.zh-HK)。
+- **Yomitan 詞典 / MDX / DSL / StarDict**：Fushi 認的幾種詞典格式，[怎麼匯入](/faq/dictionaries.zh-HK)。
 - **推薦包**：新手引導裡一鍵下載的那 9.5 GB：詞典、音調、詞頻、發音庫。[能不能不裝](/faq/pack.zh-HK)。
 - **發音庫 / 音訊來源**：查詞時點喇叭放的單詞讀音從哪來；本地發音庫和線上來源都可以配。
-- **全域性查詞**：在別的應用裡選中文字，用快捷鍵（Windows）或文字選單（Android）叫出 Fushi 查詞。
+- **全域性查詞**：在別的應用裡選中文字，用快捷鍵（Windows / macOS）或文字選單、懸浮球（Android）叫出 Fushi 查詞。
 - **變形還原**：把「食べなかった」還原成「食べる」再查。詞典按原形收詞，點到哪個形態都能查到靠的是它。
 
 ## 字幕與影片
@@ -53,7 +53,7 @@ lang: zh-HK
 - **BDRip / WEB-DL / TVRip、字幕組、合集**：資源來源和釋出形式。[資源名怎麼看](/faq/release-names.zh-HK)。
 - **刮削**：按檔名認出作品，去網上拉海報、簡介、集列表。[是什麼、怎麼用](/faq/scraping.zh-HK)。
 - **後設資料（metadata）**：刮削拉回來的那些資料。**NFO**：把它們存在影片旁邊的檔案格式，Jellyfin / Kodi 也認。
-- **Jellyfin / Emby / Plex**：媒體伺服器，裝在 NAS 上把影片串流給各裝置。[是什麼](/faq/media-servers.zh-HK)、[怎麼接](/faq/jellyfin-setup.zh-HK)。
+- **Jellyfin / Emby / Plex**：媒體伺服器，裝在 NAS 上把影片串流給各裝置，三家 Fushi 都能直接接。[是什麼](/faq/media-servers.zh-HK)、[怎麼接](/faq/jellyfin-setup.zh-HK)。
 - **串流 / 轉碼**：邊傳邊播 / 伺服器即時把影片轉成客戶端認的格式。
 
 ## 漫畫與書
@@ -67,10 +67,12 @@ lang: zh-HK
 
 ## 線上源與下載
 
-- **擴充套件（extension）/ 源（source）/ 倉庫（repo）**：擴充套件是一個 APK 檔案，裡面裝著若干線上源（某網站的介面卡）；倉庫是列出可安裝擴充套件的地址。Fushi 相容 **Mihon**（漫畫）和 **Aniyomi**（影片）的擴充套件。[怎麼裝](/faq/mihon.zh-HK)。
+- **擴充套件（extension）/ 源（source）/ 倉庫（repo）**：擴充套件是一個 APK 檔案，裡面裝著若干線上源（某網站的介面卡）；倉庫是列出可安裝擴充套件的地址。Fushi 相容 **Mihon**（漫畫）和 **Aniyomi**（影片）的擴充套件，小說用 **LNReader** 外掛。[怎麼裝](/faq/mihon.zh-HK)。
 - **線路（hoster）**：影片源裡同一集的不同播放來源，畫質、可用性各異。
 - **BT / 種子 / 磁力連結 / 做種 / Tracker / DHT**：[BT 那篇](/faq/bittorrent.zh-HK)全講了。
-- **Nyaa**：最大的日本動漫資源索引站，Fushi 番劇下載的預設搜尋來源；**Torznab**：統一的索引站介面，Jackett / Prowlarr 提供。
+- **Nyaa**：最大的日本動漫資源索引站，Fushi 搜番劇資源的預設來源；**Torznab**：統一的索引站介面，Jackett / Prowlarr 提供。
+- **瀏覽**：底欄的一個模組，發現、線上源、擴充套件、下載任務都在這裡（iOS 版沒有）。
+- **AI 下載**：跟 AI 說作品名，讓它找作品、挑版本、下載或訂閱，用的是你自己配的 AI 提供商。[怎麼用](/faq/ai-download.zh-HK)。
 - **qBittorrent**：常見的 BT 客戶端，Fushi 可以外接它。
 - **訂閱 / 追更**：讓 Fushi 定期檢查有沒有新集，自動下載。
 - **AniList / MAL / AniDB / VNDB / Bangumi**：作品資料庫，Fushi 用它們認作品、拉資料、記進度。
@@ -85,9 +87,9 @@ lang: zh-HK
 
 ## Fushi 自己的
 
-- **互聯**：Fushi 裝置之間的區域網直連，一臺當**主機**開放庫，其他當**客戶端**。[怎麼配](/faq/interconnect.zh-HK)。
-- **fushi_server**：沒有介面的 Fushi 主機，跑在 NAS 上。
+- **互聯**：Fushi 裝置之間的直連，一臺當**主機**開放庫，其他當**客戶端**；在家走區域網，出門也能自動選路或經 P2P 隧道連回來。[怎麼配](/faq/interconnect.zh-HK)。
+- **fushi_server / Fushi 服務端**：沒有介面的 Fushi 主機，跑在 NAS 或伺服器上，能替你的裝置下載、轉錄、OCR。
 - **正式版 / 除錯版**：兩個下載渠道，除錯版先拿到新功能。[區別](/faq/channels.zh-HK)。
-- **新手引導**：第一次啟動的配置嚮導，設定 → 系統 裡能重跑。
+- **新手引導**：第一次啟動的配置嚮導，設定 → 系統與關於 裡能重跑。
 - **瀏覽器擴充套件**：Fushi 自帶的、在任意網頁查詞的擴充套件。[Shift 查詞](/faq/browser-lookup.zh-HK)。
 - **雲備份 / 同步與備份**：把資料備份到 Google Drive / WebDAV 或本地檔案，[資料存在哪](/faq/data.zh-HK)。

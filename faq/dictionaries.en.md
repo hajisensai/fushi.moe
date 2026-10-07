@@ -1,17 +1,18 @@
 ---
 title: "How do I import dictionaries (Yomitan / MDX)? Which kinds do I need for Japanese?"
-description: "Fushi reads Yomitan dictionary zips, MDict .mdx / .mdd and Lingvo .dsl; the recommended pack already sets up vocabulary, pitch-accent and frequency dictionaries plus a pronunciation library. Adding your own: one or two monolingual dictionaries, one bilingual, one pitch accent, one frequency, one grammar — too many just slows lookups down. The pronunciation library uses the same database as Yomitan's local audio server."
+description: "Fushi reads Yomitan dictionary zips, MDict .mdx / .mdd, Lingvo .dsl and StarDict; the recommended pack already sets up vocabulary, pitch-accent and frequency dictionaries plus a pronunciation library. Adding your own: one or two monolingual dictionaries, one bilingual, one pitch accent, one frequency, one grammar — too many just slows lookups down. The pronunciation library uses the same database as Yomitan's local audio server."
 category: "Setup"
 order: 52
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
-Fushi accepts three dictionary formats, all imported as-is with no conversion:
+Fushi accepts these dictionary formats, all imported as-is with no conversion:
 
 - **Yomitan (Yomichan) dictionary zips** — the common format of the browser lookup ecosystem; every dictionary collection prepared for Yomitan works in Fushi;
 - **MDict `.mdx`** — the format used by the huge library of GoldenDict / Eudic / DictTango dictionaries; ones with images or audio come with a same-named `.mdd`, select it too;
-- **Lingvo `.dsl`**.
+- **Lingvo `.dsl`**;
+- **StarDict**.
 
 Yomitan dictionaries have the richest structured fields (pitch accent, frequency, inflections); MDX wins on sheer volume — many monolingual and bilingual dictionaries only exist as MDX.
 
@@ -28,11 +29,13 @@ If all you do is watch anime and read in Japanese, the pack lasts a long time; t
 
 ## Adding your own
 
-**Settings → Dictionaries**, import from file (multi-select is fine, import runs in the background), or drag `.zip` / `.mdx` / `.dsl` files straight onto the dictionaries page; the CSS that ships with an MDX dictionary must be imported together with the dictionary package. Imported dictionaries are grouped by category — monolingual / Japanese–English / bilingual / grammar / frequency / kanji / names / supplementary — and each can be:
+**Settings → Lookup → Dictionaries**, import from file (multi-select is fine, import runs in the background), or drag `.zip` / `.mdx` / `.dsl` files straight onto the dictionaries page; the CSS that ships with an MDX dictionary must be imported together with the dictionary package. Imported dictionaries are grouped by category — monolingual / Japanese–English / bilingual / grammar / frequency / kanji / names / supplementary — and each can be:
 
 - **reordered**: definitions appear in the popup in this order, so put the ones you read most first;
 - **hidden**: ones you don't need for now aren't loaded and don't cost lookup time;
 - **collapsed**: folded by default, open on tap.
+
+Don't want to hunt for files? **Download dictionaries** in dictionary management lets you pick ready-made dictionaries by "Learning language" and "Your language" and download them in one go. Dictionaries that declare an online update URL (most Yomitan ones do) can all be refreshed with **Update all dictionaries**.
 
 How many is enough? Yomitan power users run seventy or eighty, but every extra dictionary makes lookups a bit slower and the popup a bit longer. A set that gets you far:
 
@@ -63,4 +66,4 @@ With "Auto-play audio on lookup" on, the popup plays the first source's pronunci
 - **MDX dictionary has no images / audio**: the same-named `.mdd` was left out; import it again.
 - **Lookups got slow / popup too long**: hide dictionaries you don't use, or collapse them.
 - **The same word repeated across several dictionaries**: move bilingual ones to the end and collapse them; read the monolingual entry first.
-- **Fonts, colours, layout in the popup**: styles are under Settings → Lookup and can be set per dictionary.
+- **Fonts, colours, layout in the popup**: "Dictionary styling" under Settings → Lookup, settable per dictionary; "Unify dictionary styles" (on by default) recolours the tags, emphasis and borders that imported dictionaries bring with them to the current theme's accent — turn it off to keep each dictionary's own look.

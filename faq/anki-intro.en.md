@@ -3,7 +3,7 @@ title: "What is Anki? Which one do I install? What does a card look like and how
 description: "Anki is free spaced-repetition software: Fushi turns words you look up into cards, Anki schedules the reviews around how you forget. On desktop install the official build from apps.ankiweb.net (outdated third-party downloads break imports), AnkiDroid on Android, the paid AnkiMobile on iOS. Includes what the Lapis card front and back show and the daily review routine."
 category: "Anki & mining"
 order: 56
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -47,7 +47,7 @@ Your job: look at the word and recall its reading and meaning. **The front is de
 - **definition**: the entry from the dictionary you picked (monolingual first by default);
 - frequency and other helper info.
 
-Where the sentence, picture and audio sit on the back and how they're highlighted is adjusted in Fushi's **Anki settings** under the Lapis appearance options — no need to touch Anki's template code. Lapis itself also supports "sentence cards" (the whole sentence on the front, guess the bolded word); that's a template-field switch for later.
+Where the sentence, picture and audio sit on the back and how they're highlighted is adjusted in Fushi's **Settings → Card creation** under "Lapis card style" — no need to touch Anki's template code. Lapis itself also supports "sentence cards" (the whole sentence on the front, guess the bolded word); that's a template-field switch for later.
 
 ## The daily review
 
@@ -62,5 +62,5 @@ Where the sentence, picture and audio sit on the back and how they're highlighte
 
 - **Deck import error / "unsupported file format"**: an outdated Anki from a third-party site; reinstall the latest from the official site.
 - **Fushi says it can't reach Anki**: on desktop, Anki must be running with AnkiConnect installed; for phones see [connecting Anki](/faq/anki.en).
-- **Cards arrive empty / fields shifted**: re-map the fields in Fushi's Anki settings, or just let Fushi recreate the Lapis deck.
+- **Cards arrive empty / fields shifted**: re-map the fields in Fushi's **Settings → Card creation**, or just let Fushi recreate the Lapis deck.
 - **Reviews piled up to hundreds**: lower new cards, turn on [FSRS](/faq/anki-basics.en), then carry on as normal — a backlog is what a broken habit looks like, not a software problem.

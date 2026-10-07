@@ -3,7 +3,7 @@ title: "External, embedded, burned-in subtitles: which ones can Fushi look up?"
 description: "External = a separate subtitle file next to the video; embedded = a switchable subtitle track packed inside the mkv / mp4; burned-in = text painted into the picture. The first two are text and support lookups and mining; burned-in is just pixels."
 category: "Subtitles & video basics"
 order: 200
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -12,7 +12,7 @@ Where a subtitle lives decides whether it is "text" or "picture" — and that is
 | | Where | Switchable | Is it text | Fushi lookups |
 |---|---|---|---|---|
 | **External** | A separate file next to the video (`.srt` / `.ass`…) | Yes | Yes | ✅ |
-| **Embedded** | A subtitle track packed inside the mkv / mp4 container | Yes | Usually | ✅ (text track) / ❌ (graphic track) |
+| **Embedded** | A subtitle track packed inside the mkv / mp4 container | Yes | Usually | ✅ (text track) / OCR lookup when paused (graphic track) |
 | **Burned-in** | Painted into the video frames | No | No — pixels | ❌ |
 
 ## External subtitles
@@ -36,7 +36,7 @@ The subtitle is **a track packed inside the container**, alongside the video and
 There are two kinds of embedded track, and the difference is big:
 
 - **Text tracks** (ASS / SRT / WebVTT / mov_text): still text underneath. When Fushi opens a video it enumerates every subtitle track in the container; select one and it's extracted with ffmpeg and behaves exactly like an external file, lookups included.
-- **Graphic tracks** (PGS, VobSub): Blu-ray and DVD subtitles are **bitmap images**, one per line, with no text. Fushi shows them as on-screen subtitles but can't look them up — the subtitle menu labels such tracks "Graphic subtitle · on-screen only · no lookups".
+- **Graphic tracks** (PGS, VobSub): Blu-ray and DVD subtitles are **bitmap images**, one per line, with no text. Fushi shows them as on-screen subtitles, and the subtitle menu labels such tracks "Graphic subtitle · shown on video · pause to look up words (OCR)": **pause** and Fushi OCRs the text on screen so you can tap it to look up; to look up while playing, "Convert to text subtitles (OCR)" recognises the whole track once, after which it works like a text track. "Generate subtitles with speech recognition" in the subtitle menu can also build a text subtitle from the audio.
 
 Self-made BDRips and fansub mkvs mostly carry text tracks; files remuxed straight from a Blu-ray often have only PGS.
 
@@ -44,7 +44,7 @@ Self-made BDRips and fansub mkvs mostly carry text tracks; files remuxed straigh
 
 The subtitle was **painted into the frames during encoding** and is as much a part of the picture as the characters and backgrounds: can't be turned off, swapped or extracted, and there's no text to get. Streaming rips with translation subs and many online sites' videos are like this.
 
-To Fushi a burned-in subtitle is just an image, no lookups. To look words up on such a video the only option is an external subtitle on top ([Jimaku](https://jimaku.cc) has Japanese subtitles for most anime); the original text stays in the picture and the two layers overlap.
+To Fushi a burned-in subtitle is just an image, no lookups. To look words up on such a video you need a separate text subtitle: an external subtitle ([Jimaku](https://jimaku.cc) has Japanese subtitles for most anime), or one generated from the audio with "Generate subtitles with speech recognition" in the subtitle menu. The original text stays in the picture and the two layers overlap.
 
 ## Why the names get mixed up
 

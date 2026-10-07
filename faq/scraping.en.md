@@ -1,9 +1,9 @@
 ---
 title: "What is scraping, and how does Fushi's scraping work?"
-description: "Scraping = working out which show a file is from its name, then pulling the poster, synopsis, rating and episode list from an online database. Video sources set to \"By series\" scrape automatically — MAL first, TMDB as fallback — and anything uncertain waits under \"Pending confirmation\" for you to pick; books, manga and games can scrape covers and details too."
+description: "Scraping = working out which show a file is from its name, then pulling the poster, synopsis, rating and episode list from an online database. Video sources set to \"By series\" scrape automatically — AniDB as the primary source by default (following Shoko's approach) with TMDB filling in, or MAL / TMDB as primary if you prefer — and anything uncertain waits under \"Pending confirmation\" for you to pick; books, manga and games can scrape covers and details too."
 category: "Video"
 order: 85
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -23,7 +23,7 @@ The term comes from media-library software like Jellyfin / Plex / Kodi (a "scrap
 
 | Type | Data source | What you get |
 |---|---|---|
-| **Video** (anime, series, films) | MAL (via Jikan) first, TMDB as fallback; optional AniDB file recognition | poster, synopsis, rating, season / episode lists, airing info |
+| **Video** (anime, series, films) | AniDB first by default (titles plus optional file-hash recognition), TMDB adds posters and synopses; MAL or TMDB can be primary instead | poster, synopsis, rating, season / episode lists, airing info |
 | **Books, manga** | Bangumi | cover |
 | **Games** (galgame) | VNDB, Bangumi | cover, synopsis, release date and more |
 
@@ -49,6 +49,8 @@ The **Background tasks** panel on the video source page has three tabs: **Curren
 
 A wrongly scraped show can be fixed too: collection menu → **Re-scrape details and cover** → pick the right entry. A manual binding is protected — later automatic runs won't change it; covers you set yourself (a local image you chose, a poster that came with the folder) are never overwritten either.
 
+If a single episode lands on the wrong season / episode, use **Pin to season/episode…** in that episode's menu; the pin is kept on every later scrape. Several seasons mixed into one collection? The collection menu has **Split by season**.
+
 ## Naming files so they're recognised
 
 Fushi's filename parser follows the Jellyfin / anitomy line: it strips fansub tags, quality and codec, and understands `S01E01`, `第2季`, `2nd Season`, `Season 2`. A reliable layout:
@@ -72,9 +74,9 @@ A few rules of thumb:
 
 ## Advanced settings
 
-All under **Settings → Services → Metadata scraping** and each source's **Source scrape settings**:
+Primary source, identifier words and metadata language are under **Settings → Video → Library**; the AniDB account and TMDB API key are under **Settings → Online services → Metadata scraping**; and each source has its own **Source scrape settings**:
 
-- **Primary provider**: MAL by default; when the primary has no single hit the other is asked automatically. The metadata language (synopsis, TMDB poster language) can be set per source.
+- **Primary metadata source**: AniDB (hash identity + anime XML) by default, with seasons and episodes organised the AniDB way and TMDB always supplementing; MAL (via Jikan) or TMDB can be chosen instead. When the primary has no single exact hit or is unavailable, another source fills in automatically. Switching the primary source doesn't re-identify works that are already recognised. The metadata language (synopsis, TMDB poster language) can be set per source.
 - **Identifier rules**: rewrite filenames before recognition, one rule per line — blocking is a plain regex; replacement `A => B`; episode offset `before <> after >> EP+1` (for example shifting a second season that numbers from 13 back to 1).
 - **Recognise files via AniDB ED2K**: identify show and episode from the file's hash on AniDB — works however mangled the filename is. Needs your own AniDB account; AniDB's UDP login is unencrypted, so only enable it on a trusted network.
 - **TMDB API key**: one is built in; enter your own only if scraping breaks or you want your own quota.
@@ -95,7 +97,7 @@ When a phone watches remote videos from a PC host, the host's scraped data is au
 ## Common situations
 
 - **Wrong show recognised**: pick it manually under pending confirmation / re-scrape; for a filename that keeps failing, add an identifier rule.
-- **One show split into several**: usually inconsistent season / episode notation in the filenames (`S02E01` here, `- 13` there) — unify them or use the episode offset rule.
+- **One show split into several**: usually inconsistent season / episode notation in the filenames (`S02E01` here, `- 13` there) — unify them or use the episode offset rule; pin individual episodes with "Pin to season/episode…".
 - **Poster in the wrong language**: change the source's "Metadata language".
-- **Search fails / rate limited**: MAL via Jikan is rate limited, so bulk scraping being a bit slow is normal; if it can't connect, configure a proxy in settings.
+- **Search fails / rate limited**: AniDB and MAL (via Jikan) are both rate limited, and AniDB temporarily bans clients that ask too often, so bulk scraping being a bit slow is normal; if it can't connect for now, try again a bit later.
 - **Scraping vs. "Bangumi sync"**: scraping pulls data in; Bangumi sync pushes your watching / reading progress to your Bangumi account.

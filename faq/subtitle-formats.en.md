@@ -3,7 +3,7 @@ title: "SRT, ASS, VTT — what's the difference between subtitle formats?"
 description: "SRT is just timings and text, the simplest and most universal; ASS adds fonts, colours, positions and effects and is the fansub standard; VTT is the web version of SRT. Fushi reads all of them, and lookups and cards use the plain text with styling stripped."
 category: "Subtitles & video basics"
 order: 210
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -62,4 +62,4 @@ So for Japanese, **don't choose by format** — choose by content: one Japanese 
 
 ## Aside: graphic subtitles
 
-PGS (Blu-ray) and VobSub (DVD) aren't text but bitmaps and have no "format" to speak of — Fushi can display them but not look them up; see [external, embedded and burned-in subtitles](/faq/subtitle-types.en#embedded-subtitles).
+PGS (Blu-ray) and VobSub (DVD) aren't text but bitmaps and have no "format" to speak of — Fushi displays them and, once you pause, OCRs them so you can tap to look up, or converts the whole track to a text subtitle with OCR; see [external, embedded and burned-in subtitles](/faq/subtitle-types.en#embedded-subtitles).

@@ -3,7 +3,7 @@ title: "Fushi 是免費的嗎？"
 description: "是。GPLv3 開源，所有功能免費，沒有內購和訂閱。"
 category: "關於 Fushi"
 order: 10
-date: 2026-09-19
+date: 2026-10-07
 lang: zh-HK
 ---
 
@@ -20,5 +20,7 @@ lang: zh-HK
 -->
 
 是。Fushi 以 [GPLv3](https://www.gnu.org/licenses/gpl-3.0.html) 許可開源，所有功能都免費，沒有內購、訂閱或付費解鎖；程式碼在 [GitHub](https://github.com/hajisensai/Fushi) 公開，可以自己審閱、自己構建。
+
+唯一可能花錢的是可選的 AI 功能：Fushi 不提供 AI 服務，用的是你自己在 設定 → AI 裡配的提供商，費用由那家提供商收（也可以接本機跑的模型），不用 AI 不影響其他功能，見[AI 下載是什麼？](/faq/ai-download.zh-HK)。
 
 如果它對你有幫助，歡迎通過 [GitHub Sponsors](https://github.com/sponsors/hajisensai) 贊助，幫助承擔開發、分發與維護成本。
