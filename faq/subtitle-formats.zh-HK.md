@@ -3,7 +3,7 @@ title: "SRT、ASS、VTT 這些字幕格式有什麼區別？"
 description: "SRT 只有時間和文字，最簡單最通用；ASS 帶字型、顏色、位置、特效，字幕組的標配；VTT 是網頁版 SRT。Fushi 四種都能讀，查詞制卡用的是去掉樣式後的純文字。"
 category: "字幕與影片常識"
 order: 210
-date: 2026-09-20
+date: 2026-10-07
 lang: zh-HK
 ---
 
@@ -62,4 +62,4 @@ Fushi 拿到字幕後做的第一件事是**把樣式和文字分開**：查詞�
 
 ## 順帶：圖形字幕
 
-PGS（藍光）、VobSub（DVD）不是文本，是一張張點陣圖，沒有「格式」可言——Fushi 能顯示但不能點詞，詳見[外掛、內封、內嵌字幕是什麼？](/faq/subtitle-types.zh-HK#內封字幕)。
+PGS（藍光）、VobSub（DVD）不是文本，是一張張點陣圖，沒有「格式」可言——Fushi 能顯示，暫停後靠 OCR 點字查詞，也可以整軌 OCR 成文字字幕，詳見[外掛、內封、內嵌字幕是什麼？](/faq/subtitle-types.zh-HK#內封字幕)。

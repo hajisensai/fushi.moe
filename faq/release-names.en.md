@@ -3,7 +3,7 @@ title: "Raw, subbed, BDRip, WEB-DL… how do I read an anime release name?"
 description: "Raw = the original with no translation, what you want for Japanese; subbed = with translated subtitles. BDRip comes from Blu-ray, WEB-DL from streaming, TVRip from broadcast. What each part of a release name says, so you can pick."
 category: "Subtitles & video basics"
 order: 230
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -14,7 +14,7 @@ Search a show on Nyaa or in Fushi's anime downloads and you get a long list of n
 - **Raw**: the original with no translated subtitles. It may have no subtitles at all, or Japanese ones (closed captions, Blu-ray subs).
 - **Subbed**: a version with translated (English, Chinese…) subtitles, which may be [external, embedded or burned-in](/faq/subtitle-types.en).
 
-For learning Japanese you **want raws**: translated subtitles on screen get read without you noticing and teach nothing. A raw plus a Japanese subtitle (Fushi can match one from [Jimaku](https://jimaku.cc) automatically) is the smoothest setup for lookups and mining. The "raw / English-subbed / non-English-subbed" filter in Fushi's anime downloads splits along exactly this line.
+For learning Japanese you **want raws**: translated subtitles on screen get read without you noticing and teach nothing. A raw plus a Japanese subtitle (Fushi can match one from [Jimaku](https://jimaku.cc) automatically) is the smoothest setup for lookups and mining. The "Raw / English-translated / Non-English" filter in Fushi's "Anime download" dialog splits along exactly this line.
 
 ## Source: BDRip, WEB-DL, TVRip
 
@@ -50,7 +50,7 @@ The first bracketed tag is usually the release group. Veteran BDRip groups (VCB-
 
 - **Batch**: a whole season in one torrent, marked "Batch" in Fushi's anime downloads. For finished shows a batch is the least hassle.
 - **Seeders**: more means faster; releases from years ago may have none and won't download — pick another.
-- **Trusted**: uploaders vetted by Nyaa; Fushi's search can show only those.
+- **Trusted**: uploaders vetted by Nyaa; tick "Trusted only" in Fushi's "Anime download" dialog to see only those.
 
 ## Picking for Japanese
 
@@ -59,6 +59,6 @@ In this order:
 1. **Raw** first; a WEB version with Japanese CC subtitles is even better;
 2. finished shows: **BDRip batch**; airing shows: **WEB-DL**;
 3. 1080p / 720p either way; on older devices avoid x265 and 10-bit;
-4. tick Fushi's "With subtitles" when downloading so Jimaku matches Japanese subtitles — the BD and WEB versions may have different timing, and if it's off, see [subtitles out of sync](/faq/subtitle-sync.en).
+4. choose Fushi's "Include subtitles" when downloading so Jimaku matches Japanese subtitles — the BD and WEB versions may have different timing, and if it's off, see [subtitles out of sync](/faq/subtitle-sync.en).
 
 The actual download steps are in [Stream anime or download it?](/faq/anime-download.en).

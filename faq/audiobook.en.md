@@ -3,7 +3,7 @@ title: "How do audiobooks, books and subtitles fit together? How do I use audiob
 description: "In Fushi an audiobook = the book's text + the narration audio + a subtitle file that lines the two up. With all three, the reader follows the audio and tapping a sentence seeks to it. No subtitle? Generate one with on-device transcription. No book? Use just subtitle + audio."
 category: "Books"
 order: 60
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -59,6 +59,8 @@ Only book and audio, no alignment file? Let Fushi **listen to the audio and writ
 Transcription runs entirely on-device; nothing is uploaded. With a [Fushi interconnect](/faq/interconnect.en) host set up, **Run location** can be the host, letting the PC (or fushi_server on a NAS) do the work for the phone.
 
 The transcribed text itself doesn't matter much — it is only used to **locate** sentences; what you read is still the EPUB original. A few recognition errors don't hurt the match rate.
+
+Downloaded audiobooks often come as audio only. Turn on "Auto-transcribe downloaded audiobooks" under **Settings → Listening** and such downloads are queued for on-device transcription and then added to the library automatically (aligned if there's a book text, otherwise built as a subtitle book; a missing speech model is downloaded automatically), with progress in the tasks under **Browse → Downloads**.
 
 ## No book: subtitle + audio only
 

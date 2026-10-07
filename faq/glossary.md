@@ -3,7 +3,7 @@ title: "名词解释：这些文章里的词都是什么意思？"
 description: "沉浸、SRS、制卡、生肉、振假名、音调、词频、日日词典、OCR、转录、hook、刮削、做种、扩展 / 源 / 仓库、互联、调试版……按主题分组，一句话一个，看别的文章遇到不懂的词回来查。"
 category: "关于 Fushi"
 order: 35
-date: 2026-09-20
+date: 2026-10-07
 ---
 
 按主题分组，每个词一两句。带链接的有整篇文章细讲。
@@ -35,10 +35,10 @@ date: 2026-09-20
 
 - **查词弹窗**：点词后弹出的词典窗口，释义、音调、词频、发音、加号都在里面。
 - **Yomitan**：浏览器查词扩展（前身 Yomichan），它的词典格式成了事实标准，Fushi 直接用。[Shift 查词是什么](/faq/browser-lookup)。
-- **Yomitan 词典 / MDX / DSL**：Fushi 认的三种词典格式，[怎么导入](/faq/dictionaries)。
+- **Yomitan 词典 / MDX / DSL / StarDict**：Fushi 认的几种词典格式，[怎么导入](/faq/dictionaries)。
 - **推荐包**：新手引导里一键下载的那 9.5 GB：词典、音调、词频、发音库。[能不能不装](/faq/pack)。
 - **发音库 / 音频来源**：查词时点喇叭放的单词读音从哪来；本地发音库和在线来源都可以配。
-- **全局查词**：在别的应用里选中文字，用快捷键（Windows）或文字菜单（Android）叫出 Fushi 查词。
+- **全局查词**：在别的应用里选中文字，用快捷键（Windows / macOS）或文字菜单、悬浮球（Android）叫出 Fushi 查词。
 - **变形还原**：把「食べなかった」还原成「食べる」再查。词典按原形收词，点到哪个形态都能查到靠的是它。
 
 ## 字幕与视频
@@ -52,7 +52,7 @@ date: 2026-09-20
 - **BDRip / WEB-DL / TVRip、字幕组、合集**：资源来源和发布形式。[资源名怎么看](/faq/release-names)。
 - **刮削**：按文件名认出作品，去网上拉海报、简介、集列表。[是什么、怎么用](/faq/scraping)。
 - **元数据（metadata）**：刮削拉回来的那些资料。**NFO**：把它们存在视频旁边的文件格式，Jellyfin / Kodi 也认。
-- **Jellyfin / Emby / Plex**：媒体服务器，装在 NAS 上把视频串流给各设备。[是什么](/faq/media-servers)、[怎么接](/faq/jellyfin-setup)。
+- **Jellyfin / Emby / Plex**：媒体服务器，装在 NAS 上把视频串流给各设备，三家 Fushi 都能直接接。[是什么](/faq/media-servers)、[怎么接](/faq/jellyfin-setup)。
 - **串流 / 转码**：边传边播 / 服务器实时把视频转成客户端认的格式。
 
 ## 漫画与书
@@ -66,10 +66,12 @@ date: 2026-09-20
 
 ## 在线源与下载
 
-- **扩展（extension）/ 源（source）/ 仓库（repo）**：扩展是一个 APK 文件，里面装着若干在线源（某网站的适配器）；仓库是列出可安装扩展的地址。Fushi 兼容 **Mihon**（漫画）和 **Aniyomi**（视频）的扩展。[怎么装](/faq/mihon)。
+- **扩展（extension）/ 源（source）/ 仓库（repo）**：扩展是一个 APK 文件，里面装着若干在线源（某网站的适配器）；仓库是列出可安装扩展的地址。Fushi 兼容 **Mihon**（漫画）和 **Aniyomi**（视频）的扩展，小说用 **LNReader** 插件。[怎么装](/faq/mihon)。
 - **线路（hoster）**：视频源里同一集的不同播放来源，画质、可用性各异。
 - **BT / 种子 / 磁力链接 / 做种 / Tracker / DHT**：[BT 那篇](/faq/bittorrent)全讲了。
-- **Nyaa**：最大的日本动漫资源索引站，Fushi 番剧下载的默认搜索来源；**Torznab**：统一的索引站接口，Jackett / Prowlarr 提供。
+- **Nyaa**：最大的日本动漫资源索引站，Fushi 搜番剧资源的默认来源；**Torznab**：统一的索引站接口，Jackett / Prowlarr 提供。
+- **浏览**：底栏的一个模块，发现、在线源、扩展、下载任务都在这里（iOS 版没有）。
+- **AI 下载**：跟 AI 说作品名，让它找作品、挑版本、下载或订阅，用的是你自己配的 AI 提供商。[怎么用](/faq/ai-download)。
 - **qBittorrent**：常见的 BT 客户端，Fushi 可以外接它。
 - **订阅 / 追更**：让 Fushi 定期检查有没有新集，自动下载。
 - **AniList / MAL / AniDB / VNDB / Bangumi**：作品数据库，Fushi 用它们认作品、拉资料、记进度。
@@ -84,9 +86,9 @@ date: 2026-09-20
 
 ## Fushi 自己的
 
-- **互联**：Fushi 设备之间的局域网直连，一台当**主机**开放库，其他当**客户端**。[怎么配](/faq/interconnect)。
-- **fushi_server**：没有界面的 Fushi 主机，跑在 NAS 上。
+- **互联**：Fushi 设备之间的直连，一台当**主机**开放库，其他当**客户端**；在家走局域网，出门也能自动选路或经 P2P 隧道连回来。[怎么配](/faq/interconnect)。
+- **fushi_server / Fushi 服务端**：没有界面的 Fushi 主机，跑在 NAS 或服务器上，能替你的设备下载、转录、OCR。
 - **正式版 / 调试版**：两个下载渠道，调试版先拿到新功能。[区别](/faq/channels)。
-- **新手引导**：第一次启动的配置向导，设置 → 系统 里能重跑。
+- **新手引导**：第一次启动的配置向导，设置 → 系统与关于 里能重跑。
 - **浏览器扩展**：Fushi 自带的、在任意网页查词的扩展。[Shift 查词](/faq/browser-lookup)。
 - **云备份 / 同步与备份**：把数据备份到 Google Drive / WebDAV 或本地文件，[数据存在哪](/faq/data)。

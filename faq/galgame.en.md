@@ -1,9 +1,9 @@
 ---
 title: "How do I hook a galgame into Fushi?"
-description: "On Windows, drag the game's exe into the game library and press \"Launch and capture\": Fushi hooks the dialogue out of the game and shows it in a floating window — tap characters to look up, tap the plus to mine, and the card automatically carries that line's voice and a screenshot. It can also switch the locale automatically and upscale old games' windows with Magpie."
+description: "On Windows, drag the game's exe into the game library and press \"Launch and capture\": Fushi hooks the dialogue out of the game and shows it in a floating window — tap characters to look up, tap the plus to mine, and the card automatically carries that line's voice and a screenshot. It can also switch the locale automatically and upscale old games' windows with Magpie; you can also experimentally stream games to your phone or other devices to play and look things up."
 category: "Games"
 order: 86
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -19,8 +19,8 @@ Press **Launch and capture**: Fushi starts the game, injects its hook component 
 
 At launch Fushi handles two things on the side:
 
-- **Japanese locale**: it judges whether the game needs a locale switch (Shift-JIS evidence in the folder / executable) and if so starts it in a Japanese locale through the built-in Locale Emulator — 32-bit games only. Garbled text or script errors? Set "Japanese locale" for that game to Always / Never in the game's settings.
-- **Window upscaling**: old games have low native resolutions; set "Window upscaling" to **Auto** in the game's settings and Fushi uses its bundled Magpie to scale the window to full screen (if Magpie is already running on your machine, yours is used). If it doesn't kick in automatically, press **Win+Shift+A**. It uses the GPU and is set per game.
+- **Japanese locale**: it judges whether the game needs a locale switch (Shift-JIS evidence in the folder / executable) and if so starts it in a Japanese locale through the built-in Locale Emulator — 32-bit games only. Garbled text or script errors? Change "Japanese locale" for that game from "Auto" to "Always on" or "Off" in the game's settings; Chinese / English patched builds must use "Off", or the game crashes on launch.
+- **Window upscaling**: old games have low native resolutions; set "Game window upscaling" to **Auto** in the game's settings and Fushi uses its bundled Magpie to scale the window to full screen (if Magpie is already running on your machine, yours is used; to use only your own Magpie, pick "Installed only"). If it doesn't kick in automatically, press **Win+Shift+A**. It uses the GPU and is set per game.
 
 ## Step 3: pick the dialogue thread
 
@@ -37,11 +37,21 @@ Dialogue appears in the **dialogue overlay** floating over the game window:
 - overlay buttons: follow new lines / lock position / stay on top / click-through to the game / toggle backdrop (transparent, desktop-lyrics style) / replay this line's voice / re-record voice (missed it? replay the line in the game) / open the **mining workbench** (review every line of this session and mine from it);
 - font, size, colour, outline and backdrop opacity live under **Settings → Galgame dialogue overlay**.
 
-One step further is **in-game lookup**: skip the overlay and tap characters right on the game screen. **Most KiriKiri (krkr) and SiglusEngine games work directly**; other engines are waiting for support. Some games need a one-time calibration of the text area (tap three probe glyphs in the game), and a bare left click may also advance the dialogue or trigger a choice, so Fushi asks you to accept that risk first, for that exe only. The "In-game lookup" section of the session panel shows the status for the current engine.
+One step further is **in-game lookup**: skip the overlay and tap characters right on the game screen. **Most KiriKiri (krkr) and SiglusEngine games work directly**, CMVS supports looking up with Shift held, and other engines are waiting for support. Some games need a one-time calibration of the text area (tap three probe glyphs in the game), and a bare left click may also advance the dialogue or trigger a choice, so Fushi asks you to accept that risk first, for that exe only. The "In-game lookup" section of the session panel shows the status for the current engine.
 
 ## Where the voice comes from
 
 The sentence audio on cards is taken from the game's own voice first (its resource files or the engine's playback buffer — clean, no BGM); only when neither works does it fall back to recording the system mix. Lines without voice acting are mined as usual, just without audio.
+
+## Playing PC games on your phone
+
+**Game streaming** (experimental): the game and the hook stay on the Windows PC; picture and sound stream to another device (Android, iOS, macOS or another Windows PC) along with the dialogue, which you can tap to look up (using the PC's dictionaries) and mine (the PC makes the card and puts it into its Anki), while touch and gamepad input goes back to the game.
+
+1. Pair the two with [Fushi interconnect](/faq/interconnect.en) first, on the same local network;
+2. on the PC, "Launch and capture" as usual and press **Start streaming** in the capture workspace;
+3. on the receiving device, open **Game** (on every platform except Windows it is the streaming client; on Windows it's the stream section of the game page): it lists each host's game library and running streams — tap **Join**. If the PC has "Allow remote launch" turned on, you can also launch a game from the phone's view of the library and stream it straight away.
+
+Resolution, frame rate, bitrate, codec and gamepad keys can be adjusted in the stream settings. Touch, mouse and gamepad all work.
 
 ## Health
 

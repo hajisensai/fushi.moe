@@ -3,7 +3,7 @@ title: "What is BitTorrent, and how is it wired into Fushi?"
 description: "BT is downloading without a central server — everyone fetching a file shares it with everyone else; the torrent / magnet link is the file's ID card, and more seeders means faster downloads. Fushi has a built-in libtorrent engine and can also drive an external qBittorrent; searches go through indexes like Nyaa, and finished downloads get subtitles, scraping and shelving automatically."
 category: "Downloads"
 order: 95
-date: 2026-09-20
+date: 2026-10-07
 lang: en
 ---
 
@@ -32,7 +32,7 @@ You don't need a separate download client; the whole chain lives in the app:
 | Download engine | **Built-in libtorrent** (Windows / macOS / Android); or an **external qBittorrent** (via its WebUI) |
 | Search sources | **Nyaa** (anime), **apibay**, **Knaben** (films and series), plus your own **Torznab indexers** (Jackett / Prowlarr) |
 | Show identification | AniList for finding the show, AniDB to confirm identity; search terms filled from original titles / aliases |
-| Subtitles | Tick "With subtitles" to match Japanese subtitles on **Jimaku**; OpenSubtitles is wired in too |
+| Subtitles | Choose "Include subtitles" to match Japanese subtitles on **Jimaku**; OpenSubtitles and SubDL are wired in too |
 | Shelving | Download done → organise and rename → subtitles → [scrape](/faq/scraping.en) → video library, all automatic |
 | New episodes | **Subscriptions**: checked every 15 minutes, new episodes download themselves |
 | Audiobooks | Audiobook catalogue downloads use the same engine, paired with alignment files from the material library afterwards |
@@ -42,17 +42,17 @@ You don't need a separate download client; the whole chain lives in the app:
 
 ### Built-in engine: nothing to configure
 
-Bottom bar **Downloads → Anime downloads**, search a title, press **Download** and it's queued. The first time you're asked whether to **enable uploading / seeding** — off by default; on, it uses your upload bandwidth but is kinder to the swarm.
+Bottom bar **Browse → Discover**: find the work, press **Search resources** on its page and download a release — it's queued (progress under **Browse → Downloads**). The first time you're asked whether to **enable uploading / seeding** — off by default; on, it uses your upload bandwidth but is kinder to the swarm.
 
 - **Play while downloading**: once a task starts it can be shelved and opened from the video library.
-- Have a magnet link or .torrent file? **Paste link to download** / **Choose torrent file**.
+- Have a magnet link or .torrent file? **Add task** at the top right of **Browse → Downloads** — paste the magnet link or "Choose torrent file"; on desktop you can also drag a `.torrent` onto the window.
 - Task details show peers, tracker status and seeding time.
 
 Details of use (raw filter, Trusted only, batches, subscriptions): [Stream anime or download it?](/faq/anime-download.en)
 
 ### External qBittorrent
 
-If you already have an always-on machine running qBittorrent (typical for a NAS), or your platform has no built-in engine (iOS):
+If you already have an always-on machine running qBittorrent (typical for a NAS) and want it to do the downloading:
 
 **Settings → Downloads → Engine & seeding**, set the download engine to **External qBittorrent**, enter the **qBittorrent WebUI address** (e.g. `http://192.168.1.10:8080`), username and password, and optionally a **qBittorrent category** (Fushi's tasks are tagged with it so you can tell them apart in qB).
 
@@ -70,19 +70,18 @@ All under **Settings → Downloads → Engine & seeding**:
 - **Anti-leech**: bans clients that only download or fake their progress.
 - **Tracker subscription**: give it a tracker-list URL and new tasks get those trackers added — helps old releases with few seeders.
 - **Memory cap**, **max active downloads / seeds**: lower them on phones.
-- **Proxy**: under Settings → Network proxy, P2P traffic goes **direct** by default; "via proxy" routes everything through the proxy (many providers ban BT), "mixed" sends only tracker requests through it while peers connect directly. Built-in engine only; an external qB is configured on its own side.
 
 ### Torznab indexers
 
-If the built-in sources aren't enough (a private site, a niche index), go to **Settings → Services → Torznab indexers → Add indexer**: enter the endpoint and API key from Jackett / Prowlarr, optionally category IDs and a priority. Keys are never exported with backups and are synced to paired devices over interconnect (can be turned off).
+If the built-in sources aren't enough (a private site, a niche index), go to **Settings → Online services → Resource indexers → Torznab indexers → Add indexer**: enter the endpoint and API key from Jackett / Prowlarr, optionally category IDs and a priority. Keys are never exported with backups and are synced to paired devices over interconnect (can be turned off).
 
-If the built-in sources were disabled, searches say "No sources available for this search" — re-enable them under **Settings → Downloads → External resources & subtitle sources**.
+If the built-in sources were disabled, searches say "No sources available for this search" — re-enable them under **Settings → Online services → Resource indexers → Built-in sources**.
 
 ## Common situations
 
 - **Won't download / speed 0**: check seeders first — 0 means find another release; then whether the router blocks the listen port and whether UPnP is on; try enabling a tracker subscription. One thing that's easy to overlook: **IPv6 is off**. Many seeders today are only reachable over IPv6; once IPv6 is enabled on both router and system (most ISPs provide it), the number of seeders you can connect to often jumps severalfold — and IPv6 peers can reach you without any port mapping.
-- **Nothing found**: Nyaa is anime only; films and series are on apibay / Knaben; if the index site is unreachable, configure a proxy (the proxy only affects searches and trackers; peer connections are covered above).
+- **Nothing found**: Nyaa is anime only; films and series are on apibay / Knaben; for how to write the query, see [Can't find an anime?](/faq/search-tips.en).
 - **Push to qBittorrent failed**: WebUI address, credentials, and whether qB has "Web user interface" enabled; without path mappings across machines the finished files can't be found.
 - **Stopped seeding after renaming**: renaming / moving inside Fushi goes through the engine and keeps seeding; renaming in a file manager breaks it.
-- **iOS**: no search or download per App Store rules.
+- **iOS**: no search or download per App Store rules (the whole Browse module is absent).
 - **"This install is missing the built-in engine runtime"**: an incomplete package — reinstall the full installer or switch to an external qB.
