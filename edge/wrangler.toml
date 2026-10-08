@@ -37,3 +37,14 @@ PACK_PREFIX = "/pack"
 [[r2_buckets]]
 binding = "MIRROR"
 bucket_name = "fushi-releases"
+
+# 站内下载计数（/api/downloads）。单实例 SQLite Durable Object：累加原子、免费计划可用
+# （new_sqlite_classes），不用像 D1 那样先在账号里建库，首次部署由 migrations 建类。
+# KV 的累加不是原子的，并发下会丢；Analytics Engine 读数要账号级 API token。
+[[durable_objects.bindings]]
+name = "DOWNLOAD_STATS"
+class_name = "DownloadStats"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["DownloadStats"]

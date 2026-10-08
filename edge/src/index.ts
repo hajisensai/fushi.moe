@@ -1,11 +1,16 @@
 import { CacheHealthStore } from './breaker';
 import { settingsFrom, type Env } from './config';
 import { handleDownload } from './downloads';
+import { handleDownloadStats } from './download-stats';
+import { downloadCounterFrom } from './download-stats-object';
 import { handleHealth } from './health';
 import { handleStars } from './stars';
 import { handleSite } from './site';
 import { handlePack } from './pack';
 import { originUrl } from './origins';
+
+// Durable Object 类必须从 Worker 入口导出，wrangler.toml 的 class_name 才找得到它。
+export { DownloadStats } from './download-stats-object';
 
 /**
  * 兜底代理：不走熔断、不走权重、不读缓存，直接把请求扔给 GitHub 侧。
@@ -76,6 +81,18 @@ export default {
         });
       }
 
+      // 下载统计：站内计数（Durable Object）+ GitHub release 资产 download_count。
+      // 同样同域 + 边缘缓存，GitHub 那半与 /api/stars 共用三层读取。
+      if (url.hostname === settings.canonicalHost && url.pathname === '/api/downloads') {
+        return await handleDownloadStats({
+          settings,
+          fetcher: fetch,
+          cache: caches.default,
+          waitUntil,
+          counter: downloadCounterFrom(env),
+        });
+      }
+
       // 推荐包：不碰 GitHub API、不碰 R2，纯粹是 fushi-pack release 的边缘代理。
       // 与下载路由前缀不同、彼此独立，谁先判都一样，这里就近放在它前面。
       if (
@@ -107,6 +124,7 @@ export default {
           mirror: env.MIRROR,
           manifestCache: caches.default,
           waitUntil,
+          counter: downloadCounterFrom(env),
         });
       }
 

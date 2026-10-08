@@ -121,6 +121,13 @@ const b64 = (s) => Buffer.from(s, 'utf8').toString('base64');
    每个场景各装一个 onEvent 的话，先注册的那个会一直抢先应答请求，
    后面的场景就永远是第一个场景的结果——第一版就是这么假绿的。 */
 const scenario = { cfUp: true, ghUp: true, hangChunkProbe: false };
+/** /api/downloads 的假应答：total 是页面显示的那个数，其余字段只为形状完整。 */
+const FAKE_DOWNLOADS = {
+  total: 123456,
+  site: { total: 3, served: 2, byChannel: { stable: 3 }, bySlot: { windows: 3 }, bySource: { r2: 2, github: 1 }, byTag: { 'v9.9.9': 3 }, byDay: {} },
+  github: { total: 123454, byTag: { 'v9.9.9': 123454 }, bySlot: { windows: 123454 } },
+  stale: false,
+};
 
 function installInterceptor(cdp) {
   cdp.onEvent(async (msg) => {
@@ -144,6 +151,28 @@ function installInterceptor(cdp) {
             { name: 'access-control-allow-origin', value: '*' },
           ],
           body: b64(JSON.stringify(debug ? FAKE_DEBUG_RELEASE : FAKE_RELEASE)),
+        });
+        return;
+      }
+      // 下载统计只存在于 Worker：Worker 不通（场景 B/C）它也一起不通，页面必须整段不显示。
+      if (parsed.pathname === '/api/downloads') {
+        if (!scenario.cfUp) {
+          await cdp.send('Fetch.fulfillRequest', {
+            requestId,
+            responseCode: 503,
+            responseHeaders: [{ name: 'content-type', value: 'application/json' }],
+            body: b64(JSON.stringify({ error: 'downloads unavailable' })),
+          });
+          return;
+        }
+        await cdp.send('Fetch.fulfillRequest', {
+          requestId,
+          responseCode: 200,
+          responseHeaders: [
+            { name: 'content-type', value: 'application/json' },
+            { name: 'access-control-allow-origin', value: '*' },
+          ],
+          body: b64(JSON.stringify(FAKE_DOWNLOADS)),
         });
         return;
       }
@@ -246,8 +275,10 @@ async function runScenario(cdp, label, { cfUp, ghUp, channel }) {
         rel: sponsorLink.rel,
         oldGift: !!document.querySelector('.site-footer-gift, a[href="https://claude.ai/gift"]')
       } : null;
+      var dl = document.querySelector('[data-fushi-downloads]');
       return {
         status: status ? status.textContent.replace(/\s+/g, ' ').trim() : null,
+        downloads: dl ? dl.textContent.trim() : null,
         buttons: btns,
         channels: channels,
         rows: rows,
@@ -301,6 +332,7 @@ async function main() {
   check('A 无源被标成连不上', !a.buttons.some((b) => b.dead));
   check('A 链接是具体安装包而非 Releases 首页', a.firstLink !== null && !a.firstLink.endsWith('/releases/latest'), a.firstLink);
   check('A 显示了版本号', (a.status ?? '').includes('v9.9.9'), a.status);
+  check('A 状态行显示累计下载数（/api/downloads 的 total，按语言千分位）', /^123[,.\u00a0\u202f ]?456$/.test(a.downloads ?? ''), a.downloads);
   check('A 每行都有 GitHub 直链（给 IDM / aria2 自己多线程）', a.directLinks.length === a.rows.length && a.directLinks.every((h) => /github\.com\/hajisensai\/Fushi\/releases\/download\//.test(h)), JSON.stringify(a.directLinks));
 
   check('A 推荐包有网页端下载按钮', (a.pack.btn ?? '').length > 0, a.pack.btn);
@@ -319,6 +351,7 @@ async function main() {
   check('B CF 按钮标成连不上', b.buttons.some((x) => x.text.includes('Cloudflare') && x.dead), JSON.stringify(b.buttons));
   check('B 链接走 github.com 直链', (b.firstLink ?? '').includes('github.com/hajisensai/Fushi/releases/download/'), b.firstLink);
   check('B 仍取到版本清单（走 GitHub 静态 JSON 兜底）', (b.status ?? '').includes('v9.9.9'), b.status);
+  check('B /api/downloads 不通时累计下载整段不显示，绝不显示 0', b.downloads === null, b.status);
 
   console.log('\n--- 场景 C：两边都不通 ---');
   const c = await runScenario(cdp, 'C 两边都不通', { cfUp: false, ghUp: false });
