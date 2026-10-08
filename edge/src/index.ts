@@ -2,7 +2,7 @@ import { CacheHealthStore } from './breaker';
 import { settingsFrom, type Env } from './config';
 import { handleDownload } from './downloads';
 import { handleDownloadStats } from './download-stats';
-import { downloadCounterFrom } from './download-stats-object';
+import { downloadCounterFrom, githubSnapshotFrom } from './download-stats-object';
 import { handleHealth } from './health';
 import { handleStars } from './stars';
 import { handleSite } from './site';
@@ -90,6 +90,7 @@ export default {
           cache: caches.default,
           waitUntil,
           counter: downloadCounterFrom(env),
+          githubSnapshot: githubSnapshotFrom(env),
         });
       }
 
