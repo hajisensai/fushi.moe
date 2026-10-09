@@ -36,30 +36,37 @@ export interface ReleaseManifest {
   readonly version: string;
 }
 
-/** 稳定下载槽位 → 资产文件名判据。加平台就在这里加一行。 */
-export const SLOTS: Readonly<Record<string, RegExp>> = {
-  'android-arm64': /^fushi-.*-arm64-v8a\.apk$/,
-  'android-arm32': /^fushi-.*-armeabi-v7a\.apk$/,
-  'android-x64': /^fushi-.*-x86_64\.apk$/,
-  windows: /^fushi-.*-windows-setup\.exe$/,
+/**
+ * 稳定下载槽位 → 资产文件名判据，**按偏好排序**：同一次发布里有多种形态时，
+ * 下载给第一条命中的；统计归槽时任意一条命中都算这个槽。加平台就在这里加一行。
+ */
+export const SLOTS: Readonly<Record<string, readonly RegExp[]>> = {
+  'android-arm64': [/^fushi-.*-arm64-v8a\.apk$/],
+  'android-arm32': [/^fushi-.*-armeabi-v7a\.apk$/],
+  'android-x64': [/^fushi-.*-x86_64\.apk$/],
+  windows: [/^fushi-.*-windows-setup\.exe$/],
   // 免安装 zip：与 installer 同一次构建的第二种形态，解压即用。
   // 它**不进 R2 镜像**（主仓 mirror-releases.yml 显式跳过，桶预算撑不住两版翻倍），
   // 所以分片下载器探 ?src=r2 会 404、按既有逻辑回落 ?src=gh 边缘代理。
-  'windows-portable': /^fushi-.*-windows-x64\.zip$/,
-  // 正式版历来叫 -macos.zip；调试版从 2.10 起改出 Apple Silicon 专用的 -macos-arm64.zip。
-  macos: /^fushi-.*-macos(?:-arm64)?\.zip$/,
-  ios: /^fushi-.*-ios\.ipa$/,
+  'windows-portable': [/^fushi-.*-windows-x64\.zip$/],
+  // 首装默认给 dmg（拖进「应用程序」，签名 + 公证 + 装订）；还没出 dmg 的版本退回 zip。
+  // zip 历来叫 -macos.zip，2.10 起改出 Apple Silicon 专用的 -macos-arm64.zip。
+  // 应用内自动更新只认 zip，与这里无关。
+  macos: [/^fushi-.*-macos-arm64\.dmg$/, /^fushi-.*-macos(?:-arm64)?\.zip$/],
+  ios: [/^fushi-.*-ios\.ipa$/],
   // 调试通道的 Android 只出一个含全部架构的通用包（名字以 -debug.apk 结尾）。
-  'android-universal': /^fushi-.*-debug\.apk$/,
-  'bridge-arm64': /^bridge-.*-arm64-v8a\.apk$/,
-  'bridge-arm32': /^bridge-.*-armeabi-v7a\.apk$/,
-  'bridge-x64': /^bridge-.*-x86_64\.apk$/,
+  'android-universal': [/^fushi-.*-debug\.apk$/],
+  'bridge-arm64': [/^bridge-.*-arm64-v8a\.apk$/],
+  'bridge-arm32': [/^bridge-.*-armeabi-v7a\.apk$/],
+  'bridge-x64': [/^bridge-.*-x86_64\.apk$/],
 };
 
 export function resolveSlot(manifest: ReleaseManifest, slot: string): ReleaseAsset | null {
-  const pattern = SLOTS[slot];
-  if (!pattern) return null;
-  return manifest.assets.find((a) => pattern.test(a.name)) ?? null;
+  for (const pattern of SLOTS[slot] ?? []) {
+    const asset = manifest.assets.find((a) => pattern.test(a.name));
+    if (asset) return asset;
+  }
+  return null;
 }
 
 export function mirrorKey(tag: string, name: string): string {

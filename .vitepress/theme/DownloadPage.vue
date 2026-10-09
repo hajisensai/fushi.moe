@@ -106,17 +106,17 @@ const PLATFORMS = [
   { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装',                 channels: ['stable', 'debug'], testflight: true },
 ]
 
-/** 与 edge/src/manifest.ts 的 SLOTS 同一份判据（GitHub 静态清单兜底时在浏览器里解析）。 */
+/** 与 edge/src/manifest.ts 的 SLOTS 同一份判据、同一个偏好顺序（GitHub 静态清单兜底时在浏览器里解析）。 */
 const SLOT_PATTERNS = {
-  'android-arm64':     /^fushi-.*-arm64-v8a\.apk$/,
-  'android-arm32':     /^fushi-.*-armeabi-v7a\.apk$/,
-  'android-x64':       /^fushi-.*-x86_64\.apk$/,
-  'android-universal': /^fushi-.*-debug\.apk$/,
-  windows:             /^fushi-.*-windows-setup\.exe$/,
-  'windows-portable':  /^fushi-.*-windows-x64\.zip$/,
-  // 正式版历来叫 -macos.zip；调试版从 2.10 起改出 Apple Silicon 专用的 -macos-arm64.zip。
-  macos:               /^fushi-.*-macos(?:-arm64)?\.zip$/,
-  ios:                 /^fushi-.*-ios\.ipa$/,
+  'android-arm64':     [/^fushi-.*-arm64-v8a\.apk$/],
+  'android-arm32':     [/^fushi-.*-armeabi-v7a\.apk$/],
+  'android-x64':       [/^fushi-.*-x86_64\.apk$/],
+  'android-universal': [/^fushi-.*-debug\.apk$/],
+  windows:             [/^fushi-.*-windows-setup\.exe$/],
+  'windows-portable':  [/^fushi-.*-windows-x64\.zip$/],
+  // 首装默认给 dmg；还没出 dmg 的版本退回 zip（历来 -macos.zip，2.10 起 -macos-arm64.zip）。
+  macos:               [/^fushi-.*-macos-arm64\.dmg$/, /^fushi-.*-macos(?:-arm64)?\.zip$/],
+  ios:                 [/^fushi-.*-ios\.ipa$/],
 }
 
 const MIRRORS = [
@@ -177,8 +177,9 @@ async function probe(id, url, opts) {
 /** 把 update-manifest 分支的静态 JSON 按槽位收敛（与 Worker 的 latestManifestResponse 同形）。 */
 function slotsFromPublished(d, path) {
   const slots = {}
-  for (const [slot, re] of Object.entries(SLOT_PATTERNS)) {
-    const a = (d.assets ?? []).find((x) => re.test(x.name))
+  for (const [slot, patterns] of Object.entries(SLOT_PATTERNS)) {
+    const assets = d.assets ?? []
+    const a = patterns.map((re) => assets.find((x) => re.test(x.name))).find(Boolean)
     slots[slot] = a ? {
       url: DL_BASE + '/' + path + '/' + slot,
       githubUrl: a.browser_download_url,
