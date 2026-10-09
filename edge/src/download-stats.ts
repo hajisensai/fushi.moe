@@ -90,8 +90,8 @@ export function isDownloadStart(request: Request): boolean {
 
 /** 资产文件名 → 下载槽位；不在槽位表里的（旧 Hibiki 包、vendor 二进制、源码包）归 other。 */
 export function slotOf(assetName: string): string {
-  for (const [slot, pattern] of Object.entries(SLOTS)) {
-    if (pattern.test(assetName)) return slot;
+  for (const [slot, patterns] of Object.entries(SLOTS)) {
+    if (patterns.some((p) => p.test(assetName))) return slot;
   }
   return 'other';
 }
