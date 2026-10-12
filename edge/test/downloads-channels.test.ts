@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { handleDownload, manifestUrlFor } from '../src/downloads';
 import { parseChannel, resolveSlot, manifestFromPublished, normalizeSha256 } from '../src/manifest';
+import { slotOf } from '../src/download-stats';
 import { fakeR2, settings, store } from './fakes';
 
 /*
@@ -134,6 +135,19 @@ describe('parseChannel / slots', () => {
     expect(resolveSlot(legacy, 'macos')?.name).toBe('fushi-2.9.1-macos.zip');
     const arm = manifestFromPublished({ tag: 'v2.10.0-debug.1', assets: [asset('fushi-2.10.0-debug.1-macos-arm64.zip')] })!;
     expect(resolveSlot(arm, 'macos')?.name).toBe('fushi-2.10.0-debug.1-macos-arm64.zip');
+  });
+
+  it('macOS 槽位首装默认给 dmg，清单里排在 zip 后面也优先；没有 dmg 退回 zip', () => {
+    const asset = (name: string) => ({ name, browser_download_url: 'https://example.invalid/' + name, size: 1 });
+    const both = manifestFromPublished({
+      tag: 'v2.11.0',
+      assets: [asset('fushi-2.11.0-macos-arm64.zip'), asset('fushi-2.11.0-macos-arm64.dmg')],
+    })!;
+    expect(resolveSlot(both, 'macos')?.name).toBe('fushi-2.11.0-macos-arm64.dmg');
+    const zipOnly = manifestFromPublished({ tag: 'v2.10.0', assets: [asset('fushi-2.10.0-macos-arm64.zip')] })!;
+    expect(resolveSlot(zipOnly, 'macos')?.name).toBe('fushi-2.10.0-macos-arm64.zip');
+    expect(slotOf('fushi-2.11.0-macos-arm64.dmg')).toBe('macos');
+    expect(slotOf('fushi-2.11.0-macos-arm64.zip')).toBe('macos');
   });
 
   it('静态清单里 channel 写 formal 也归到 stable', () => {
