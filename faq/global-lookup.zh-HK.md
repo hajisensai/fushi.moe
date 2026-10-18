@@ -3,7 +3,7 @@ title: "電腦上能不能在任何軟體裡查詞？Fushi 的全域性查詞、
 description: "可以。Windows 和 macOS 上在任意軟體裡選中一個詞，按 Ctrl+Alt+D（macOS 是 ⌘⌥D）就在滑鼠旁彈出 Fushi 的查詞卡片，能巢狀查詞、聽發音、一鍵 Anki 制卡；還有應用外懸浮球的剪貼簿查詞和截圖識字。Android 用系統文字選單查詞，網頁則用瀏覽器擴充套件。"
 category: "查詞與詞典"
 order: 124
-date: 2026-10-12
+date: 2026-10-18
 lang: zh-HK
 ---
 
@@ -66,7 +66,7 @@ macOS 需要輔助功能許可權才能讀取其他應用中選中的文字；�
 - **查詞**：把 Fushi 喚到前臺並開啟查詞頁。
 - **開啟 Fushi**、立即同步等。
 
-前三個查詞按鈕需要「查詞」模組開著（**設定 → 外觀 → 功能模組**）。懸浮球的按鈕可以按場景分別勾選（閱讀器、漫畫、影片、其它頁面、應用外）。
+前三個查詞按鈕需要「查詞」模組開著（**設定 → 外觀與互動 → 功能模組**）。懸浮球的按鈕可以按場景分別勾選（閱讀器、漫畫、影片、其它頁面、應用外）。
 
 注意 Fushi **不會在後臺自動監聽剪貼簿**：只有你點「剪貼簿查詞」時它才讀一次剪貼簿。想要「每複製一句就自動顯示」的遊戲查詞體驗，用下面說的文本鉤子。
 
@@ -85,7 +85,7 @@ Android 也有應用外懸浮球：在 **設定 → 懸浮球** 開啟「應用�
 - **網頁**：任意網頁上按住 Shift 移到詞上就查，用的是 Fushi 的瀏覽器擴充套件（電腦上的 Chrome、Edge 這類 Chromium 瀏覽器），安裝步驟見[瀏覽器裡怎麼查詞](/faq/browser-lookup.zh-HK)。它和全域性查詞共用同一套詞典，網頁上用擴充套件比用快捷鍵更順手。
 - **Galgame**：Windows 上 Fushi 能直接 Hook 遊戲臺詞，在浮窗裡逐詞點查、制卡，見[Galgame 怎麼接進 Fushi](/faq/galgame.zh-HK)。
 - **Textractor / LunaTranslator / mpv 等抓文本工具**：**設定 → 查詞 → 外部整合** 裡的「文本鉤子（接收文本）」連它們的 WebSocket，臺詞推進 Fushi 後逐詞點查。
-- **GameSentenceMiner 等走 yomitan-api 協議的工具**：開「Yomitan API 伺服器」，讓它們改查 Fushi 的詞典。
+- **GameSentenceMiner 等走 yomitan-api 協議的工具**：開「Fushi API 伺服器」，讓它們改查 Fushi 的詞典。
 - **Anki 卡片裡的詞典交叉引用**：Fushi 制卡時會把釋義裡的詞典內部連結改寫成 `fushi://lookup` 連結，在 Windows 和 Android 上點它會開啟 Fushi 查這個詞。
 
 ## 常見狀況

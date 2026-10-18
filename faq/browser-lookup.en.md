@@ -3,7 +3,7 @@ title: "How do I look words up in the browser? What is Shift lookup?"
 description: "Hold Shift and move the mouse over a word and the dictionary pops up — that's the Yomitan habit, and Fushi's browser extension works the same way. Inside the app, the reader and videos look up on tap; the Fushi subtitles the extension lays over videos on streaming sites accept both Shift and tap; other web page text uses Shift. Installation steps included."
 category: "Browser extension"
 order: 110
-date: 2026-10-07
+date: 2026-10-18
 lang: en
 ---
 
@@ -31,7 +31,7 @@ Fushi ships its own browser extension that lets you look words up and mine cards
 
 **Settings → Lookup → External integrations → Extension**, follow the steps on the page:
 
-1. Press **Prepare extension files**. Fushi turns on the lookup service (the Yomitan API server), unpacks the extension locally and copies the folder path to the clipboard.
+1. Press **Prepare extension files**. Fushi turns on the lookup service (the Fushi API server), unpacks the extension locally and copies the folder path to the clipboard.
 2. Open `chrome://extensions` in the address bar (`edge://extensions` on Edge).
 3. Turn on **Developer mode** at the top right.
 4. Press **Load unpacked**, paste the copied path and select that folder.
@@ -48,7 +48,7 @@ To make sure, press **Open the test page**: a page served by Fushi itself; the e
 
 ### Won't install / no reaction
 
-- **"Lookup service is off"**: turn on "Yomitan API server" on the extension page, or press "Prepare extension files" again.
+- **"Lookup server off"**: turn on "Fushi API server" on the extension page, or press "Prepare extension files" again.
 - **Port 19633 in use**: most likely the yomitan-api component (a Python process) started by a Yomitan you installed earlier. Fushi tells you; end that process directly, or disable the Yomitan API in Yomitan's advanced settings and restart Fushi's server.
 - **"The extension loaded in the browser isn't the latest version"**: a Fushi update refreshed the extension files; press "Reload" on the extension at `chrome://extensions`.
 - **Some pages yield no words**: text drawn on a canvas or baked into images (some manga sites, PDF previews) can't be read by the extension — expected.
@@ -71,7 +71,7 @@ The app's former "built-in web player" (opening web video inside Fushi) is tempo
 The two can coexist or you can keep one:
 
 - **Keep Yomitan for web pages** if you like — Fushi's extension is simply an alternative; both use Shift, so with both installed you'll get two popups; keep one for web lookups.
-- To make **tools that speak the yomitan-api protocol** (GameSentenceMiner and the like) query Fushi's dictionaries: enable Fushi's Yomitan API server (port 19633, optional key) and point the tool at it.
+- To make **tools that speak the yomitan-api protocol** (GameSentenceMiner and the like) query Fushi's dictionaries: enable Fushi's Fushi API server (port 19633, optional key) and point the tool at it.
 - Text-capture tools such as Textractor / LunaTranslator / mpv can push text straight into Fushi's "Texthooker (receive text)" (connect to their WebSocket under Settings → Lookup → External integrations) for word-by-word lookups and mining inside Fushi — no texthooker page + Yomitan needed.
 
 ## Outside the browser

@@ -3,7 +3,7 @@ title: "Fushi 和 asbplayer、Language Reactor、Migaku、Yomitan、Anki 有什�
 description: "Yomitan 是瀏覽器查詞擴充套件，asbplayer 和 Language Reactor 主要在瀏覽器裡給影片加字幕查詞，Migaku 是付費訂閱的一體化工具，Anki 負責間隔重複複習。Fushi 是一個免費開源的獨立應用，把看番、讀輕小說、漫畫 OCR、Galgame 查詞和 Anki 制卡放在一起，並且可以和這些工具同時使用。"
 category: "關於 Fushi"
 order: 25
-date: 2026-10-12
+date: 2026-10-18
 lang: zh-HK
 ---
 
@@ -33,7 +33,7 @@ lang: zh-HK
 - **詞典通用**：Fushi 直接匯入 Yomitan 詞典 zip（也認 MDict 的 `.mdx` / `.mdd`、`.dsl`、StarDict），去屈折變形用的也是 Yomitan 的變形表。你給 Yomitan 攢的詞典可以原樣拿來用，見[怎麼匯入詞典](/faq/dictionaries.zh-HK)。
 - **發音庫通用**：Yomitan「本地音訊伺服器」那份資料庫，Fushi 的「本地音訊資料庫」可以直接指向它的 `entries.db`。
 - **場景不同**：Yomitan 在瀏覽器裡；Fushi 在應用裡點詞即查，覆蓋的是瀏覽器之外的東西——本地影片字幕、EPUB、漫畫圖片裡的字、Galgame 的臺詞，手機上也能用。
-- **能一起用**：Fushi 自帶一個瀏覽器擴充套件，同樣是 Shift 查詞，用的是 Fushi 裡的詞典。兩個擴充套件都裝的話會各彈各的，建議網頁查詞只留一個（見[瀏覽器裡怎麼查詞](/faq/browser-lookup.zh-HK)）。Fushi 還能開一個相容 yomitan-api 協議的「Yomitan API 伺服器」，讓原本對接 Yomitan 的工具改查 Fushi 的詞典。
+- **能一起用**：Fushi 自帶一個瀏覽器擴充套件，同樣是 Shift 查詞，用的是 Fushi 裡的詞典。兩個擴充套件都裝的話會各彈各的，建議網頁查詞只留一個（見[瀏覽器裡怎麼查詞](/faq/browser-lookup.zh-HK)）。Fushi 還能開一個相容 yomitan-api 協議的「Fushi API 伺服器」，讓原本對接 Yomitan 的工具改查 Fushi 的詞典。
 
 ## Fushi 和 asbplayer、Language Reactor
 

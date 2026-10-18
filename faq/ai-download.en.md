@@ -1,9 +1,9 @@
 ---
 title: "What is AI download? Do I need my own AI?"
-description: "Tell the AI a title; it finds the work, picks a release, then downloads or subscribes, with subtitles matched automatically. You first set up your own AI provider under Settings → AI (billed at that provider's prices; a local model works too). Without one, everything else still works. Not available on iOS."
+description: "Tell the AI a title; it finds the work, picks a release, then downloads or subscribes, with subtitles matched automatically. You first set up your own AI provider under Settings → Models → LLM (billed at that provider's prices; a local model works too). Without one, everything else still works. Not available on iOS."
 category: "Downloads"
 order: 92
-date: 2026-10-07
+date: 2026-10-18
 lang: en
 ---
 
@@ -13,7 +13,7 @@ Fushi doesn't provide an AI service; it uses **an AI provider you configure your
 
 ## Step 1: set up an AI provider
 
-**Settings → AI**:
+**Settings → Models → LLM** (if that row is missing, turn on "LLM" under **Settings → Appearance and interaction → Feature modules** first — switching it off hides every AI entry and stops all AI requests):
 
 1. **Provider configuration** → **Add provider**: there are several built-in presets, or enter any Chat Completions–compatible API endpoint. Fill in the API key, tap "Fetch models", pick a model and run "Test connection". For a model server on your own machine (`http://localhost`), turn on "Allow plain HTTP".
 2. **Feature providers** → set it as the **Default provider**. Every AI feature uses it unless assigned otherwise; to use a different provider for one feature, or no AI at all, change that feature on its own.
@@ -35,11 +35,11 @@ To identify works, Fushi itself fetches articles from Wikipedia, Moegirlpedia, A
 
 ## Default quality, source and subtitles
 
-All under **Settings → AI → AI video download**: default quality ("highest available" or "ask every time" are options), preferred source (e.g. Blu-ray first), bitrate, subtitle language (defaults to the work's original language) and skip extras (PVs, CMs, NCOP/NCED and the like are not downloaded).
+All under **Settings → Models → LLM → AI download**: default quality ("highest available" or "ask every time" are options), preferred source (e.g. Blu-ray first), bitrate, subtitle language (defaults to the work's original language) and skip extras (PVs, CMs, NCOP/NCED and the like are not downloaded).
 
 ## Let your computer do the downloading
 
-Once your phone is paired through [Fushi interconnect](/faq/interconnect.en), pick a paired computer or Fushi server under "Run on a paired computer" in **Settings → AI** (the same setting as "Download on device" in the download settings) and AI download runs there: it uses that device's AI assignment and downloads, the files land there, and the phone only holds the conversation.
+Once your phone is paired through [Fushi interconnect](/faq/interconnect.en), pick a paired computer or Fushi server under "Run on a paired computer" in **Settings → Models → LLM** (the same setting as "Download on device" in the download settings) and AI download runs there: it uses that device's AI assignment and downloads, the files land there, and the phone only holds the conversation.
 
 ## Other AI features
 

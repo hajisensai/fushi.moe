@@ -3,7 +3,7 @@ title: "How do I back up Fushi? How do I move to a new phone or computer?"
 description: "Fushi keeps your books, dictionaries, reading progress and study statistics on your device. There are three ways to back them up: export a .fushi.zip backup file, sync to Google Drive / OneDrive / Dropbox / WebDAV / FTP / SFTP, or use Fushi Interconnect to keep the data on your own computer or server. This page walks through moving to a new device step by step."
 category: "Troubleshooting"
 order: 305
-date: 2026-10-12
+date: 2026-10-18
 lang: en
 ---
 
@@ -117,7 +117,7 @@ No computer that stays on? Run a [Fushi server](/faq/server.en) on a NAS as that
    - Cloud sync: pick the same storage backend, sign in to the same account, tap "Sync now", then "Download" your dictionaries and pronunciation databases under "Dictionaries & local audio transfer";
    - Interconnect: after pairing, the Fushi Interconnect source in your bookshelf / video library shows what's on the computer, and progress merges automatically.
 4. Reconnect Anki: your cards live in Anki, not in Fushi's backup. On the new device reconnect Anki under **Settings → Card creation** (see [How do I connect Anki?](/faq/anki.en)), and move the Anki decks with Anki's own sync (AnkiWeb or a self-hosted sync server).
-5. AI provider settings are local to each device and are not included in backups or sync; enter them again under **Settings → AI** on the new device.
+5. AI provider settings are local to each device and are not included in backups or sync; enter them again under **Settings → Models → LLM** on the new device.
 
 ### Coming from another reader
 

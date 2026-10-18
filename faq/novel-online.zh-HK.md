@@ -3,7 +3,7 @@ title: "怎麼在 Fushi 裡用 LNReader 外掛線上看網路小說，並下載�
 description: "Fushi 支援 LNReader 的小說外掛：自己新增外掛倉庫、安裝小說源後，就能線上搜尋、線上閱讀網路小說，點詞查詞制卡；也能按章節範圍下載成帶目錄和插圖的 EPUB 放進書架離線讀。Windows、macOS、Android、Linux 可用，iOS 沒有這項功能。"
 category: "書架"
 order: 64
-date: 2026-10-12
+date: 2026-10-18
 lang: zh-HK
 ---
 
@@ -12,7 +12,7 @@ lang: zh-HK
 ## 先確認你的平臺
 
 - **Windows、macOS、Android**：可用。
-- **Linux**（社群維護平臺）：可用，外掛跑在系統的 WPE WebKit 上；系統缺這個元件時，進入小說源頁面會顯示缺什麼、該裝什麼。
+- **Linux**（從原始碼構建）：可用，外掛跑在系統的 WPE WebKit 上；系統缺這個元件時，進入小說源頁面會顯示缺什麼、該裝什麼。
 - **iOS**：**沒有**。iOS 版按 App Store 稽核規定不帶任何線上源（漫畫、影片、小說都沒有），書架、本地書閱讀、查詞制卡不受影響。iOS 上想讀網路小說，可以在電腦上下載成 EPUB 後匯入，或者經 [Fushi 互聯](/faq/interconnect.zh-HK)從電腦那邊讀。
 
 ## 第 1 步：新增外掛倉庫（Fushi 不內建任何倉庫）

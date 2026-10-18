@@ -3,7 +3,7 @@ title: "Does Fushi support keyboard shortcuts and gamepads? What are the default
 description: "Yes. The reader, manga, video, home screen and dictionary popup all have default keyboard and gamepad bindings, and every one of them can be remapped, looked up by key and de-conflicted in Keyboard shortcuts. Turn on keyboard & gamepad focus navigation and you can skip the mouse and touchscreen entirely — watch anime, read light novels, look up words and mine cards from the couch with a controller. Includes default key tables and platform differences."
 category: "Setup"
 order: 57.9
-date: 2026-10-12
+date: 2026-10-18
 lang: en
 ---
 
@@ -118,7 +118,7 @@ With focus navigation off, ↑ / ↓ still scroll the page and PageUp / PageDown
 - **Windows**: controllers are read through the system's GameInput component. If Keyboard shortcuts says "GameInput component not detected — gamepad support is unavailable", install Windows Gaming Services.
 - **macOS / iOS**: uses the system controller framework; pair over Bluetooth and it works.
 - **Android**: the system hands controller buttons to the app as key events; connect a Bluetooth or USB controller and it works.
-- **Linux** (community-maintained platform): read from the system's input devices.
+- **Linux** (built from source): read from the system's input devices.
 
 On phones and tablets the home-screen keyboard shortcuts are off by default (only gamepad bindings remain), but keyboard bindings in the reader, manga and video pages and for "Back / exit one level" stay active — attach a Bluetooth keyboard to turn pages and control playback.
 

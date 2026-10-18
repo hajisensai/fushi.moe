@@ -3,7 +3,7 @@ title: "Can I look words up in any app on my computer? Fushi's global lookup, fl
 description: "Yes. On Windows and macOS, select a word in any program and press Ctrl+Alt+D (⌘⌥D on macOS): Fushi's lookup card opens next to the pointer, with nested lookups, word audio and one-tap Anki mining. The floating ball adds clipboard lookup and screen OCR outside the app. Android uses the system text menu, and web pages have the browser extension."
 category: "Lookup & dictionaries"
 order: 124
-date: 2026-10-12
+date: 2026-10-18
 lang: en
 ---
 
@@ -66,7 +66,7 @@ Some text can't be selected, or you'd rather tap a button. Turn on "**Show over 
 - **Look up**: brings Fushi to the front and opens the lookup page.
 - **Open Fushi**, sync now and so on.
 
-The first three lookup buttons need the "Lookup" module turned on (**Settings → Appearance → Feature modules**). The ball's buttons are chosen separately per context (book reader, manga reader, video player, other pages, outside the app).
+The first three lookup buttons need the "Lookup" module turned on (**Settings → Appearance and interaction → Feature modules**). The ball's buttons are chosen separately per context (book reader, manga reader, video player, other pages, outside the app).
 
 Note that Fushi **does not monitor the clipboard in the background**: it reads the clipboard once, only when you tap "Look up clipboard". For a game setup where every copied line shows up automatically, use the text hook described below.
 
@@ -85,7 +85,7 @@ Android has a floating ball outside the app as well: turn on "Show over other ap
 - **Web pages**: hold Shift and move over a word on any page using Fushi's browser extension (Chrome, Edge and other Chromium browsers on a computer); installation steps are in [How do I look words up in the browser?](/faq/browser-lookup.en) It shares its dictionaries with global lookup, and on web pages it's smoother than the shortcut.
 - **Galgames**: on Windows Fushi can hook the game's dialogue directly and let you tap words and mine in an overlay; see [How do I hook a galgame into Fushi?](/faq/galgame.en)
 - **Text-grabbing tools such as Textractor / LunaTranslator / mpv**: "Texthooker (receive text)" under **Settings → Lookup → External integrations** connects to their WebSocket; lines are pushed into Fushi, where you tap words to look them up.
-- **Tools that speak the yomitan-api protocol, such as GameSentenceMiner**: turn on the "Yomitan API server" so they query Fushi's dictionaries instead.
+- **Tools that speak the yomitan-api protocol, such as GameSentenceMiner**: turn on the "Fushi API server" so they query Fushi's dictionaries instead.
 - **Dictionary cross-references on Anki cards**: when mining, Fushi rewrites dictionary-internal links in definitions into `fushi://lookup` links; on Windows and Android, clicking one opens Fushi and looks up that word.
 
 ## Common problems

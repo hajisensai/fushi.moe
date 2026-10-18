@@ -3,7 +3,7 @@ title: "Can I play the galgames on my PC from a phone or iPad, and look up words
 description: "Yes, with Fushi's game streaming (experimental): the game and the text hook stay on the Windows PC, while picture, sound and dialogue stream to a paired phone or tablet. Tap the dialogue to look words up (using the PC's dictionaries) and mine cards (the PC writes them into its own Anki); touch and gamepad input goes back to the game, and you can even launch PC games remotely from the phone."
 category: "Games"
 order: 87.5
-date: 2026-10-12
+date: 2026-10-18
 lang: en
 ---
 
@@ -26,7 +26,7 @@ What's streamed is **that one game window**, not the whole desktop: the stream c
 The Games module comes in two forms depending on the platform:
 
 - **Windows**: the local game library plus the text-hook workspace; the game page also has a **Stream** section, so a Windows PC can act as a receiver for another Windows PC;
-- **Android, iOS / iPadOS, macOS** (and the community-maintained Linux build): the Games module is the streaming client, subtitled "Launch games on your PC and stream them here".
+- **Android, iOS / iPadOS, macOS** (and a Linux build compiled from source): the Games module is the streaming client, subtitled "Launch games on your PC and stream them here".
 
 So the host is always a Windows PC, while the receiver can be a phone, a tablet or a Mac. The iOS build lacks a few online features for App Store compliance (see [What's missing from the iOS version?](/faq/ios-limits.en)), but the game streaming client is kept.
 

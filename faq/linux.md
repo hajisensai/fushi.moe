@@ -1,23 +1,23 @@
 ---
 title: "Linux 能用 Fushi 吗？有没有 Linux 安装包？"
-description: "Linux 桌面版是社区维护平台，暂无预编译安装包，需要从源码构建；阅读器、查词弹窗等 WebView 依赖 WPE WebKit，缺了也能启动。想在 Linux 服务器 / NAS 上跑 Fushi，用官方提供 Linux 包的无头服务端 fushi_server，手机看番学日语、读书查词时连它即可。"
+description: "Linux 桌面版暂无预编译安装包，只能从源码构建；阅读器、查词弹窗等 WebView 依赖 WPE WebKit，缺了也能启动。想在 Linux 服务器 / NAS 上跑 Fushi，用官方提供 Linux 包的无头服务端 fushi_server，手机看番学日语、读书查词时连它即可。"
 category: "安装与配置"
 order: 41.5
-date: 2026-10-12
+date: 2026-10-18
 ---
 
 分两种情况回答：
 
-- **Linux 桌面 app**：能用，但它是**社区维护平台**——官方不在 CI 里构建 Linux 版，也没有 Linux 安装包，[下载页](/zh-cn/download)上写的是「Linux 暂无预编译包，请从源码构建」。代码本身是跨平台的，构建所需的全部前提都写在仓库里，愿意自己编译就能跑起来。
+- **Linux 桌面 app**：能用，但**只能从源码构建**——官方 CI 不构建 Linux App，也没有 Linux 安装包，[下载页](/zh-cn/download)上写的是「Linux 暂无预编译包，请从源码构建」。代码本身是跨平台的，构建所需的全部前提都写在仓库里，愿意自己编译就能跑起来。
 - **Linux 服务器 / NAS**：有官方包。无头服务端 **fushi_server** 提供 Linux x64 版，装在家用服务器、NAS 或 VPS 上，给手机和电脑上的 Fushi 当媒体库主机，见[Fushi 服务端（fushi_server）是什么？](/faq/server)。
 
-## 「社区维护」是什么意思？
+## 「只能从源码构建」意味着什么？
 
-意思是 Linux 桌面版的代码留在主仓库里、继续可以编译，但：
+Linux 桌面版的代码就在主仓库里，随主线一起更新、随时可以编译，但：
 
 - 发布流程不出 Linux 包，每个版本你都要自己从源码编；
 - Fushi 能在 Linux 上检查新版本，但不能自动安装（也没有 Linux 安装包可装），更新就是拉新代码重新编译；
-- 遇到只在 Linux 上出现的问题，修复主要靠社区提交，官方不保证每个版本都在 Linux 上测过。
+- 官方发布前不会在 Linux 桌面上逐版测试，只在 Linux 上出现的问题欢迎反馈或提交修复。
 
 功能上和 Windows / macOS 桌面版基本一致：读 EPUB 轻小说、看漫画、看本地番剧、查词制卡（连 Anki 桌面版 + AnkiConnect）、Mihon 扩展、互联、云备份都在。**Galgame 文本 / 语音捕获只在 Windows**，Linux 上的「游戏」页是串流接收端，可以从已配对的 Windows 电脑启动游戏并串流过来。
 
@@ -44,7 +44,7 @@ Fushi 的 EPUB 阅读器、查词弹窗、LNReader 小说源这些界面跑在 W
 
 ## 怎么从源码构建？
 
-完整步骤在 [GitHub 仓库的 Building 一节](https://github.com/hajisensai/Fushi#building)，Linux 的细节（依赖清单、打包注意事项、在 Docker 里验证的方法）在仓库的 `docs/agent/build.md`「Linux 桌面（社区维护）」。大致是：
+完整步骤在 [GitHub 仓库的 Building 一节](https://github.com/hajisensai/Fushi#building)，Linux 的细节（依赖清单、打包注意事项、在 Docker 里验证的方法）在仓库的 `docs/agent/build.md`「Linux 桌面（源码构建）」。大致是：
 
 1. 装 **Flutter 3.47.6**（仓库锁定这个版本，3.44 及更早版本编不过）。
 2. 装构建依赖。以 Debian trixie 为例：`clang cmake ninja-build make pkg-config g++`（g++ 需要 14 以上）、`libgtk-3-dev liblzma-dev libmpv-dev libsecret-1-dev libkeybinder-3.0-dev`；要 WebView 再加 `libwpewebkit-2.0-dev libwpebackend-fdo-1.0-dev libwpe-1.0-dev libepoxy-dev libwayland-dev`。
@@ -62,7 +62,7 @@ Fushi 的 EPUB 阅读器、查词弹窗、LNReader 小说源这些界面跑在 W
 3. 注意在构建机上检查永远是绿的：插件在构建期记下的库搜索路径会指回构建目录。想确认一份包真的能分发，要在一台干净的机器或容器里验。
 4. 能启动但阅读器、查词弹窗是空的，看那块区域显示的原因：多半是没装 WPE，或者系统禁止了非特权 user namespace（见上一节）。
 
-社区打包（比如做成发行版仓库里的包）时，把这些运行时依赖写进包的依赖声明，再附上一个 `.desktop` 文件，用户装完就能直接从菜单打开。
+自己打包（比如做成发行版仓库里的包）时，把这些运行时依赖写进包的依赖声明，再附上一个 `.desktop` 文件，用户装完就能直接从菜单打开。
 
 ## 只想在 Linux 服务器上跑：用 fushi_server
 

@@ -3,7 +3,7 @@ title: "浏览器里怎么查词？Shift 查词是什么？"
 description: "按住 Shift 把鼠标移到词上就弹词典——这是 Yomitan 那套习惯，Fushi 的浏览器扩展也是这样。app 内的阅读器和视频点词即查；视频网站上扩展叠出来的 Fushi 字幕 Shift 和点击都行；其他网页文字用 Shift。附扩展安装步骤。"
 category: "浏览器扩展"
 order: 110
-date: 2026-10-07
+date: 2026-10-18
 ---
 
 ## 先说「Shift 查词」
@@ -30,7 +30,7 @@ Fushi 自带一个浏览器扩展，让你在任何网页上用 app 里的词典
 
 **设置 → 查词 → 外部集成 → 浏览器扩展**，跟着页面上的步骤走：
 
-1. 点 **准备扩展文件**。Fushi 会自动开启查词服务（Yomitan API 服务器），把扩展解压到本机，并把文件夹路径复制到剪贴板。
+1. 点 **准备扩展文件**。Fushi 会自动开启查词服务（Fushi API 服务器），把扩展解压到本机，并把文件夹路径复制到剪贴板。
 2. 在浏览器地址栏打开 `chrome://extensions`（Edge 是 `edge://extensions`）。
 3. 打开右上角的 **开发者模式**。
 4. 点 **加载已解压的扩展程序**，粘贴刚才复制的路径，选那个文件夹。
@@ -47,7 +47,7 @@ Fushi 自带一个浏览器扩展，让你在任何网页上用 app 里的词典
 
 ### 装不上 / 没反应
 
-- **「查词服务未开启」**：在浏览器扩展那一页先开「Yomitan API 服务器」，或者再点一次「准备扩展文件」。
+- **「查词服务未开启」**：在浏览器扩展那一页先开「Fushi API 服务器」，或者再点一次「准备扩展文件」。
 - **端口 19633 被占用**：多半是你之前装的 Yomitan 拉起的 yomitan-api 组件（一个 Python 进程）。Fushi 会提示，可以直接结束它，或在 Yomitan 高级设置里关掉 Yomitan API 再重开 Fushi 的服务器。
 - **「浏览器中加载的扩展不是最新版本」**：Fushi 更新后扩展文件也更新了，去 `chrome://extensions` 点那个扩展的「重新加载」。
 - **某些网页取不到词**：文字是画在 canvas 上或者嵌在图片里的页面（一些漫画站、PDF 预览）扩展没法取字，属正常。
@@ -70,7 +70,7 @@ app 以前的「内置网页播放器」（在 Fushi 里打开网页视频）目
 两边可以共存，也可以只留一边：
 
 - **继续用 Yomitan 查网页**没问题，Fushi 的扩展只是多一个选择；两者都用 Shift，装在一起会各弹各的，建议网页查词只留一个。
-- 想让 **GameSentenceMiner 之类走 yomitan-api 协议的工具** 改查 Fushi 的词典：开 Fushi 的 Yomitan API 服务器（端口 19633，可设密钥），把工具指向它。
+- 想让 **GameSentenceMiner 之类走 yomitan-api 协议的工具** 改查 Fushi 的词典：开 Fushi 的 Fushi API 服务器（端口 19633，可设密钥），把工具指向它。
 - Textractor / LunaTranslator / mpv 这类抓文本的工具，可以直接把文本推给 Fushi 的「文本钩子（接收文本）」（设置 → 查词 → 外部集成里连它们的 WebSocket），在 Fushi 里逐词点查、制卡，不再需要 texthooker 网页 + Yomitan 那一套。
 
 ## 浏览器之外

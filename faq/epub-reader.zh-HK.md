@@ -3,7 +3,7 @@ title: "怎麼在 Fushi 裡讀 EPUB 輕小說，點詞查詞、一鍵制卡？"
 description: "把 EPUB 輕小說導進書架，開啟就是豎排閱讀器：點任意一個詞彈出詞典，點加號做成帶原句、封面（有聲書還帶原聲）的 Anki 卡。翻頁、滾動、視覺小說三種模式隨選，進度和閱讀速度自動記錄。"
 category: "書架"
 order: 61
-date: 2026-10-12
+date: 2026-10-18
 lang: zh-HK
 ---
 
@@ -69,4 +69,4 @@ Fushi 只能開啟**沒有 DRM** 的檔案。從電子書平臺買的書如果�
 - **整本書都是圖片，點不了字**：這是掃描版（每頁是一張圖），裡面沒有文字。在書架長按這本書選「轉換為漫畫」，交給漫畫 OCR 識別後就能點字，見[怎麼線上看漫畫並識別文字制卡？](/faq/manga-online.zh-HK)。
 - **字型、字號、豎排橫排不滿意**：都在 **閱讀設定** 裡，見[閱讀器的排版設定](/faq/reader-typography.zh-HK)。
 
-Fushi 是免費開源的，Windows、macOS（Apple Silicon）、Android、iOS 都能用閱讀器，Linux 為社群維護平臺；到[下載頁](/zh-hk/download)選你的平臺。
+Fushi 是免費開源的，Windows、macOS（Apple Silicon）、Android、iOS 都能用閱讀器，Linux 可從原始碼構建；到[下載頁](/zh-hk/download)選你的平臺。

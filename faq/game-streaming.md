@@ -3,7 +3,7 @@ title: "能不能在手机 / iPad 上玩电脑里的 Galgame，并且边玩边�
 description: "可以，用 Fushi 的游戏串流（实验性）：游戏和文本 Hook 留在 Windows 电脑上，画面、声音和台词串流到已配对的手机 / 平板，点台词查词（用电脑的词典）、制卡（电脑写进自己的 Anki），触屏和手柄操作送回游戏；还能从手机远程启动电脑上的游戏。"
 category: "游戏"
 order: 87.5
-date: 2026-10-12
+date: 2026-10-18
 ---
 
 Galgame 的文本 Hook 只能在 Windows 上做（见[Galgame 怎么接进 Fushi？](/faq/galgame)），但很多人更想躺着用手机或 iPad 玩。Fushi 的 **游戏串流** 就是为这个场景做的：游戏照常在电脑上跑、Hook 照常在电脑上抓台词，Fushi 把游戏窗口的画面和声音、连同 Hook 到的台词一起推到另一台设备上，你在那台设备上看、听、点词查词、制卡，触屏和手柄的操作再送回电脑上的游戏。
@@ -25,7 +25,7 @@ Galgame 的文本 Hook 只能在 Windows 上做（见[Galgame 怎么接进 Fushi
 游戏模块在不同平台上是两种形态：
 
 - **Windows**：本机游戏库 + 文本 Hook 工作台；游戏页里另有 **串流** 分区，也能当接收端去看另一台 Windows 电脑；
-- **Android、iOS / iPadOS、macOS**（以及社区维护的 Linux 版）：游戏模块就是串流客户端，副标题写着「在电脑上启动游戏并串流到这里」。
+- **Android、iOS / iPadOS、macOS**（以及从源码构建的 Linux 版）：游戏模块就是串流客户端，副标题写着「在电脑上启动游戏并串流到这里」。
 
 所以主机永远是 Windows 电脑；接收端用手机、平板、Mac 都行。iOS 版在 App Store 合规上少了几样在线功能（见[iOS 版少了哪些功能？](/faq/ios-limits)），但游戏串流客户端是保留的。
 

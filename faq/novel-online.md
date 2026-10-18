@@ -3,7 +3,7 @@ title: "怎么在 Fushi 里用 LNReader 插件在线看网络小说，并下载�
 description: "Fushi 支持 LNReader 的小说插件：自己添加插件仓库、安装小说源后，就能在线搜索、在线阅读网络小说，点词查词制卡；也能按章节范围下载成带目录和插图的 EPUB 放进书架离线读。Windows、macOS、Android、Linux 可用，iOS 没有这项功能。"
 category: "书架"
 order: 64
-date: 2026-10-12
+date: 2026-10-18
 ---
 
 想用日文网络小说练阅读，又不想手动复制网页？Fushi 内置了 [LNReader](https://github.com/LNReader/lnreader-plugins) 插件的运行环境：一个插件对应一个小说网站，装上之后在 Fushi 里直接搜索、看章节列表、在线读；读的时候和普通 EPUB 一样**点词查词、点加号制卡**，阅读位置和统计照常记录。想离线看，就把一段章节下载成一本 EPUB 放进书架。
@@ -11,7 +11,7 @@ date: 2026-10-12
 ## 先确认你的平台
 
 - **Windows、macOS、Android**：可用。
-- **Linux**（社区维护平台）：可用，插件跑在系统的 WPE WebKit 上；系统缺这个组件时，进入小说源页面会显示缺什么、该装什么。
+- **Linux**（从源码构建）：可用，插件跑在系统的 WPE WebKit 上；系统缺这个组件时，进入小说源页面会显示缺什么、该装什么。
 - **iOS**：**没有**。iOS 版按 App Store 审核规定不带任何在线源（漫画、视频、小说都没有），书架、本地书阅读、查词制卡不受影响。iOS 上想读网络小说，可以在电脑上下载成 EPUB 后导入，或者经 [Fushi 互联](/faq/interconnect)从电脑那边读。
 
 ## 第 1 步：添加插件仓库（Fushi 不内置任何仓库）

@@ -3,7 +3,7 @@ title: "How is Fushi different from asbplayer, Language Reactor, Migaku, Yomitan
 description: "Yomitan is a browser lookup extension, asbplayer and Language Reactor mainly add lookup-ready subtitles to videos in the browser, Migaku is a paid all-in-one subscription, and Anki does spaced-repetition review. Fushi is a free, open-source standalone app that brings anime watching, light novel reading, manga OCR, galgame lookup and Anki card mining together — and it works alongside all of these tools."
 category: "About Fushi"
 order: 25
-date: 2026-10-12
+date: 2026-10-18
 lang: en
 ---
 
@@ -33,7 +33,7 @@ How it relates to Fushi:
 - **Same dictionaries**: Fushi imports Yomitan dictionary zips directly (and also MDict `.mdx` / `.mdd`, `.dsl` and StarDict), and uses Yomitan's transformation tables for deinflection. The dictionaries you've collected for Yomitan work as they are; see [How do I import dictionaries?](/faq/dictionaries.en)
 - **Same audio database**: the database behind Yomitan's "local audio server" can be used directly — point Fushi's "local audio database" at its `entries.db`.
 - **Different places**: Yomitan lives in the browser; in Fushi you tap a word inside the app, covering what's outside the browser — local video subtitles, EPUBs, text inside manga images, galgame dialogue — and it works on your phone too.
-- **They work together**: Fushi ships its own browser extension, also Shift-to-look-up, using the dictionaries in Fushi. With both extensions installed each pops up its own window, so keep just one for web lookup (see [How do I look words up in the browser?](/faq/browser-lookup.en)). Fushi can also run a "Yomitan API server" that speaks the yomitan-api protocol, so tools built for Yomitan can query Fushi's dictionaries instead.
+- **They work together**: Fushi ships its own browser extension, also Shift-to-look-up, using the dictionaries in Fushi. With both extensions installed each pops up its own window, so keep just one for web lookup (see [How do I look words up in the browser?](/faq/browser-lookup.en)). Fushi can also run a "Fushi API server" that speaks the yomitan-api protocol, so tools built for Yomitan can query Fushi's dictionaries instead.
 
 ## Fushi, asbplayer and Language Reactor
 

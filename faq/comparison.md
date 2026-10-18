@@ -3,7 +3,7 @@ title: "Fushi 和 asbplayer、Language Reactor、Migaku、Yomitan、Anki 有什�
 description: "Yomitan 是浏览器查词扩展，asbplayer 和 Language Reactor 主要在浏览器里给视频加字幕查词，Migaku 是付费订阅的一体化工具，Anki 负责间隔重复复习。Fushi 是一个免费开源的独立应用，把看番、读轻小说、漫画 OCR、Galgame 查词和 Anki 制卡放在一起，并且可以和这些工具同时使用。"
 category: "关于 Fushi"
 order: 25
-date: 2026-10-12
+date: 2026-10-18
 ---
 
 用沉浸法学语言（见[什么是沉浸学习](/zh-cn/immersion)）的人，工具箱里往往已经有好几样东西：浏览器里装了 Yomitan，看 Netflix 用 Language Reactor 或 asbplayer，卡片进 Anki。Fushi 不是要你把这些全换掉，而是补上它们没覆盖到的地方。这一篇按工具逐个说清楚区别，以及怎么搭配。
@@ -32,7 +32,7 @@ date: 2026-10-12
 - **词典通用**：Fushi 直接导入 Yomitan 词典 zip（也认 MDict 的 `.mdx` / `.mdd`、`.dsl`、StarDict），去屈折变形用的也是 Yomitan 的变形表。你给 Yomitan 攒的词典可以原样拿来用，见[怎么导入词典](/faq/dictionaries)。
 - **发音库通用**：Yomitan「本地音频服务器」那份数据库，Fushi 的「本地音频数据库」可以直接指向它的 `entries.db`。
 - **场景不同**：Yomitan 在浏览器里；Fushi 在应用里点词即查，覆盖的是浏览器之外的东西——本地视频字幕、EPUB、漫画图片里的字、Galgame 的台词，手机上也能用。
-- **能一起用**：Fushi 自带一个浏览器扩展，同样是 Shift 查词，用的是 Fushi 里的词典。两个扩展都装的话会各弹各的，建议网页查词只留一个（见[浏览器里怎么查词](/faq/browser-lookup)）。Fushi 还能开一个兼容 yomitan-api 协议的「Yomitan API 服务器」，让原本对接 Yomitan 的工具改查 Fushi 的词典。
+- **能一起用**：Fushi 自带一个浏览器扩展，同样是 Shift 查词，用的是 Fushi 里的词典。两个扩展都装的话会各弹各的，建议网页查词只留一个（见[浏览器里怎么查词](/faq/browser-lookup)）。Fushi 还能开一个兼容 yomitan-api 协议的「Fushi API 服务器」，让原本对接 Yomitan 的工具改查 Fushi 的词典。
 
 ## Fushi 和 asbplayer、Language Reactor
 

@@ -3,7 +3,7 @@ title: "How do I read EPUB light novels in Fushi, look up words with a tap and m
 description: "Import an EPUB light novel into Books and it opens in a vertical-text reader: tap any word for a dictionary popup, tap the plus to turn it into an Anki card with the sentence and the book cover (plus narration audio for audiobooks). Paginated, scroll and visual-novel modes; progress and reading speed are tracked automatically."
 category: "Books"
 order: 61
-date: 2026-10-12
+date: 2026-10-18
 lang: en
 ---
 
@@ -69,4 +69,4 @@ Cards use the built-in Lapis template by default. For which words are worth mini
 - **The whole book is images and nothing is tappable**: it's a scanned book (each page is a picture) with no text inside. Long-press the book in Books and choose "Convert to manga"; once manga OCR has recognised it, the text becomes tappable — see [How do I read manga online and OCR the text for mining?](/faq/manga-online.en).
 - **Unhappy with the font, size, or vertical / horizontal layout**: it's all in **Reader settings** — see [Reader typography settings](/faq/reader-typography.en).
 
-Fushi is free and open source; the reader works on Windows, macOS (Apple Silicon), Android and iOS, and Linux is a community-maintained platform. Pick your platform on the [download page](/download).
+Fushi is free and open source; the reader works on Windows, macOS (Apple Silicon), Android and iOS, and Linux can be built from source. Pick your platform on the [download page](/download).

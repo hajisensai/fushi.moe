@@ -3,7 +3,7 @@ title: "How do I read web novels online in Fushi with LNReader plugins, and down
 description: "Fushi supports LNReader novel plugins: add a plugin repository yourself, install novel sources, then search and read web novels online with tap-to-look-up and card mining; or download a range of chapters as an EPUB with a table of contents and illustrations to read offline from your bookshelf. Available on Windows, macOS, Android and Linux; iOS doesn't have this feature."
 category: "Books"
 order: 64
-date: 2026-10-12
+date: 2026-10-18
 lang: en
 ---
 
@@ -12,7 +12,7 @@ Want to practise reading with Japanese web novels without copying web pages by h
 ## First, check your platform
 
 - **Windows, macOS, Android**: available.
-- **Linux** (a community-maintained platform): available; plugins run on the system's WPE WebKit. If that component is missing, the novel source page tells you what's missing and what to install.
+- **Linux** (built from source): available; plugins run on the system's WPE WebKit. If that component is missing, the novel source page tells you what's missing and what to install.
 - **iOS**: **not available**. Under App Store review rules the iOS version ships with no online sources at all (no manga, video or novel sources); the bookshelf, reading local books, lookups and mining are unaffected. To read web novels on iOS, download them as EPUB on a computer and import them, or read them from the computer through [Fushi interconnect](/faq/interconnect.en).
 
 ## Step 1: add a plugin repository (Fushi doesn't include any)

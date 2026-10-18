@@ -17,7 +17,7 @@ title: Privacy Policy
 
 # Privacy Policy
 
-<p class="updated">Last updated: October 17, 2026</p>
+<p class="updated">Last updated: October 18, 2026</p>
 
 Fushi is a free and open-source application licensed under GPLv3. This policy describes what data the app handles and how.
 
@@ -43,7 +43,8 @@ Fushi creates flashcards via AnkiDroid (Android), AnkiMobile (iOS), or AnkiConne
 
 On Android, Windows, macOS and Linux, Fushi sends one small anonymous usage report per day to the developer's server (`rank.fushi.moe`, hosted on Cloudflare) so we can see how many people use the app and which versions are still in use. Each report contains only:
 
-- A random install ID, generated on your device the first time Fushi runs. It is not derived from your hardware, account or any other identifier, and it is never included in backups, sync or profile exports, so a restored backup on a new device gets a new ID.
+- An install ID. Since October 2026 it is derived on your device, by a one-way hash, from your operating system's machine identifier (Windows MachineGuid, macOS IOPlatformUUID, Linux `/etc/machine-id`, Android ANDROID_ID), so it stays the same when you reinstall Fushi or clear its data on the same device. The machine identifier itself is never sent or stored by Fushi. If it cannot be read, a random ID generated on your device is used instead. The install ID is not derived from your account, and it is never included in backups, sync or profile exports; a different device always gets a different ID.
+- A public key derived from the same identifier, with a signature and a small proof of work, so the server can reject reports that impersonate an existing install
 - The app version
 - The platform (Android, Windows, macOS or Linux)
 - The update channel you selected (stable, beta or debug)
