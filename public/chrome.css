@@ -46,11 +46,22 @@
   --app-hl: rgba(186, 201, 209, 0.35);
   --sans: "SF Pro Display", "SF Pro SC", "PingFang SC", -apple-system, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --jp: "Noto Serif JP", "Yu Mincho", serif;
-  --jp-sans: "Noto Sans JP", "PingFang SC", sans-serif;
+  --jp-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", sans-serif;
   /* 《けいおん!!》S02E01 ass Style: zhengwen —— DFGMaruGothic-Md */
   --ass-font: "DFG Maru Gothic Md", "DFGMaruGothic-Md", "HGMaruGothicMPRO", "Hiragino Maru Gothic ProN", "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
   /* 顶栏高度：底栏之外的东西要按它让位（锚点 scroll-margin、移动端面板起点）。 */
   --nav-h: 52px;
+}
+/* 界面字体按站点语言换 CJK 字形：site.js 切语言时写 <html lang>。上面的默认栈是
+   简体字形优先，日文页落到 PingFang SC / 微软雅黑会把「直」「骨」「写」等画成中文字形。 */
+:root:lang(ja) {
+  --sans: "SF Pro Display", "Hiragino Sans", "Hiragino Kaku Gothic ProN", -apple-system, "Segoe UI", "Noto Sans JP", "Yu Gothic UI", "Meiryo", sans-serif;
+}
+:root:lang(ko) {
+  --sans: "SF Pro Display", "Apple SD Gothic Neo", -apple-system, "Segoe UI", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+:root:lang(zh-HK) {
+  --sans: "SF Pro Display", "PingFang HK", -apple-system, "Segoe UI", "Noto Sans HK", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 /*
  * ============ 深色 token ============
