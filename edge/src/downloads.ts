@@ -464,15 +464,19 @@ export async function handleDownload(request: Request, deps: DownloadDeps): Prom
     return latestManifestResponse(await loadManifest(deps, channel), channel, deps);
   }
 
-  // 版本化路径不依赖清单：清单只用来补 size，拿不到就按 tag/文件名直接拼 GitHub 直链。
+  // 版本化路径不依赖清单：清单用来补 size 和真实直链，拿不到就按 tag/文件名直接拼 GitHub 直链。
+  // 必须读 tag 所属通道的清单：调试版的 tag 是版本号（v3.0.0-debug.N+sha），资产却挂在
+  // 滚动 release `fushi-debug-rolling` 下，按 tag 拼出的直链在 GitHub 上不存在——
+  // 以前只读 stable 清单，调试版分片下载 ?src=gh 因此恒 404。
   if (parts[0] === 'v' && parts.length === 3) {
     const tag = decodeURIComponent(parts[1]!);
     const name = decodeURIComponent(parts[2]!);
-    const manifest = await loadManifest(deps, 'stable');
+    const channel = channelOfTag(tag);
+    const manifest = await loadManifest(deps, channel);
     return serveAsset(
       request,
       deps,
-      { tag, channel: channelOfTag(tag), slot: slotOf(name) },
+      { tag, channel, slot: slotOf(name) },
       resolveVersionedAsset(manifest, deps, tag, name),
       true,
     );
