@@ -273,6 +273,31 @@ describe('handleDownload ?src=', () => {
     expect(res.status).toBe(502);
   });
 
+  it('/v/ 调试版：tag 是版本号、资产挂在滚动 release 下，按清单里的真实直链代理', async () => {
+    const rolling = JSON.stringify({
+      version: '3.0.0-debug.20644',
+      tag: 'v3.0.0-debug.20644+86ec8e6',
+      channel: 'debug',
+      assets: [
+        { name: 'fushi-3.0.0-debug.20644-ios.ipa', size: 1000, browser_download_url: 'https://github.com/owner/repo/releases/download/fushi-debug-rolling/fushi-3.0.0-debug.20644-ios.ipa' },
+      ],
+    });
+    const f = routedFetch({
+      [RAW + 'latest-stable-fushi.json']: () => new Response(STABLE),
+      [RAW + 'latest-debug-fushi.json']: () => new Response(rolling),
+      'https://github.com/owner/repo/releases/download/fushi-debug-rolling/': () =>
+        new Response('x', { status: 206, headers: { 'content-range': 'bytes 0-0/1000' } }),
+    });
+    const res = await handleDownload(
+      new Request('https://fushi.moe/v/v3.0.0-debug.20644%2B86ec8e6/fushi-3.0.0-debug.20644-ios.ipa?src=gh', {
+        headers: { range: 'bytes=0-0' },
+      }),
+      deps(f.fn),
+    );
+    expect(res.status).toBe(206);
+    expect(f.seen.some((s) => s.url.includes('/fushi-debug-rolling/fushi-3.0.0-debug.20644-ios.ipa'))).toBe(true);
+  });
+
   it('/v/ 路径在清单挂掉时照样按 tag/文件名拼直链服务（分片器不该因清单失效而全挂）', async () => {
     const f = routedFetch({
       [RAW]: () => new Response('down', { status: 503 }),
