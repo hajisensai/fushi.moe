@@ -17,6 +17,10 @@
  * 「CF Pages 坏了回源 GitHub」与陈旧兜底；回访用户仍有 Service Worker 那层切换。
  * HTML 页面、/releases、/pack、/api、/__health 继续走 Worker。
  *
+ * 顺带钉死挂脚本 Route 的 fail-open（request_limit_fail_open）：Worker 超出每日额度时
+ * 请求直接落到底层 Pages，而不是全站 1027。`wrangler deploy` 会重建 Route 且默认 fail-closed
+ * （2026-10-21 实测部署后 Route id 换了、开关回到 false），所以每次部署后都要校正一遍。
+ *
  * 用法：CLOUDFLARE_API_TOKEN=… node tool/edge-bypass-routes.mjs [--dry-run]
  */
 
@@ -75,11 +79,12 @@ export function patternMatchesPath(pattern, path) {
 }
 
 /**
- * 根据现有 Route 算出要做的变更。只管理**不挂脚本**的 Route；挂了脚本的
+ * 根据现有 Route 算出要做的变更。排除清单只管理**不挂脚本**的 Route；挂了脚本的
  * （`fushi.moe/*` → fushi-moe-edge 等）一律不动，除非它的 pattern 正好在清单里，
- * 那说明有人手工把排除路由挂回了脚本，改回不挂脚本。
+ * 那说明有人手工把排除路由挂回了脚本，改回不挂脚本。挂脚本且在本 zone 的 Route
+ * 若不是 fail-open，列进 failOpen 改过来。
  *
- * @param {ReadonlyArray<{id: string, pattern: string, script?: string | null}>} existing
+ * @param {ReadonlyArray<{id: string, pattern: string, script?: string | null, request_limit_fail_open?: boolean}>} existing
  * @param {ReadonlyArray<string>} desired
  */
 export function planRouteSync(existing, desired) {
@@ -88,17 +93,23 @@ export function planRouteSync(existing, desired) {
   const create = [];
   const detach = [];
   const remove = [];
+  const failOpen = [];
   for (const pattern of desired) {
     const route = byPattern.get(pattern);
     if (!route) create.push(pattern);
     else if (route.script) detach.push(route);
   }
   for (const route of existing) {
-    if (route.script) continue;
+    if (route.script) {
+      const bypassed = want.has(route.pattern);
+      const inZone = route.pattern.startsWith(ZONE_NAME + '/');
+      if (inZone && !bypassed && route.request_limit_fail_open !== true) failOpen.push(route);
+      continue;
+    }
     if (!route.pattern.startsWith(ZONE_NAME + '/')) continue;
     if (!want.has(route.pattern)) remove.push(route);
   }
-  return { create, detach, remove };
+  return { create, detach, remove, failOpen };
 }
 
 async function cf(token, method, path, body) {
@@ -127,7 +138,8 @@ async function main() {
   const existing = await cf(token, 'GET', `/zones/${zoneId}/workers/routes`);
   const plan = planRouteSync(existing, BYPASS_PATTERNS);
   console.log(
-    `bypass routes: create ${plan.create.length}, detach ${plan.detach.length}, remove ${plan.remove.length}` +
+    `bypass routes: create ${plan.create.length}, detach ${plan.detach.length}, remove ${plan.remove.length}, ` +
+      `fail-open ${plan.failOpen.length}` +
       (dryRun ? ' (dry run)' : ''),
   );
   for (const pattern of plan.create) {
@@ -145,6 +157,16 @@ async function main() {
   for (const route of plan.remove) {
     console.log(`  - ${route.pattern}`);
     if (!dryRun) await cf(token, 'DELETE', `/zones/${zoneId}/workers/routes/${route.id}`);
+  }
+  for (const route of plan.failOpen) {
+    console.log(`  ! ${route.pattern} → ${route.script}: fail-open`);
+    if (!dryRun) {
+      await cf(token, 'PUT', `/zones/${zoneId}/workers/routes/${route.id}`, {
+        pattern: route.pattern,
+        script: route.script,
+        request_limit_fail_open: true,
+      });
+    }
   }
 }
 

@@ -49,7 +49,7 @@ test('排除清单里的 public/ 条目在源码里真实存在', () => {
 
 test('同步计划：缺的建、挂了脚本的摘掉、清单外的无脚本路由删掉、带脚本的主路由不动', () => {
   const existing = [
-    { id: 'main', pattern: 'fushi.moe/*', script: 'fushi-moe-edge' },
+    { id: 'main', pattern: 'fushi.moe/*', script: 'fushi-moe-edge', request_limit_fail_open: true },
     { id: 'a', pattern: 'fushi.moe/assets/*', script: null },
     { id: 'b', pattern: 'fushi.moe/demo/*', script: 'fushi-moe-edge' },
     { id: 'old', pattern: 'fushi.moe/legacy/*', script: null },
@@ -59,10 +59,25 @@ test('同步计划：缺的建、挂了脚本的摘掉、清单外的无脚本�
   assert.deepEqual(plan.create, ['fushi.moe/sw.js']);
   assert.deepEqual(plan.detach.map((r) => r.id), ['b']);
   assert.deepEqual(plan.remove.map((r) => r.id), ['old']);
+  assert.deepEqual(plan.failOpen, []);
+});
+
+test('挂脚本的主路由被 wrangler deploy 重建成 fail-closed 时改回 fail-open；别的 zone 不碰', () => {
+  const existing = [
+    { id: 'main', pattern: 'fushi.moe/*', script: 'fushi-moe-edge', request_limit_fail_open: false },
+    { id: 'rank', pattern: 'rank.fushi.moe/*', script: 'fushi-leaderboard', request_limit_fail_open: false },
+  ];
+  const plan = planRouteSync(existing, []);
+  assert.deepEqual(plan.failOpen.map((r) => r.id), ['main']);
 });
 
 test('同步计划幂等：已经一致时无任何变更', () => {
   const existing = BYPASS_PATTERNS.map((pattern, i) => ({ id: String(i), pattern, script: null }));
-  existing.push({ id: 'main', pattern: 'fushi.moe/*', script: 'fushi-moe-edge' });
-  assert.deepEqual(planRouteSync(existing, BYPASS_PATTERNS), { create: [], detach: [], remove: [] });
+  existing.push({ id: 'main', pattern: 'fushi.moe/*', script: 'fushi-moe-edge', request_limit_fail_open: true });
+  assert.deepEqual(planRouteSync(existing, BYPASS_PATTERNS), {
+    create: [],
+    detach: [],
+    remove: [],
+    failOpen: [],
+  });
 });

@@ -179,6 +179,8 @@ curl -sI https://hajisensai.github.io/fushi.moe/ | head -3   # 必须是 200，�
 
 ### 7. 验证 Worker 的平台级 fail-open
 
+超出 Workers 每日额度时的回退靠 Route 的 `request_limit_fail_open`：`wrangler deploy` 会重建 Route 且默认 fail-closed（超额全站 1027），所以部署 workflow 在 deploy 之后由 `tool/edge-bypass-routes.mjs` 把它校正回 fail-open。
+
 Route 的未捕获异常回退由代码里的 `ctx.passThroughOnException()` 开启。确认临时抛出测试异常时响应仍来自底层 Pages，再撤掉测试；不要只看面板文案就当作验收。
 
 ---
