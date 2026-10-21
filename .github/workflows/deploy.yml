@@ -146,6 +146,15 @@ jobs:
           workingDirectory: edge
           command: deploy
 
+      # 静态资源绕过 Worker（不挂脚本的 Route）。wrangler.toml 表达不了，按
+      # tool/edge-bypass-routes.mjs 的清单幂等增删。省下的是整个账户共用的 Workers 免费额度。
+      - name: Sync static bypass routes
+        if: steps.guard.outputs.ready == 'true'
+        working-directory: .
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: node tool/edge-bypass-routes.mjs
+
   verify-production:
     needs: [deploy-github-pages, deploy-cloudflare-pages, deploy-edge-worker]
     runs-on: ubuntu-latest

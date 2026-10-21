@@ -40,6 +40,14 @@ check(
 
 const home = await request('https://fushi.moe/');
 check(home.response.ok, '主站返回 2xx');
+check(home.response.headers.has('x-fushi-origin'), 'HTML 仍经过边缘 Worker（首访故障切换）');
+
+// 静态资源由不挂脚本的 Route 直达 Pages（tool/edge-bypass-routes.mjs），不占 Workers 额度。
+const staticAsset = await request('https://fushi.moe/fushi-icon.png');
+check(
+  staticAsset.response.ok && !staticAsset.response.headers.has('x-fushi-origin'),
+  '静态资源绕过 Worker，由 Pages 直出',
+);
 
 const packOrigin = await request(
   'https://github.com/hajisensai/fushi-pack/releases/latest/download/manifest.json',
