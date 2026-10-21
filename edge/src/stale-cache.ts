@@ -15,8 +15,22 @@ export type LoadResult<T> =
   | { readonly ok: true; readonly value: T }
   | { readonly ok: false; readonly reason: string };
 
+/**
+ * 跨节点共享的最后一次成功值（生产是 Durable Object）。
+ *
+ * Cache API 是每个 Cloudflare 节点各存一份：陈旧副本只在「这个节点自己成功回源过」之后
+ * 才存在。出口 IP 长期被 api.github.com 限流的节点（实测台北）就永远等不到第一次成功，
+ * 端点在那里一直是 null。全局快照让任何一个节点的成功都能兜住所有节点。
+ */
+export interface GlobalSnapshot {
+  load(): Promise<unknown>;
+  save(value: unknown): Promise<void>;
+}
+
 export interface ReadThroughOptions<T> {
   readonly cache?: Cache;
+  /** 节点陈旧副本也没有时的最后一层兜底；没配就只有节点内的三层。 */
+  readonly globalStale?: GlobalSnapshot;
   /** 新鲜副本的缓存键（必须是合法 URL，用 .invalid 域避免和真实请求撞车）。 */
   readonly freshKey: string;
   readonly staleKey: string;
@@ -101,6 +115,7 @@ export async function readThrough<T>(opts: ReadThroughOptions<T>): Promise<ReadT
       storeCached(opts, cache, opts.freshKey, loaded.value, opts.freshTtlS);
       storeCached(opts, cache, opts.staleKey, loaded.value, opts.staleTtlS);
     }
+    if (opts.globalStale) inBackground(opts.globalStale.save(loaded.value), opts.waitUntil);
     return { value: loaded.value, stale: false };
   }
 
@@ -108,7 +123,19 @@ export async function readThrough<T>(opts: ReadThroughOptions<T>): Promise<ReadT
     const stale = await readCached(cache, opts.staleKey, opts.validate);
     if (stale !== null) return { value: stale, stale: true };
   }
+  const global = await readGlobal(opts);
+  if (global !== null) return { value: global, stale: true };
   return { value: null, reason: loaded.reason };
+}
+
+async function readGlobal<T>(opts: ReadThroughOptions<T>): Promise<T | null> {
+  if (!opts.globalStale) return null;
+  try {
+    return opts.validate(await opts.globalStale.load());
+  } catch {
+    // 快照存储抖一下等同于没有快照：照常判不可用，不抛。
+    return null;
+  }
 }
 
 /**
