@@ -4,6 +4,7 @@ import { handleDownload } from './downloads';
 import { handleDownloadStats } from './download-stats';
 import { downloadCounterFrom } from './download-stats-object';
 import { handleHealth } from './health';
+import { httpsRedirect } from './https';
 import { handleStars } from './stars';
 import { handleSite } from './site';
 import { handlePack } from './pack';
@@ -60,6 +61,9 @@ export default {
       const url = new URL(request.url);
       const health = new CacheHealthStore(caches.default);
       const waitUntil = (p: Promise<unknown>): void => ctx.waitUntil(p.catch(() => {}));
+
+      const toHttps = httpsRedirect(url, settings.canonicalHost);
+      if (toHttps) return toHttps;
 
       if (url.pathname === '/__health') {
         return await handleHealth({
