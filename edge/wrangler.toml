@@ -7,6 +7,8 @@ compatibility_date = "2026-01-01"
 # 所以回源到它不会被自己再拦一次，天然不会递归。
 routes = [
   { pattern = "fushi.moe/*", zone_name = "fushi.moe" },
+  # www 只做 308 到主域（src/https.ts），不提供内容；不挂的话 www 由代理 DNS 回 404。
+  { pattern = "www.fushi.moe/*", zone_name = "fushi.moe" },
 ]
 
 [vars]
