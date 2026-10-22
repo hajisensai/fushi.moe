@@ -12,6 +12,14 @@ describe('httpsRedirect', () => {
     expect(httpsRedirect(new URL('https://fushi.moe/'), 'fushi.moe')).toBeNull();
   });
 
+  it('www 子域（http / https）308 到规范域名同路径', () => {
+    for (const u of ['https://www.fushi.moe/download?a=1', 'http://www.fushi.moe/download?a=1']) {
+      const res = httpsRedirect(new URL(u), 'fushi.moe');
+      expect(res?.status).toBe(308);
+      expect(res?.headers.get('location')).toBe('https://fushi.moe/download?a=1');
+    }
+  });
+
   it('非规范域名不改写', () => {
     expect(httpsRedirect(new URL('http://fushi-moe-edge.example.workers.dev/'), 'fushi.moe')).toBeNull();
   });
