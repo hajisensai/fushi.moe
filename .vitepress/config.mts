@@ -17,6 +17,10 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const dictOf = (code: string): Record<string, string> =>
   JSON.parse(readFileSync(join(HERE, '..', 'public', 'i18n', code + '.json'), 'utf8'))
 
+/** 双引号属性值转义。 */
+const escapeAttr = (s: string): string =>
+  s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
 /**
  * dev 专用：首页不在 VitePress 路由表里——线上的 / 与 /zh-cn/ 等 17 条语言路由是构建时
  * tool/build_lang_routes.mjs 从 public/index.html 烤出来的静态文件，dev server 里没有，
@@ -67,6 +71,14 @@ export default defineConfig({
     // 多来源故障切换 SW：CF 线路不通时改从 GitHub 侧取内容，地址栏不变。
     ['script', { src: '/sw-register.js', defer: '' }],
   ],
+  // VitePress 1.6 把 description 原样拼进 <meta name="description" content="…">，不转义：
+  // 描述里带英文双引号（如 "Host service"）时属性在第一个 " 处截断，搜索引擎拿到的摘要只剩前几个词。
+  // 只改服务端渲染的这一行；pageData 不动（客户端路由用 setAttribute 写 meta，转义了反而会显示 &quot;）。
+  transformHtml(code, _id, { pageData }) {
+    const raw = pageData.description
+    if (!raw || !/["&<>]/.test(raw)) return
+    return code.replace(`<meta name="description" content="${raw}">`, () => `<meta name="description" content="${escapeAttr(raw)}">`)
+  },
   /*
    * 常见问题的文章（faq/<slug>.md）的链接预览 head：canonical / og / 更新时间。
    * 常见问题不走语言路由；文章的翻译是同目录的 faq/<slug>.<lang>.md（frontmatter lang 同值，目前 en / zh-HK），

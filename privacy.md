@@ -1,5 +1,10 @@
 ---
 title: Privacy Policy
+description: "What data the Fushi app handles and how: local storage, user-configured cloud sync, Anki, optional feedback and opt-in error logging."
+head:
+  - - link
+    - rel: "canonical"
+      href: "https://fushi.moe/privacy"
 ---
 
 <style>
