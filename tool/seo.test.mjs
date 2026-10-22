@@ -130,3 +130,18 @@ test('仓库说明文档（README / AGENTS / CLAUDE / docs/）不被构建成站
 test('robots.txt 指向 sitemap', () => {
   assert.match(read('public/robots.txt'), /^Sitemap: https:\/\/fushi\.moe\/sitemap\.xml$/m);
 });
+
+test('不走语言路由、也不是常见问题文章的独立页自带 canonical', () => {
+  // 没有 canonical 的页面会被 http:// 等变体顶成「重复网页，用户未选定规范网页」
+  for (const [file, url] of [['privacy.md', 'https://fushi.moe/privacy'], ['faq.md', 'https://fushi.moe/faq']]) {
+    const fm = /^---\n([\s\S]*?)\n---/.exec(read(file).replace(/\r\n/g, '\n'));
+    assert.ok(fm, file + ' 缺 frontmatter');
+    assert.match(fm[1], /rel: "canonical"\s*\n\s*href: "([^"]+)"/, file + ' 缺 canonical');
+    assert.equal(/href: "([^"]+)"/.exec(fm[1].slice(fm[1].indexOf('rel: "canonical"')))[1], url);
+  }
+});
+
+test('meta description 服务端渲染时转义属性值', () => {
+  // VitePress 1.6 原样拼 description，描述里的英文双引号会截断属性（BUG：faq/*.en 摘要只剩前几个词）
+  assert.match(read('.vitepress/config.mts'), /transformHtml\([^)]*\)\s*\{[\s\S]*?escapeAttr\(raw\)/);
+});
