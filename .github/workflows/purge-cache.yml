@@ -1,0 +1,48 @@
+name: Purge Cloudflare cache
+
+# 手动清 fushi.moe 的 Cloudflare 边缘缓存。某个节点缓存了坏副本（例如 2026-10-23
+# YVR 的 0 字节 /site.js，见 edge/src/site.ts 的 staleKey 注释）时用：ETag 与源站一致的
+# 坏副本每次回源都是 304 续期，不清不会自愈。
+on:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: '要清的完整 URL，空格分隔；留空 = 清整个 zone'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          FILES: ${{ inputs.files }}
+        run: |
+          set -euo pipefail
+          if [ -z "$CF_TOKEN" ]; then
+            echo "::error::未配置 CLOUDFLARE_API_TOKEN"
+            exit 1
+          fi
+          zone=$(curl -fsS -H "Authorization: Bearer $CF_TOKEN" \
+            "https://api.cloudflare.com/client/v4/zones?name=fushi.moe" | jq -r '.result[0].id // empty')
+          if [ -z "$zone" ]; then
+            echo "::error::token 读不到 fushi.moe zone（缺 Zone: Read 或资源范围不含该 zone）"
+            exit 1
+          fi
+          if [ -z "$FILES" ]; then
+            body='{"purge_everything":true}'
+          else
+            body=$(printf '%s\n' $FILES | jq -R . | jq -cs '{files: .}')
+          fi
+          res=$(curl -sS -X POST -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+            --data "$body" "https://api.cloudflare.com/client/v4/zones/$zone/purge_cache")
+          echo "$res" | jq '{success, errors}'
+          if [ "$(echo "$res" | jq -r .success)" != "true" ]; then
+            echo "::error::清缓存失败；token 需要 Zone → Cache Purge 权限"
+            exit 1
+          fi
