@@ -22,6 +22,20 @@ export interface SiteDeps {
 
 const OUTAGE_CACHE_TTL_S = 24 * 60 * 60;
 
+/**
+ * 陈旧兜底副本的缓存键：把请求路径挂到 .invalid 域下，绝不能用请求 URL 本身。
+ *
+ * caches.default 与本 zone 的 CDN 缓存是同一个键空间。用 https://fushi.moe/site.js 当键，
+ * 这份「只在双源都挂时才读」的副本就直接成了 CDN 的现役缓存：静态文件改走绕过 Worker
+ * 的 Route 后，CDN 命中它、拿 ETag 回源 304、续期，永远不回源取正文。2026-10-23 实测
+ * YVR 节点的 /site.js 与 /fushi-icon.png 就是这样被一次 HEAD 写成 0 字节的——
+ * 主题钮、语言菜单、hero 图标在该节点上全部失灵。
+ */
+function staleKey(requestUrl: string): Request {
+  const url = new URL(requestUrl);
+  return new Request(`https://fushi-site-stale.invalid${url.pathname}${url.search}`);
+}
+
 /** 把源站主机名写回规范主机名，避免 gh./cf. 子域泄漏给用户。 */
 function rewriteLocation(res: Response, deps: SiteDeps): Response {
   const loc = res.headers.get('location');
@@ -93,6 +107,8 @@ export async function handleSite(request: Request, deps: SiteDeps): Promise<Resp
   const order = pickOrder(settings.origins, down, settings.cfWeight, deps.rand());
 
   const cacheable = request.method === 'GET' || request.method === 'HEAD';
+  // 只有 GET 的 200 带完整正文；HEAD 的响应没有 body，存下来就是一份 0 字节的「正常页」。
+  const storable = request.method === 'GET';
 
   for (const origin of order) {
     const res = await tryOrigin(origin, request, deps);
@@ -102,7 +118,7 @@ export async function handleSite(request: Request, deps: SiteDeps): Promise<Resp
     }
     await deps.health.markUp(origin.name);
     const out = rewriteLocation(res, deps);
-    if (cacheable && out.status === 200 && deps.staleCache) {
+    if (storable && out.status === 200 && deps.staleCache) {
       const copy = out.clone();
       const cacheHeaders = new Headers(copy.headers);
       // Cache API 不支持 stale-if-error；给内部副本单独设长 TTL，只有双源都挂时才读。
@@ -113,14 +129,14 @@ export async function handleSite(request: Request, deps: SiteDeps): Promise<Resp
         statusText: copy.statusText,
         headers: cacheHeaders,
       });
-      const store = deps.staleCache.put(new Request(request.url), cached);
+      const store = deps.staleCache.put(staleKey(request.url), cached);
       deps.waitUntil ? deps.waitUntil(store) : await store.catch(() => {});
     }
     return tag(out, origin.name);
   }
 
   if (cacheable && deps.staleCache) {
-    const stale = await deps.staleCache.match(new Request(request.url));
+    const stale = await deps.staleCache.match(staleKey(request.url));
     if (stale) return tag(stale, order[0]!.name, { 'x-fushi-stale': '1' });
   }
 
