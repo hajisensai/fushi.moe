@@ -3,7 +3,7 @@ import { MemoryHealthStore } from '../src/breaker';
 import { handleDownload } from '../src/downloads';
 import { isOriginFailure, pickOrder, type OriginName } from '../src/origins';
 import { handleSite } from '../src/site';
-import { fakeFetch, fakeR2, settings, store } from './fakes';
+import { fakeFetch, fakeR2, memoryCache, settings, store } from './fakes';
 
 const ORIGINS = [
   { name: 'cf' as OriginName, host: 'cf.example', basePath: '' },
@@ -159,6 +159,49 @@ describe('handleSite', () => {
     });
     const res = await handleSite(new Request('https://fushi.moe/out'), deps);
     expect(res.headers.get('location')).toBe('https://example.org/x');
+  });
+
+  it('陈旧兜底副本不写在请求 URL 上——那是 CDN 的现役缓存键', async () => {
+    const cache = memoryCache();
+    const { deps } = siteDeps({
+      'cf.example': () => new Response('console.log(1)'),
+      'gh.example': () => new Response('from gh'),
+    });
+    await handleSite(new Request('https://fushi.moe/site.js'), { ...deps, staleCache: cache });
+    expect(cache.keys()).toHaveLength(1);
+    expect(cache.keys()[0]).not.toMatch(/^https:\/\/fushi\.moe\//);
+  });
+
+  it('HEAD 不写兜底副本，避免存下 0 字节的 200', async () => {
+    const cache = memoryCache();
+    const { deps } = siteDeps({
+      'cf.example': () => new Response(null, { status: 200, headers: { 'content-length': '0' } }),
+      'gh.example': () => new Response('from gh'),
+    });
+    await handleSite(new Request('https://fushi.moe/site.js', { method: 'HEAD' }), {
+      ...deps,
+      staleCache: cache,
+    });
+    expect(cache.keys()).toHaveLength(0);
+  });
+
+  it('双源都挂时仍能读回 GET 存下的兜底副本', async () => {
+    const cache = memoryCache();
+    let up = true;
+    const { deps } = siteDeps({
+      'cf.example': () => (up ? new Response('console.log(1)') : new Response('x', { status: 502 })),
+      'gh.example': () => new Response('y', { status: 500 }),
+    });
+    await handleSite(new Request('https://fushi.moe/site.js'), { ...deps, staleCache: cache });
+    up = false;
+    const res = await handleSite(new Request('https://fushi.moe/site.js'), {
+      ...deps,
+      health: store(),
+      staleCache: cache,
+    });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-fushi-stale')).toBe('1');
+    expect(await res.text()).toBe('console.log(1)');
   });
 
   it('404 不触发切源', async () => {
