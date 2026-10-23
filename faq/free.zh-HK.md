@@ -23,4 +23,4 @@ lang: zh-HK
 
 唯一可能花錢的是可選的 AI 功能：Fushi 不提供 AI 服務，用的是你自己在 設定 → 模型 → LLM 裡配的提供商，費用由那家提供商收（也可以接本機跑的模型），不用 AI 不影響其他功能，見[AI 下載是什麼？](/faq/ai-download.zh-HK)。
 
-如果它對你有幫助，歡迎通過 [GitHub Sponsors](https://github.com/sponsors/hajisensai) 贊助，幫助承擔開發、分發與維護成本。
+如果它對你有幫助，歡迎通過 [GitHub Sponsors](https://github.com/sponsors/hajisensai) 或 [Ko-fi](https://ko-fi.com/hajisensai) 贊助，幫助承擔開發、分發與維護成本。
