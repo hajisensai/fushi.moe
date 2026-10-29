@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "Pilihan untuk sebagian besar ponsel, butuh Android 7.0+",
   "dl.p_android_arm32": "Perangkat 32-bit yang lebih lama",
   "dl.p_android_x64": "Emulator / tablet x86",
-  "dl.p_android_universal": "Paket universal berisi semua arsitektur, ukurannya lebih besar",
+  "dl.p_android_universal": "Hanya arm64, hampir semua ponsel, perlu Android 7.0+",
   "dl.p_windows": "Termasuk penambangan suara Galgame dan pencarian kata di desktop",
   "dl.p_windows_portable": "Ekstrak dan jalankan; tanpa pintasan, asosiasi berkas, atau pembaruan otomatis",
   "dl.p_macos": "Khusus Apple Silicon (seri M)",

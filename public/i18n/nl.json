@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "De meeste telefoons — vereist Android 7.0+",
   "dl.p_android_arm32": "Oudere 32-bits toestellen",
   "dl.p_android_x64": "Emulators / x86-tablets",
-  "dl.p_android_universal": "Universeel pakket met alle architecturen; groter bestand",
+  "dl.p_android_universal": "Alleen arm64, vrijwel alle telefoons, Android 7.0+",
   "dl.p_windows": "Inclusief Galgame-stemmining en tekst opzoeken op het bureaublad",
   "dl.p_windows_portable": "Uitpakken en starten; geen snelkoppelingen, bestandskoppelingen of auto-update",
   "dl.p_macos": "Alleen Apple Silicon (M-serie)",

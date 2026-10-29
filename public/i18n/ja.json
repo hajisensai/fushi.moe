@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "ほとんどのスマートフォンはこちら。Android 7.0+ が必要",
   "dl.p_android_arm32": "古い 32 ビット端末向け",
   "dl.p_android_x64": "エミュレーター / x86 タブレット向け",
-  "dl.p_android_universal": "全アーキテクチャを含む汎用パッケージ。サイズは大きめ",
+  "dl.p_android_universal": "arm64 のみ。ほぼすべてのスマホ向け、Android 7.0 以上",
   "dl.p_windows": "Galgame の音声マイニングとデスクトップ上のテキスト検索を搭載",
   "dl.p_windows_portable": "解凍してすぐ使える。ショートカット・ファイル関連付け・自動更新はなし",
   "dl.p_macos": "Apple Silicon（M シリーズ）専用",

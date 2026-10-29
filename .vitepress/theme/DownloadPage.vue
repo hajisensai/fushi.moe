@@ -95,12 +95,12 @@ const CHANNELS = [
   { id: 'debug',  path: 'debug',  manifest: 'latest-debug-fushi.json' },
 ]
 
-/** 平台行。channels 标明哪个通道会有这个槽位：调试版 Android 只出一个含全部架构的通用包。 */
+/** 平台行。channels 标明哪个通道会有这个槽位：调试版 Android 只出一个 arm64 包（槽位名 android-universal 是历史名，统计与清单都认它，不改）。 */
 const PLATFORMS = [
   { slot: 'android-arm64',     nameZh: 'Android (arm64)',   noteKey: 'dl.p_android_arm64',     noteZh: '绝大多数手机选这个，需 Android 7.0+', channels: ['stable'] },
   { slot: 'android-arm32',     nameZh: 'Android (arm32)',   noteKey: 'dl.p_android_arm32',     noteZh: '较老的 32 位机型',                    channels: ['stable'] },
   { slot: 'android-x64',       nameZh: 'Android (x86_64)',  noteKey: 'dl.p_android_x64',       noteZh: '模拟器 / x86 平板',                   channels: ['stable'] },
-  { slot: 'android-universal', nameZh: 'Android',           noteKey: 'dl.p_android_universal', noteZh: '通用包，含全部架构，体积较大',         channels: ['debug'] },
+  { slot: 'android-universal', nameZh: 'Android (arm64)',   noteKey: 'dl.p_android_universal', noteZh: '仅 arm64，绝大多数手机，需 Android 7.0+', channels: ['debug'] },
   { slot: 'windows',           nameZh: 'Windows',           noteKey: 'dl.p_windows',           noteZh: '含 Galgame 语音挖掘、桌面划词',        channels: ['stable', 'debug'] },
   { slot: 'macos',             nameZh: 'macOS',             noteKey: 'dl.p_macos',             noteZh: '仅支持 Apple Silicon（M 系列芯片）',  channels: ['stable', 'debug'] },
   { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装',                 channels: ['stable', 'debug'], testflight: true },

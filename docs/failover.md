@@ -256,7 +256,7 @@ navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregist
 | 路径 | 行为 |
 |---|---|
 | `/releases/latest/<slot>` | 最新正式版的某个平台包。`slot` 见 `edge/src/manifest.ts` 的 `SLOTS`；`/stable/` 同义 |
-| `/releases/debug/<slot>` `/releases/beta/<slot>` | 其它发布通道（清单分别读 `latest-debug-fushi.json` / `latest-beta-fushi.json`）。调试版 Android 只有 `android-universal` 一个通用包 |
+| `/releases/debug/<slot>` `/releases/beta/<slot>` | 其它发布通道（清单分别读 `latest-debug-fushi.json` / `latest-beta-fushi.json`）。调试版 Android 只有 `android-universal` 一个包（历史名，实际只含 arm64） |
 | `/releases/v/<tag>/<文件名>` | 指定版本的指定文件。**不依赖清单**：清单挂了也按 tag/文件名拼直链服务 |
 | `/releases/api/latest[?channel=stable\|debug\|beta]` | JSON 清单，下载页用它渲染；应答带回 `channel`，页面据此识别不认 `?channel=` 的老 Worker |
 | `/releases` | 302 回 `fushi.moe/download` |

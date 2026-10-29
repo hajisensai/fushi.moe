@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "معظم الهواتف — يتطلب Android 7.0+",
   "dl.p_android_arm32": "الأجهزة القديمة بمعمارية 32 بت",
   "dl.p_android_x64": "المحاكيات / أجهزة x86 اللوحية",
-  "dl.p_android_universal": "حزمة شاملة تضم كل المعماريات؛ حجم أكبر",
+  "dl.p_android_universal": "arm64 فقط، لمعظم الهواتف، يتطلب Android 7.0+",
   "dl.p_windows": "يتضمن استخراج أصوات Galgame والبحث عن الكلمات على سطح المكتب",
   "dl.p_windows_portable": "فك الضغط وشغّل مباشرة؛ بدون اختصارات أو ارتباط بالملفات أو تحديث تلقائي",
   "dl.p_macos": "لأجهزة Apple Silicon (سلسلة M) فقط",

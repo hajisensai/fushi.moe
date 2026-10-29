@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "Die meisten Smartphones – benötigt Android 7.0+",
   "dl.p_android_arm32": "Ältere 32-Bit-Geräte",
   "dl.p_android_x64": "Emulatoren / x86-Tablets",
-  "dl.p_android_universal": "Universelles Paket mit allen Architekturen; größere Datei",
+  "dl.p_android_universal": "Nur arm64, fast alle Handys, ab Android 7.0",
   "dl.p_windows": "Mit Galgame-Sprach-Mining und Textnachschlagen auf dem Desktop",
   "dl.p_windows_portable": "Entpacken und starten; keine Verknüpfungen, Dateizuordnungen oder Auto-Updates",
   "dl.p_macos": "Nur Apple Silicon (M-Serie)",

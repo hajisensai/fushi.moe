@@ -49,7 +49,7 @@ export const SLOTS: Readonly<Record<string, RegExp>> = {
   // 正式版历来叫 -macos.zip；调试版从 2.10 起改出 Apple Silicon 专用的 -macos-arm64.zip。
   macos: /^fushi-.*-macos(?:-arm64)?\.zip$/,
   ios: /^fushi-.*-ios\.ipa$/,
-  // 调试通道的 Android 只出一个含全部架构的通用包（名字以 -debug.apk 结尾）。
+  // 调试通道的 Android 只出一个 arm64 包（名字以 -debug.apk 结尾；槽位名 android-universal 是历史名）。
   'android-universal': /^fushi-.*-debug\.apk$/,
   'bridge-arm64': /^bridge-.*-arm64-v8a\.apk$/,
   'bridge-arm32': /^bridge-.*-armeabi-v7a\.apk$/,

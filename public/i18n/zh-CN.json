@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "绝大多数手机选这个，需 Android 7.0+",
   "dl.p_android_arm32": "较老的 32 位机型",
   "dl.p_android_x64": "模拟器 / x86 平板",
-  "dl.p_android_universal": "通用包，含全部架构，体积较大",
+  "dl.p_android_universal": "仅 arm64，绝大多数手机，需 Android 7.0+",
   "dl.p_windows": "含 Galgame 语音挖掘、桌面划词",
   "dl.p_windows_portable": "解压即用；不建快捷方式、不注册文件关联、不自动更新",
   "dl.p_macos": "仅支持 Apple Silicon（M 系列芯片）",

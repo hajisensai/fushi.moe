@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "La mayoría de los móviles; requiere Android 7.0+",
   "dl.p_android_arm32": "Dispositivos antiguos de 32 bits",
   "dl.p_android_x64": "Emuladores / tablets x86",
-  "dl.p_android_universal": "Paquete universal con todas las arquitecturas; archivo más grande",
+  "dl.p_android_universal": "Solo arm64: casi todos los móviles, Android 7.0+",
   "dl.p_windows": "Incluye minería de voces de Galgame y consulta de texto en el escritorio",
   "dl.p_windows_portable": "Descomprime y ejecuta; sin accesos directos, asociaciones ni actualizaciones automáticas",
   "dl.p_macos": "Solo Apple Silicon (serie M)",
