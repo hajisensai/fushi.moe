@@ -1,6 +1,6 @@
 ---
-title: "How do I install Fushi on Android? arm64 APK or universal?"
-description: "On Android, download the Android (arm64) APK — that's almost every phone — on Android 7.0 or later. Older 32-bit devices take arm32, emulators and x86 tablets take x86_64, and the debug channel has a single universal package. After that the app checks for updates and picks the right package for your device, so you can watch anime, read light novels, look words up and mine Anki cards right away."
+title: "How do I install Fushi on Android? which architecture?"
+description: "On Android, download the Android (arm64) APK — that's almost every phone — on Android 7.0 or later. Older 32-bit devices take arm32, emulators and x86 tablets take x86_64, and the debug channel has a single arm64 package. After that the app checks for updates and picks the right package for your device, so you can watch anime, read light novels, look words up and mine Anki cards right away."
 category: "Setup"
 order: 41.2
 date: 2026-10-12
@@ -21,7 +21,7 @@ Under "Stable", the download page has three Android rows. They differ only in CP
 
 If you're not sure, pick **arm64**: phones, tablets and most e-ink readers from the last several years are 64-bit ARM. Only if it won't install (the system says it's incompatible with your device, fails to parse the package, and so on) try arm32. If you run Fushi in an Android emulator on a PC, pick x86_64.
 
-Switch to "Debug" and Android has **a single universal package** (file name ending in `-debug.apk`) containing every architecture — noticeably larger, but there's nothing to choose. For the difference between the channels, see [Stable vs. debug builds](/faq/channels.en).
+Switch to "Debug" and Android has **a single arm64 package** (file name ending in `-debug.apk`), so there's nothing to choose; older 32-bit devices and x86 emulators can't install the debug build and should use the matching stable package. For the difference between the channels, see [Stable vs. debug builds](/faq/channels.en).
 
 ## Installation steps
 

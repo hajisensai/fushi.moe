@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "Hầu hết điện thoại chọn bản này, cần Android 7.0+",
   "dl.p_android_arm32": "Máy 32-bit đời cũ",
   "dl.p_android_x64": "Giả lập / máy tính bảng x86",
-  "dl.p_android_universal": "Gói chung chứa mọi kiến trúc, dung lượng lớn hơn",
+  "dl.p_android_universal": "Chỉ arm64, hầu hết điện thoại, cần Android 7.0 trở lên",
   "dl.p_windows": "Có thêm khai thác giọng nói Galgame và tra từ trên màn hình desktop",
   "dl.p_windows_portable": "Giải nén là chạy; không tạo lối tắt, không liên kết tệp, không tự cập nhật",
   "dl.p_macos": "Chỉ dành cho Apple Silicon (chip dòng M)",

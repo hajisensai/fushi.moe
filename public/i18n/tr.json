@@ -230,7 +230,7 @@
   "dl.p_android_arm64": "Telefonların çoğu — Android 7.0+ gerekir",
   "dl.p_android_arm32": "Eski 32 bit cihazlar",
   "dl.p_android_x64": "Emülatörler / x86 tabletler",
-  "dl.p_android_universal": "Tüm mimarileri içeren evrensel paket; dosya daha büyük",
+  "dl.p_android_universal": "Yalnızca arm64; neredeyse tüm telefonlar, Android 7.0+",
   "dl.p_windows": "Galgame ses madenciliği ve masaüstü kelime arama içerir",
   "dl.p_windows_portable": "Çıkarın ve çalıştırın; kısayol, dosya ilişkilendirme ve otomatik güncelleme yok",
   "dl.p_macos": "Yalnızca Apple Silicon (M serisi)",
