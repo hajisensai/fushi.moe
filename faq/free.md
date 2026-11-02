@@ -22,4 +22,4 @@ date: 2026-10-18
 
 唯一可能花钱的是可选的 AI 功能：Fushi 不提供 AI 服务，用的是你自己在 设置 → 模型 → LLM 里配的提供商，费用由那家提供商收（也可以接本机跑的模型），不用 AI 不影响其他功能，见[AI 下载是什么？](/faq/ai-download)。
 
-如果它对你有帮助，欢迎通过 [GitHub Sponsors](https://github.com/sponsors/hajisensai) 赞助，帮助承担开发、分发与维护成本。
+如果它对你有帮助，欢迎通过 [GitHub Sponsors](https://github.com/sponsors/hajisensai) 或 [Ko-fi](https://ko-fi.com/hajisensai) 赞助，帮助承担开发、分发与维护成本。

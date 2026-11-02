@@ -11,4 +11,4 @@ Yes. Fushi is open source under the [GPLv3](https://www.gnu.org/licenses/gpl-3.0
 
 The only thing that may cost money is the optional AI features: Fushi doesn't provide an AI service, it uses the provider you configure under Settings → Models → LLM, and that provider bills you (a model running on your own machine works too). Not using AI doesn't affect anything else — see [What is AI download?](/faq/ai-download.en).
 
-If it helps you, consider supporting development, distribution and maintenance through [GitHub Sponsors](https://github.com/sponsors/hajisensai).
+If it helps you, consider supporting development, distribution and maintenance through [GitHub Sponsors](https://github.com/sponsors/hajisensai) or [Ko-fi](https://ko-fi.com/hajisensai).

@@ -112,7 +112,7 @@ export const NAMES = {
  */
 export const CHROME_KEYS = [
   'nav.menu', 'nav.method', 'nav.faq', 'nav.qq', 'nav.language', 'nav.lang_auto', 'nav.theme', 'nav.download',
-  'footer.sponsor', 'footer.legal', 'nav.totop',
+  'footer.sponsor', 'footer.kofi', 'footer.legal', 'nav.totop',
   // 常见问题不走语言路由（文章各写各的语言），列表页 / 文章页壳上的这几句由 SSR 按 root locale 烤，访客切语言时 site.js 再换
   'faq.title', 'faq.lead', 'faq.search', 'faq.empty', 'faq.no_results', 'faq.back', 'faq.updated', 'faq.more',
   'faq.toc', 'faq.outline',
