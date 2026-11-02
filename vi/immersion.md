@@ -266,7 +266,7 @@ head:
 <p data-i18n="imm.s3.c1">Học ngôn ngữ cần chấp nhận một sự thật: bạn không thể hiểu hết mọi thứ.</p>
 <p data-i18n="imm.s3.c2">Nhiều người thấy mình «chưa sẵn sàng», muốn học đủ rồi mới đắm mình — cách đó không bao giờ hiệu quả. Dù chuẩn bị bao nhiêu, lần đầu chạm vào tài liệu thật bạn vẫn không hiểu hết. Thay vì né tránh cảm giác khó chịu, hãy lao vào: càng chịu được sự mơ hồ, não càng tiếp thu ngôn ngữ nhanh.</p>
 <p data-i18n="imm.s3.c3"><b>Nếu thật sự không chịu nổi sự mơ hồ</b></p>
-<ul data-i18n="imm.s3.c4"><li><b>Đọc spoiler trước</b>: đọc tóm tắt cốt truyện trước khi xem, hoặc xem lại thứ bạn đã xem bản tiếng mẹ đẻ.</li><li><b>Phụ đề tiếng mẹ đẻ là phương án cuối</b>: thường không khuyến khích (học được rất ít), nhưng nếu lạc hoàn toàn, hãy cố xem không phụ đề một lúc, không nổi nữa mới bật lên — hoặc xem một lượt không phụ đề, một lượt có phụ đề.</li></ul>
+<ul data-i18n="imm.s3.c4"><li><b>Đọc spoiler trước</b>: đọc tóm tắt cốt truyện trước khi xem, hoặc xem lại thứ bạn đã xem bản tiếng mẹ đẻ.</li><li><b>Phụ đề tiếng mẹ đẻ là phương án cuối</b>: thường không khuyến khích (học được rất ít), nhưng nếu lạc hoàn toàn, hãy cố xem không phụ đề một lúc, không nổi nữa mới bật lên.</li></ul>
 </aside>
 <p data-i18n="imm.s3.p1">Lúc mới bắt đầu nên chọn nội dung nhẹ nhàng — anime đời thường dễ hiểu hơn anime chiến đấu, light novel dễ đọc hơn văn học.</p>
 <p data-i18n="imm.s3.p2">Xem thứ bạn thích, gặp từ lạ thì chạm để tra, và <span class="term" tabindex="0" data-tip="Biến từ mới gặp khi đắm mình thành một thẻ Anki cùng với câu gốc, âm thanh và ảnh chụp nơi nó xuất hiện. Trong Fushi, chạm một lần để tra, chạm thêm lần nữa là xong thẻ.">tạo thẻ</span> khi thấy đáng.</p>
