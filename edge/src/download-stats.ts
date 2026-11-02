@@ -5,6 +5,7 @@ import {
   inBackground,
   jsonResponse,
   readThrough,
+  type GlobalSnapshot,
   type LoadResult,
   type ReadThroughResult,
 } from './stale-cache';
@@ -215,6 +216,8 @@ export interface DownloadStatsDeps {
   readonly cache?: Cache;
   readonly waitUntil?: (p: Promise<unknown>) => void;
   readonly counter?: DownloadCounter;
+  /** GitHub 汇总的全局最后成功值（同一个 Durable Object 存）；节点陈旧副本缺失时兜底。 */
+  readonly githubSnapshot?: GlobalSnapshot;
 }
 
 function isCountMap(raw: unknown): raw is Record<string, number> {
@@ -273,6 +276,7 @@ function githubSummary(deps: DownloadStatsDeps): Promise<ReadThroughResult<Githu
   const key = encodeURIComponent(deps.settings.ghRepo);
   return readThrough<GithubDownloadSummary>({
     cache: deps.cache,
+    globalStale: deps.githubSnapshot,
     freshKey: GITHUB_FRESH_KEY + key,
     staleKey: GITHUB_STALE_KEY + key,
     freshTtlS: GITHUB_TTL_S,

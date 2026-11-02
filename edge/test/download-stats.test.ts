@@ -17,6 +17,7 @@ import {
   type SiteDownloadSummary,
   type SqlLike,
 } from '../src/download-stats';
+import type { GlobalSnapshot } from '../src/stale-cache';
 import { fakeFetch, fakeR2, memoryCache, settings, store } from './fakes';
 
 /** DO 的 ctx.storage.sql 与这里的 node:sqlite 收敛到同一个最小形状（SqlLike）。 */
@@ -480,6 +481,52 @@ describe('/api/downloads', () => {
     expect(body.total).toBeNull();
     expect(body.github).toBeNull();
     expect(body.site.total).toBe(4);
+  });
+
+  /** 生产是 Durable Object 存储；这里一个变量就够，pending 收集后台写入好在断言前等它落地。 */
+  function memorySnapshot() {
+    let stored: unknown = null;
+    const pending: Promise<unknown>[] = [];
+    return {
+      snapshot: { load: async () => stored, save: async (v: unknown) => void (stored = v) } as GlobalSnapshot,
+      waitUntil: (p: Promise<unknown>) => void pending.push(p),
+      settle: () => Promise.all(pending),
+    };
+  }
+
+  it('新节点没有自己的陈旧副本、回源又被限流：用别的节点成功时写下的全局快照，标 stale（台北实测场景）', async () => {
+    const { snapshot, waitUntil, settle } = memorySnapshot();
+    const good = fakeFetch({ 'api.github.com': releasesJson() });
+    await handleDownloadStats({ settings: settings(), fetcher: good, cache: memoryCache(), waitUntil, githubSnapshot: snapshot, counter: await seeded() });
+    await settle();
+
+    // 另一个节点：Cache API 是空的，GitHub 一直 403。
+    const otherColo = memoryCache();
+    const bad = fakeFetch({ 'api.github.com': releasesJson({ message: 'rate limited' }, 403) });
+    const res = await handleDownloadStats({ settings: settings(), fetcher: bad, cache: otherColo, waitUntil, githubSnapshot: snapshot, counter: await seeded() });
+    expect(res.status).toBe(200);
+    expect(res.headers.get('x-fushi-downloads')).toBe('stale');
+    const body = (await res.json()) as { total: number; stale: boolean };
+    expect(body.total).toBe(1002);
+    expect(body.stale).toBe(true);
+    // 降级应答照旧不进边缘缓存，GitHub 恢复后下一个请求就是新鲜值。
+    expect(otherColo.keys().some((k) => k.includes('/summary/'))).toBe(false);
+  });
+
+  it('全局快照里是旧形状 / 快照存储抛异常：都当没有快照，照常判不可用、不抛', async () => {
+    const bad = fakeFetch({ 'api.github.com': releasesJson({ message: 'nope' }, 403) });
+    const garbage: GlobalSnapshot = { load: async () => ({ total: 'x' }), save: async () => {} };
+    const broken: GlobalSnapshot = {
+      load: async () => {
+        throw new Error('do down');
+      },
+      save: async () => {},
+    };
+    for (const githubSnapshot of [garbage, broken]) {
+      const res = await handleDownloadStats({ settings: settings(), fetcher: bad, githubSnapshot, counter: await seeded() });
+      expect(res.status).toBe(200);
+      expect(((await res.json()) as { total: number | null }).total).toBeNull();
+    }
   });
 
   it('没配计数器：total 就是 GitHub 的数', async () => {
