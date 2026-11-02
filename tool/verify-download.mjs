@@ -317,7 +317,7 @@ async function main() {
   const proc = spawn(
     browser,
     [
-      '--headless=new', '--disable-gpu', '--no-first-run', '--no-proxy-server',
+      '--headless=new', '--disable-gpu', '--no-first-run', '--mute-audio', '--no-proxy-server',
       '--user-data-dir=' + profileDir,
       '--remote-debugging-port=' + DEBUG_PORT, 'about:blank',
     ],
@@ -552,7 +552,7 @@ async function main() {
   const d = await runScenario(cdp, 'D 调试版', { cfUp: true, ghUp: true, channel: '调试版' });
   check('D 调试版按钮处于选中', d.channels.some((x) => x.text.includes('调试版') && x.on), JSON.stringify(d.channels));
   check('D 状态行显示调试版 tag', (d.status ?? '').includes('v9.9.10-debug.123'), d.status);
-  check('D 表格换成调试版槽位（通用 Android 包，无 arm64 行）', d.rows.includes('Android') && !d.rows.some((r) => r.includes('arm64')), JSON.stringify(d.rows));
+  check('D 表格换成调试版槽位（只有一行 Android (arm64)，无 arm32 / x86_64 行）', JSON.stringify(d.rows.filter((r) => r.startsWith('Android'))) === '["Android (arm64)"]', JSON.stringify(d.rows));
   check('D 调试版 iOS 行同样给 TestFlight', !!d.iosPrimary && d.iosPrimary.testflight, JSON.stringify(d.iosPrimary));
   check('D 链接指向调试版通道', d.allLinks.length > 0 && d.allLinks.every((h) => h.includes('/releases/debug/') || h.includes('-debug.')), JSON.stringify(d.allLinks));
 

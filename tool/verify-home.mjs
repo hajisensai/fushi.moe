@@ -134,7 +134,7 @@ async function main() {
     [
       '--headless=new',
       '--disable-gpu',
-      '--no-first-run',
+      '--no-first-run', '--mute-audio',
       '--no-default-browser-check',
       '--no-proxy-server',
       // star 数拿不到时 site.js 会兜底打 api.github.com。断言必须只由本地

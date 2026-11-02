@@ -138,7 +138,7 @@ async function main() {
   const proc = spawn(
     browser,
     [
-      '--headless=new', '--disable-gpu', '--no-first-run', '--no-proxy-server',
+      '--headless=new', '--disable-gpu', '--no-first-run', '--mute-audio', '--no-proxy-server',
       '--user-data-dir=' + join(root, 'chrome-profile'),
       '--remote-debugging-port=' + DEBUG_PORT, 'about:blank',
     ],
