@@ -113,7 +113,7 @@ async function main() {
   const profileDir = mkdtempSync(join(tmpdir(), 'fushi-i18n-profile-')); // NOSONAR: randomized dir
   const proc = spawn(
     browser,
-    ['--headless=new', '--disable-gpu', '--no-first-run', '--no-proxy-server', '--user-data-dir=' + profileDir, '--remote-debugging-port=' + DEBUG_PORT, 'about:blank'],
+    ['--headless=new', '--disable-gpu', '--no-first-run', '--mute-audio', '--no-proxy-server', '--user-data-dir=' + profileDir, '--remote-debugging-port=' + DEBUG_PORT, 'about:blank'],
     { stdio: 'ignore' },
   );
   const cdp = await openCdp(DEBUG_PORT);

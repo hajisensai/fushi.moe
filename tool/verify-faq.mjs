@@ -69,7 +69,7 @@ async function main() {
   const proc = spawn(
     browser,
     [
-      '--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--no-proxy-server',
+      '--headless=new', '--disable-gpu', '--no-first-run', '--mute-audio', '--no-default-browser-check', '--no-proxy-server',
       '--host-resolver-rules=MAP api.github.com 127.0.0.1:9',
       '--user-data-dir=' + profileDir,
       '--remote-debugging-port=' + DEBUG_PORT,
