@@ -54,7 +54,7 @@ At first there's a stretch where you understand almost nothing. That's normal; n
 
 - **Start with easy content**: slice-of-life is easier than battle or mystery shows; works whose dialogue is mostly everyday conversation are the best starting point.
 - **Spoilers first**: read a plot summary before watching, or rewatch a show you've already seen in your own language — when you know the plot, all your attention can go to the Japanese.
-- **Native-language subtitles as a safety net, not the main act**: keeping them on all the time is usually not recommended, but when you're completely lost, hold out without them for a while and reveal them briefly when you can't; or watch once without subtitles and once with. Fushi's secondary subtitle can keep a translation blurred until you need it — see [How do I use a secondary subtitle as a bridge?](/faq/secondary-subtitle.en); which subtitles to use at each stage is covered in [Japanese or native-language subtitles?](/faq/subtitle-language.en)
+- **Native-language subtitles as a safety net, not the main act**: keeping them on all the time is usually not recommended, but when you're completely lost, hold out without them for a while and reveal them briefly when you can't. Fushi's secondary subtitle can keep a translation blurred until you need it — see [How do I use a secondary subtitle as a bridge?](/faq/secondary-subtitle.en); which subtitles to use at each stage is covered in [Japanese or native-language subtitles?](/faq/subtitle-language.en)
 
 Which sentences are worth turning into cards, and why cards should carry the original sentence and audio, is explained in [What is sentence mining?](/faq/sentence-mining.en)
 

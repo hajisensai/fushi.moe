@@ -266,7 +266,7 @@ head:
 <p data-i18n="imm.s3.c1">Dil öğrenmek bir gerçeği kabul etmektir: her şeyi anlamayacaksınız.</p>
 <p data-i18n="imm.s3.c2">Pek çok kişi „hazır olmadığını“ düşünüp daldırmadan önce daha çok çalışmak ister — bu asla işe yaramaz. Ne kadar hazırlanırsanız hazırlanın, gerçek materyale ilk dokunduğunuzda hepsini anlamazsınız. Rahatsızlıktan kaçmak yerine dalın: belirsizliğe ne kadar dayanırsanız beyniniz dili o kadar hızlı kapar.</p>
 <p data-i18n="imm.s3.c3"><b>Belirsizlik dayanılmazsa</b></p>
-<ul data-i18n="imm.s3.c4"><li><b>Önce spoiler</b>: izlemeden önce olay özetini okuyun ya da kendi dilinizde zaten bildiğiniz bir şeyi yeniden izleyin.</li><li><b>Son çare ana dilde altyazı</b>: normalde önerilmez (az şey öğrenirsiniz) ama tamamen kaybolduysanız önce bir süre altyazısız dayanın, yalnızca mecbur kalınca açın — ya da bir kez altyazısız, bir kez altyazılı izleyin.</li></ul>
+<ul data-i18n="imm.s3.c4"><li><b>Önce spoiler</b>: izlemeden önce olay özetini okuyun ya da kendi dilinizde zaten bildiğiniz bir şeyi yeniden izleyin.</li><li><b>Son çare ana dilde altyazı</b>: normalde önerilmez (az şey öğrenirsiniz) ama tamamen kaybolduysanız önce bir süre altyazısız dayanın, yalnızca mecbur kalınca açın.</li></ul>
 </aside>
 <p data-i18n="imm.s3.p1">Hafif materyalle başlayın — günlük yaşam animeleri dövüş animelerinden, light novel’lar edebi romanlardan kolaydır.</p>
 <p data-i18n="imm.s3.p2">Sevdiğinizi izleyin, bilmediğiniz kelimelere dokunup bakın ve değdiğinde <span class="term" tabindex="0" data-tip="Daldırmada karşılaştığınız yeni bir kelimeyi, geçtiği cümle, ses ve ekran görüntüsüyle birlikte Anki kartına dönüştürmek. Fushi’de bir dokunuş bakmak, bir dokunuş kartı yapmak için.">kart çıkarın</span>.</p>
