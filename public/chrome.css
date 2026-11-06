@@ -214,7 +214,7 @@ body {
 
 /* 汉堡开关：纯 CSS，靠一个视觉隐藏但仍可聚焦的 checkbox 驱动兄弟选择器。
    以前窄屏是把所有导航项 display:none 掉，手机上顶栏只剩 logo 和下载按钮，
-   GitHub / Discord / QQ 群全都点不到——这里把它们收进下拉面板而不是丢掉。 */
+   GitHub / Discord 全都点不到——这里把它们收进下拉面板而不是丢掉。 */
 .site-nav-check {
   position: absolute; width: 1px; height: 1px;
   opacity: 0; margin: 0; pointer-events: none;
@@ -391,7 +391,7 @@ html.i18n-pending body { visibility: hidden; }
  * </nav>
  * …
  * <a class="site-totop" href="#top">↑</a>   ← 页面末尾，/site.js 按滚动距离显隐
- * 底栏：<nav class="site-footer-links">怎么开始 · 常见问题 · 下载 · GitHub/Discord/QQ 三个图标（a.site-footer-ico）</nav>
+ * 底栏：<nav class="site-footer-links">怎么开始 · 常见问题 · 下载 · GitHub/Discord 两个图标（a.site-footer-ico）</nav>
  * Layout.vue 里 logo 链接与回顶钮带 vp-raw（VitePress 路由放行：首页是静态页不在它的路由表里；
  * 其余站内链接在 VitePress 页之间走客户端路由，不整页刷新）。
  *

@@ -540,7 +540,7 @@ async function main() {
     check('G ' + label + ' → 到达 ' + expectedPath + '（真实导航，非站内 404）', expectedPath !== null && gv.path === expectedPath && gv.mark && !gv.notFound, JSON.stringify(gv));
   }
   const footerState = await runScenario(cdp, 'G 底栏形状', { cfUp: true, ghUp: true });
-  check('G 底栏无「功能」，社区链接是图标', footerState.footer && !/功能/.test(footerState.footer.text) && footerState.footer.icons === 3, JSON.stringify(footerState.footer));
+  check('G 底栏无「功能」，社区链接是图标', footerState.footer && !/功能/.test(footerState.footer.text) && footerState.footer.icons === 2, JSON.stringify(footerState.footer));
   check(
     'G 支持入口指向 Fushi 的 GitHub Sponsors 页面',
     footerState.sponsor && footerState.sponsor.href === 'https://github.com/sponsors/hajisensai' &&

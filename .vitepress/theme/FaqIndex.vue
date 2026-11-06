@@ -97,6 +97,6 @@ const groups = computed(() => groupsOf(pool.value))
       </template>
     </template>
 
-    <p class="faq-more" v-html="t('faq.more', '没找到答案？来 <a href=&quot;https://discord.gg/WhjwyGmm7f&quot;>Discord</a> 或 <a href=&quot;https://qm.qq.com/q/Sx2nWTvJCw&quot;>QQ 群</a>问。')"></p>
+    <p class="faq-more" v-html="t('faq.more', '没找到答案？来 <a href=&quot;https://discord.gg/WhjwyGmm7f&quot;>Discord</a> 问。')"></p>
   </div>
 </template>
