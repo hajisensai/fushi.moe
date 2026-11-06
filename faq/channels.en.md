@@ -14,7 +14,7 @@ The [download page](/download) has two **channels**:
 | Cadence | A batch of changes every few weeks | Built automatically after every merge, almost daily |
 | New features | Wait for the next stable | **Land here first** — video source extensions and interconnect scrape sync both showed up in debug first and have since reached stable |
 | Stability | Went through a round of testing | You may hit a bug that was introduced yesterday |
-| For whom | People who just want to watch anime in peace | People who want new things right away and will mention problems on Discord / QQ |
+| For whom | People who just want to watch anime in peace | People who want new things right away and will mention problems on Discord |
 
 ## Switching
 
