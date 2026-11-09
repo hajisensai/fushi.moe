@@ -1,27 +1,12 @@
-# fushi.moe：搜索引擎与 AI 搜索 / 问答助手全部放行；只挡纯训练用爬虫。sitemap 由 tool/build_sitemap.mjs 在构建时生成。
-# 本文件是唯一真相源：Cloudflare 的「托管 robots.txt」要保持关闭——它会把 Baiduspider、PetalBot、KimiBot、
-# Google-Extended 这类搜索 / AI 检索爬虫一并 Disallow，拼在本文件前面（tool/seo.test.mjs 守着这里不挡它们）。
-# Content-Signal 见 https://contentsignals.org ：可以进搜索、可以给 AI 回答时引用，不许拿去训练模型。
+# fushi.moe：全站对所有爬虫开放——搜索引擎、AI 搜索 / 问答助手、AI 训练都允许。sitemap 由 tool/build_sitemap.mjs 在构建时生成。
+# 本文件是唯一真相源：Cloudflare 的「自动程序偏好同步」（托管 robots.txt）要保持关闭——它会把 Baiduspider、PetalBot、KimiBot、
+# Google-Extended 等一并 Disallow，拼在本文件前面（tool/seo.test.mjs 守着这里不挡任何爬虫）。
+# Content-Signal 见 https://contentsignals.org 。
 
 User-agent: *
-Content-Signal: search=yes, ai-input=yes, ai-train=no
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /releases/
 Disallow: /api/
-
-# 纯训练用爬虫（不提供搜索 / 检索结果）
-User-agent: GPTBot
-User-agent: ClaudeBot
-User-agent: anthropic-ai
-User-agent: CCBot
-User-agent: Bytespider
-User-agent: Applebot-Extended
-User-agent: meta-externalagent
-User-agent: cohere-ai
-User-agent: cohere-training-data-crawler
-User-agent: MistralAI-Training
-User-agent: Diffbot
-User-agent: omgili
-Disallow: /
 
 Sitemap: https://fushi.moe/sitemap.xml
