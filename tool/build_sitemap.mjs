@@ -23,7 +23,7 @@ const quoted = (body, key) => {
   return m ? String(JSON.parse(m[1])) : '';
 };
 
-/** faq/<slug>.md / faq/<slug>.<lang>.md → { slug, lang, date, draft, title, description }。 */
+/** faq/<slug>.md / faq/<slug>.<lang>.md → { slug, lang, date, draft, title, description, category, order }。 */
 export function readFaqArticles(dir = join(ROOT, 'faq')) {
   const out = [];
   for (const name of readdirSync(dir).sort()) {
@@ -35,7 +35,11 @@ export function readFaqArticles(dir = join(ROOT, 'faq')) {
     const body = fm ? fm[1] : '';
     const date = (/^date:\s*["']?(\d{4}-\d{2}-\d{2})/m.exec(body) || [])[1] || '';
     const draft = /^draft:\s*true\s*$/m.test(body);
-    out.push({ slug: m[1], lang, date, draft, title: quoted(body, 'title'), description: quoted(body, 'description') });
+    const order = Number((/^order:\s*(-?\d+(?:\.\d+)?)\s*$/m.exec(body) || [])[1] ?? Infinity);
+    out.push({
+      slug: m[1], lang, date, draft, title: quoted(body, 'title'), description: quoted(body, 'description'),
+      category: quoted(body, 'category'), order,
+    });
   }
   return out;
 }

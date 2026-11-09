@@ -2,3 +2,21 @@
 # 英文是默认路由（无前缀）；/en/ 只存在过一天，/cn/ 是顺手的别名，都指到正确的语言路由。
 /en/*  /:splat  301
 /cn/*  /zh-cn/:splat  301
+
+# 改版前被搜索引擎收录过、现在已不存在的页（Search Console「未找到 (404)」里的那批），
+# 永久指到内容最接近的现行页，不留 404。带不带尾斜杠各写一条：Pages 不会替不存在的路径补斜杠。
+# 2026-08 Hugo（PaperMod）版：/posts/features/（功能一览）、/posts/5min-setup/（五分钟上手教程）、/posts/ 文章列表。
+# 2026-08 早期 VitePress 版：/features（功能一览）、/guide（上手教程）。原文都是简体中文。
+# tool/seo.test.mjs 守着每条目标都是现行页。
+/features  /zh-cn/  301
+/features/  /zh-cn/  301
+/guide  /zh-cn/download  301
+/guide/  /zh-cn/download  301
+/posts/features  /zh-cn/  301
+/posts/features/  /zh-cn/  301
+/posts/5min-setup  /zh-cn/download  301
+/posts/5min-setup/  /zh-cn/download  301
+/posts  /faq  301
+/posts/  /faq  301
+# 改版前的 og:image 占位图。
+/icon-placeholder.png  /fushi-icon.png  301
