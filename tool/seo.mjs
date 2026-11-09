@@ -186,6 +186,60 @@ export function faqEntries(articles) {
 }
 
 /**
+ * /llms.txt（https://llmstxt.org）：给 AI 搜索 / 问答助手的站点导读——一句话是什么、关键事实、
+ * 主要页面、全部常见问题（问题 + 一句话答案 + 链接）。AI 抓取多半不跑 JS、也不读 600 KB 的首页，
+ * 这一份纯文本让它们直接拿到可引用的事实与规范链接。
+ * 文章用英文版（AI 助手的默认引用语言），没有英文版的退回简体原文；其它语言版本在每页的 hreflang 里。
+ * 只写可核实的事实，与首页 JSON-LD 同源。
+ * @param {{ description: string, pages: { title: string, url: string, description: string }[],
+ *   articles: { slug: string, lang: string, draft: boolean, title: string, description: string, category: string, order: number }[] }} input
+ *   pages 的 url 为绝对地址
+ * @returns {string}
+ */
+export function llmsTxt({ description, pages, articles }) {
+  const bySlug = new Map();
+  for (const a of articles) {
+    if (a.draft) continue;
+    const cur = bySlug.get(a.slug);
+    // 每个 slug 挑一篇：英文版优先，其次简体原文
+    const rank = (x) => (x.lang === 'en' ? 0 : x.lang === 'zh-CN' ? 1 : 2);
+    if (!cur || rank(a) < rank(cur)) bySlug.set(a.slug, a);
+  }
+  const picked = [...bySlug.values()].sort((x, y) => x.order - y.order || x.slug.localeCompare(y.slug));
+  const groups = new Map();
+  for (const a of picked) {
+    const g = a.category || 'Other';
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(a);
+  }
+  const line = (title, url, desc) => '- [' + title + '](' + url + ')' + (desc ? ': ' + desc : '');
+  const out = [
+    '# Fushi',
+    '',
+    '> ' + description,
+    '',
+    'Key facts:',
+    '',
+    '- Free and open source (GPLv3), no in-app purchases or subscriptions. Source code: https://github.com/hajisensai/Fushi',
+    '- Platforms: Windows, macOS (Apple Silicon), Android, iOS (TestFlight). Linux can be built from source.',
+    '- Looks words up in Yomitan, MDict (MDX), Lingvo (DSL) and StarDict dictionaries; any study language works, decided by the imported dictionaries.',
+    '- Makes an Anki card with the sentence, screenshot and audio in one tap.',
+    '- 17 interface languages; the website has a version in each (English at /, others under /zh-cn/, /ja/, /ko/ …).',
+    '- Official website: https://fushi.moe/ (downloads at https://fushi.moe/download).',
+    '',
+    '## Main pages',
+    '',
+    ...pages.map((p) => line(p.title, p.url, p.description)),
+  ];
+  for (const [g, list] of groups) {
+    out.push('', '## FAQ: ' + g, '', ...list.map((a) => line(a.title, SITE + faqPath(a.slug, a.lang), a.description)));
+  }
+  out.push('', '## Optional', '', line('GitHub repository', 'https://github.com/hajisensai/Fushi', 'source code, issues and release notes'),
+    line('Sitemap', SITE + '/sitemap.xml', 'every page with its language versions'), '');
+  return out.join('\n');
+}
+
+/**
  * 把 HTML 里足够大的「裸」内联脚本（`<script>` 不带任何属性——带 type / id / src 的一律不动）抽成外部文件。
  * 外部同步脚本与内联脚本执行顺序、全局作用域完全相同；文件名带内容哈希，可以放心长缓存。
  * @param {string} html

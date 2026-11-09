@@ -7,7 +7,7 @@ import { LANGS, PAGES, SITE, routeFor } from '../.vitepress/theme/lang-routes.mj
 import { renderHome } from './build_lang_routes.mjs';
 import { readFaqArticles } from './build_sitemap.mjs';
 import {
-  externalizeScripts, faqArticleJsonLd, faqEntries, faqPageJsonLd, faqPath, homeJsonLd, langRouteEntries, ldScript, localizeFaqHref, sitemapXml,
+  externalizeScripts, faqArticleJsonLd, faqEntries, faqPageJsonLd, faqPath, homeJsonLd, langRouteEntries, ldScript, llmsTxt, localizeFaqHref, sitemapXml,
 } from './seo.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -127,8 +127,77 @@ test('仓库说明文档（README / AGENTS / CLAUDE / docs/）不被构建成站
   for (const p of ['README.md', 'AGENTS.md', 'CLAUDE.md', 'docs/**']) assert.ok(m[1].includes("'" + p + "'"), 'srcExclude 缺 ' + p);
 });
 
+test('_redirects：旧地址一律 301 到现行页，不指向另一条重定向，也不自己指自己', () => {
+  const rules = read('public/_redirects').replace(/\r\n/g, '\n').split('\n')
+    .map((l) => l.trim()).filter((l) => l && !l.startsWith('#')).map((l) => l.split(/\s+/));
+  const sources = new Set(rules.map(([from]) => from));
+  // 现行页：语言路由页 × 17、/faq、/privacy、常见问题文章、站点根目录静态文件
+  const live = new Set([
+    ...LANGS.flatMap((c) => PAGES.map((p) => routeFor(c, p))), '/faq', '/privacy',
+    ...readFaqArticles().filter((a) => !a.draft).map((a) => faqPath(a.slug, a.lang)),
+  ]);
+  for (const [from, to, code] of rules) {
+    assert.equal(code, '301', from + ' 要永久重定向（302 不传递收录）');
+    if (to.includes(':splat')) continue;
+    assert.notEqual(from.replace(/\/$/, ''), to.replace(/\/$/, ''), from + ' 指向自己（尾斜杠互跳会死循环）');
+    assert.ok(!sources.has(to), from + ' → ' + to + ' 是重定向链');
+    assert.ok(live.has(to) || existsSync(join(ROOT, 'public', to.slice(1))), from + ' → ' + to + ' 不是现行页');
+  }
+  for (const old of ['/features', '/guide', '/posts/features/', '/posts/5min-setup/']) assert.ok(sources.has(old), '缺旧地址 ' + old);
+});
+
+test('llms.txt：关键事实、主要页面、每个 slug 一篇（英文优先）、草稿不收、按分组与 order 排', () => {
+  const txt = llmsTxt({
+    description: 'Fushi is an app.',
+    pages: [{ title: 'Download Fushi', url: SITE + '/download', description: 'Pick a platform.' }],
+    articles: [
+      { slug: 'b', lang: 'zh-CN', draft: false, title: '乙', description: '乙答', category: '关于', order: 20 },
+      { slug: 'b', lang: 'en', draft: false, title: 'B?', description: 'B.', category: 'About', order: 20 },
+      { slug: 'b', lang: 'zh-HK', draft: false, title: '乙', description: '乙答', category: '關於', order: 20 },
+      { slug: 'a', lang: 'en', draft: false, title: 'A?', description: 'A.', category: 'About', order: 10 },
+      { slug: 'z', lang: 'zh-CN', draft: false, title: '只有中文', description: '答', category: '其它', order: 5 },
+      { slug: 'd', lang: 'en', draft: true, title: 'Draft?', description: 'x', category: 'About', order: 1 },
+    ],
+  });
+  assert.match(txt, /^# Fushi\n\n> Fushi is an app\.\n/);
+  assert.ok(txt.includes('- [Download Fushi](' + SITE + '/download): Pick a platform.'));
+  assert.ok(txt.includes('## FAQ: About\n\n- [A?](' + SITE + '/faq/a.en): A.\n- [B?](' + SITE + '/faq/b.en): B.'));
+  assert.ok(txt.includes('- [只有中文](' + SITE + '/faq/z): 答'), '没有英文版的退回简体原文');
+  assert.ok(!txt.includes('Draft?') && !txt.includes('乙'), '草稿与非首选语言版本不收');
+  assert.ok(txt.indexOf('## FAQ: 其它') < txt.indexOf('## FAQ: About'), '分组按组内最靠前的 order 排');
+});
+
+test('真实常见问题都读得出分组与 order（llms.txt 按它们分组排序）', () => {
+  for (const a of readFaqArticles()) {
+    if (a.draft) continue;
+    assert.ok(a.category, a.slug + '.' + a.lang + ' 缺 category: "…"');
+    assert.ok(Number.isFinite(a.order), a.slug + '.' + a.lang + ' 缺 order');
+  }
+});
+
 test('robots.txt 指向 sitemap', () => {
   assert.match(read('public/robots.txt'), /^Sitemap: https:\/\/fushi\.moe\/sitemap\.xml$/m);
+});
+
+test('robots.txt：搜索引擎与 AI 检索爬虫不被单独挡，只挡训练爬虫', () => {
+  const lines = read('public/robots.txt').replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+  // 按组解析：连续的 User-agent 行是一组，后面跟它们的规则
+  const blocked = new Set();
+  let agents = [];
+  let inRules = false;
+  for (const l of lines) {
+    const [k, ...rest] = l.split(':');
+    const v = rest.join(':').trim();
+    if (/^user-agent$/i.test(k)) { if (inRules) { agents = []; inRules = false; } agents.push(v.toLowerCase()); continue; }
+    inRules = true;
+    if (/^disallow$/i.test(k) && v === '/') agents.forEach((a) => blocked.add(a));
+  }
+  for (const bot of ['*', 'googlebot', 'bingbot', 'baiduspider', 'petalbot', 'kimibot', 'yandex', 'google-extended', 'googleother',
+    'applebot', 'oai-searchbot', 'chatgpt-user', 'perplexitybot', 'claude-searchbot', 'claude-user', 'duckassistbot']) {
+    assert.ok(!blocked.has(bot), bot + ' 被整站 Disallow 了');
+  }
+  for (const bot of ['gptbot', 'claudebot', 'ccbot']) assert.ok(blocked.has(bot), bot + ' 应该挡（训练用）');
+  assert.match(read('public/robots.txt'), /^Content-Signal: search=yes, ai-input=yes, ai-train=no$/m);
 });
 
 test('不走语言路由、也不是常见问题文章的独立页自带 canonical', () => {

@@ -36,7 +36,7 @@ test('排除清单都在本 zone 内、无重复，且通配符只出现在尾�
 
 // public/ 下的文件改名或删掉时，清单里的旧条目会悄悄变成死路由；这里钉住它们还在。
 // assets/、vp-icons.css、hashmap.json、sitemap.xml 是构建产物，探测路径不是站点文件。
-const BUILD_OUTPUTS = new Set(['assets', 'vp-icons.css', 'hashmap.json', 'sitemap.xml']);
+const BUILD_OUTPUTS = new Set(['assets', 'vp-icons.css', 'hashmap.json', 'sitemap.xml', 'llms.txt']);
 const PROBE_NOISE = new Set(['ping', 'generate_204']);
 
 test('排除清单里的 public/ 条目在源码里真实存在', () => {

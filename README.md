@@ -65,6 +65,9 @@ config.mts 给同一篇的各语言版本互挂 hreflang。样板见 `faq/free.m
 - `tool/seo.mjs`（纯函数，`tool/seo.test.mjs` 守）+ `tool/build_sitemap.mjs`：构建时写 `dist/sitemap.xml`——三个语言路由页 × 17 种语言
   （每条带全部 hreflang + x-default）、`/faq`、`/privacy`、每篇非草稿的常见问题文章（同 slug 各语言互挂 hreflang，`lastmod` 取 `date`）。
   地址从源文件推出，写完核对每条在 dist 里都有 HTML。`public/robots.txt` 的 `Sitemap:` 行指向它（Cloudflare 的托管 robots 规则会拼在前面）。
+- `tool/build_llms.mjs`：构建时写 `dist/llms.txt`（[llmstxt.org](https://llmstxt.org) 格式，给 AI 搜索 / 问答助手）——关键事实、主要页面、
+  全部非草稿常见问题（英文版优先，问题 + 摘要 + 链接）；内容由 `seo.mjs` 的 `llmsTxt` 拼，写完核对每个站内链接都有 HTML。
+- `public/_redirects`：改版前被收录过的旧地址（Hugo 的 `/posts/*`、早期的 `/features` `/guide`）301 到现行页，目标由 `seo.test.mjs` 守。
 - 结构化数据：首页每种语言烤 `WebSite` + `SoftwareApplication`（`renderHome`），常见问题文章出 `TechArticle` + `BreadcrumbList`
   （`config.mts` 的 `transformPageData`）。**只写可核实的事实**——没有真实评分就不写 `aggregateRating`，测试守着。
 - 首页的 demo 代码与数据（600 多 KB 的裸内联 `<script>`）在 17 份语言首页烤好后被抽成 `/assets/home-<内容哈希>.js`，

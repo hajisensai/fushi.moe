@@ -46,6 +46,7 @@ export const BYPASS_PATTERNS = Object.freeze([
   'fushi.moe/hashmap.json',
   'fushi.moe/robots.txt',
   'fushi.moe/sitemap.xml',
+  'fushi.moe/llms.txt',
   // 来路不明的空 UA 连通性探测（站点没有这两个路径，一天约 1800 次 404），
   // 交给 Pages 回 404，不再白占 Worker 调用。
   'fushi.moe/ping',
