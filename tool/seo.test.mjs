@@ -179,7 +179,7 @@ test('robots.txt 指向 sitemap', () => {
   assert.match(read('public/robots.txt'), /^Sitemap: https:\/\/fushi\.moe\/sitemap\.xml$/m);
 });
 
-test('robots.txt：搜索引擎与 AI 检索爬虫不被单独挡，只挡训练爬虫', () => {
+test('robots.txt：任何爬虫都不被整站挡（搜索、AI 检索、AI 训练都允许）', () => {
   const lines = read('public/robots.txt').replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
   // 按组解析：连续的 User-agent 行是一组，后面跟它们的规则
   const blocked = new Set();
@@ -193,11 +193,12 @@ test('robots.txt：搜索引擎与 AI 检索爬虫不被单独挡，只挡训练
     if (/^disallow$/i.test(k) && v === '/') agents.forEach((a) => blocked.add(a));
   }
   for (const bot of ['*', 'googlebot', 'bingbot', 'baiduspider', 'petalbot', 'kimibot', 'yandex', 'google-extended', 'googleother',
-    'applebot', 'oai-searchbot', 'chatgpt-user', 'perplexitybot', 'claude-searchbot', 'claude-user', 'duckassistbot']) {
+    'applebot', 'oai-searchbot', 'chatgpt-user', 'perplexitybot', 'claude-searchbot', 'claude-user', 'duckassistbot',
+    'gptbot', 'claudebot', 'ccbot', 'applebot-extended', 'meta-externalagent']) {
     assert.ok(!blocked.has(bot), bot + ' 被整站 Disallow 了');
   }
-  for (const bot of ['gptbot', 'claudebot', 'ccbot']) assert.ok(blocked.has(bot), bot + ' 应该挡（训练用）');
-  assert.match(read('public/robots.txt'), /^Content-Signal: search=yes, ai-input=yes, ai-train=no$/m);
+  assert.equal(blocked.size, 0, '不应整站挡任何爬虫：' + [...blocked].join(', '));
+  assert.match(read('public/robots.txt'), /^Content-Signal: search=yes, ai-input=yes, ai-train=yes$/m);
 });
 
 test('不走语言路由、也不是常见问题文章的独立页自带 canonical', () => {
