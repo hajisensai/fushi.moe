@@ -24,3 +24,14 @@
 # 站点脚本与 SW 同理，不能被长期缓存住。
 /site.js
   Cache-Control: no-cache
+
+# agent 发现文件（https://isitagentready.com 的检查项）。api-catalog 没有扩展名，
+# RFC 9727 要求 application/linkset+json；不写的话 Pages 按 octet-stream 出。
+/.well-known/api-catalog
+  Content-Type: application/linkset+json
+
+/.well-known/openapi.json
+  Content-Type: application/openapi+json
+
+/.well-known/agent-skills/*
+  Cache-Control: public, max-age=300, must-revalidate

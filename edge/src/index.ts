@@ -6,7 +6,7 @@ import { downloadCounterFrom, githubSnapshotFrom } from './download-stats-object
 import { handleHealth } from './health';
 import { httpsRedirect } from './https';
 import { handleStars } from './stars';
-import { handleSite } from './site';
+import { handleSiteForAgents } from './agent';
 import { handlePack } from './pack';
 import { originUrl } from './origins';
 
@@ -133,7 +133,8 @@ export default {
         });
       }
 
-      return await handleSite(request, {
+      // 站点页面：带 Accept: text/markdown 的请求回 Markdown 副本，HTML 响应补 agent 发现头（agent.ts）。
+      return await handleSiteForAgents(request, {
         settings,
         health,
         fetcher: fetch,

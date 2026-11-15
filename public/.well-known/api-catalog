@@ -1,0 +1,40 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://fushi.moe/releases/api/latest",
+      "service-desc": [
+        { "href": "https://fushi.moe/.well-known/openapi.json", "type": "application/openapi+json" }
+      ],
+      "service-doc": [
+        { "href": "https://fushi.moe/.well-known/agent-skills/fushi-downloads/SKILL.md", "type": "text/markdown" }
+      ],
+      "status": [
+        { "href": "https://fushi.moe/__health", "type": "application/json" }
+      ]
+    },
+    {
+      "anchor": "https://fushi.moe/api/downloads",
+      "service-desc": [
+        { "href": "https://fushi.moe/.well-known/openapi.json", "type": "application/openapi+json" }
+      ],
+      "service-doc": [
+        { "href": "https://fushi.moe/.well-known/agent-skills/fushi-downloads/SKILL.md", "type": "text/markdown" }
+      ],
+      "status": [
+        { "href": "https://fushi.moe/__health", "type": "application/json" }
+      ]
+    },
+    {
+      "anchor": "https://fushi.moe/api/stars",
+      "service-desc": [
+        { "href": "https://fushi.moe/.well-known/openapi.json", "type": "application/openapi+json" }
+      ],
+      "service-doc": [
+        { "href": "https://fushi.moe/.well-known/agent-skills/fushi-downloads/SKILL.md", "type": "text/markdown" }
+      ],
+      "status": [
+        { "href": "https://fushi.moe/__health", "type": "application/json" }
+      ]
+    }
+  ]
+}

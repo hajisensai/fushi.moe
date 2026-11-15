@@ -1,0 +1,160 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "fushi.moe public API",
+    "version": "1.0.0",
+    "description": "Read-only, unauthenticated JSON endpoints behind the Fushi website: the latest release manifest with per-platform download links, download statistics and the GitHub star count. All responses are edge-cached and send Access-Control-Allow-Origin: *.",
+    "license": { "name": "GPL-3.0", "url": "https://www.gnu.org/licenses/gpl-3.0.html" }
+  },
+  "servers": [{ "url": "https://fushi.moe" }],
+  "externalDocs": {
+    "description": "How to use these endpoints (agent skill)",
+    "url": "https://fushi.moe/.well-known/agent-skills/fushi-downloads/SKILL.md"
+  },
+  "paths": {
+    "/releases/api/latest": {
+      "get": {
+        "operationId": "getLatestRelease",
+        "summary": "Latest Fushi release: version, tag and a download link per platform slot",
+        "parameters": [
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "description": "Release channel. Omit for the stable channel, which is what end users should install.",
+            "schema": { "type": "string", "enum": ["stable", "debug", "beta"], "default": "stable" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Release manifest",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ReleaseManifest" } } }
+          },
+          "404": { "description": "Unknown channel" },
+          "503": { "description": "Manifest temporarily unavailable; fall back to https://github.com/hajisensai/Fushi/releases/latest" }
+        }
+      }
+    },
+    "/releases/latest/{slot}": {
+      "get": {
+        "operationId": "downloadLatest",
+        "summary": "Download the latest stable installer for one platform slot",
+        "description": "Serves the file from the site's mirror, or redirects to the same asset on GitHub Releases. Supports Range requests.",
+        "parameters": [
+          {
+            "name": "slot",
+            "in": "path",
+            "required": true,
+            "schema": { "$ref": "#/components/schemas/Slot" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "The installer file", "content": { "application/octet-stream": {} } },
+          "206": { "description": "Partial content (Range request)", "content": { "application/octet-stream": {} } },
+          "302": { "description": "Redirect to the asset on GitHub Releases" },
+          "404": { "description": "Unknown slot, or this release has no asset for it" }
+        }
+      }
+    },
+    "/api/downloads": {
+      "get": {
+        "operationId": "getDownloadStats",
+        "summary": "Download counts (site mirror + GitHub release assets)",
+        "responses": {
+          "200": {
+            "description": "Download statistics",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DownloadStats" } } }
+          }
+        }
+      }
+    },
+    "/api/stars": {
+      "get": {
+        "operationId": "getStars",
+        "summary": "GitHub star count of the Fushi repository",
+        "responses": {
+          "200": {
+            "description": "Star count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["repo", "stars"],
+                  "properties": {
+                    "repo": { "type": "string", "examples": ["hajisensai/Fushi"] },
+                    "stars": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              }
+            }
+          },
+          "503": { "description": "Star count temporarily unavailable" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Slot": {
+        "type": "string",
+        "description": "Platform slot. windows is the installer, windows-portable the no-install zip; macos is Apple Silicon only; android-universal exists on the debug channel only; bridge-* are the companion Bridge APKs.",
+        "enum": [
+          "android-arm64", "android-arm32", "android-x64", "android-universal",
+          "windows", "windows-portable", "macos", "ios",
+          "bridge-arm64", "bridge-arm32", "bridge-x64"
+        ]
+      },
+      "ReleaseAsset": {
+        "type": "object",
+        "required": ["url", "githubUrl", "name", "size"],
+        "properties": {
+          "url": { "type": "string", "format": "uri", "description": "Same-domain download link (mirror with GitHub fallback). Prefer this one." },
+          "githubUrl": { "type": "string", "format": "uri", "description": "The same asset on GitHub Releases" },
+          "name": { "type": "string", "description": "File name" },
+          "size": { "type": "integer", "description": "Size in bytes" },
+          "sha256": { "type": "string", "description": "Hex SHA-256 of the file, when known" }
+        }
+      },
+      "ReleaseManifest": {
+        "type": "object",
+        "required": ["channel", "tag", "version", "slots"],
+        "properties": {
+          "channel": { "type": "string", "enum": ["stable", "debug", "beta"] },
+          "tag": { "type": "string", "examples": ["v3.3.0"] },
+          "version": { "type": "string", "examples": ["3.3.0"] },
+          "publishedAt": { "type": "string", "description": "ISO 8601 publish time; may be empty" },
+          "slots": {
+            "type": "object",
+            "description": "Slot name → asset. A slot is null when this release has no asset for it.",
+            "additionalProperties": {
+              "oneOf": [{ "$ref": "#/components/schemas/ReleaseAsset" }, { "type": "null" }]
+            }
+          }
+        }
+      },
+      "DownloadStats": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": ["integer", "null"],
+            "description": "Headline number: GitHub release asset downloads plus downloads served from the site mirror. null when the GitHub half has never been fetched."
+          },
+          "site": {
+            "type": "object",
+            "description": "Downloads counted by the site itself, broken down by channel, slot, source, tag and day",
+            "properties": {
+              "total": { "type": "integer" },
+              "served": { "type": "integer" }
+            }
+          },
+          "github": {
+            "type": ["object", "null"],
+            "description": "Sum of download_count over GitHub release assets, by tag and slot",
+            "properties": { "total": { "type": "integer" } }
+          },
+          "stale": { "type": "boolean", "description": "true when the GitHub half is a cached older copy" }
+        }
+      }
+    }
+  }
+}

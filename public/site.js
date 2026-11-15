@@ -563,6 +563,69 @@
   // 预热字典：和 HTML 解析并行拉，DOMContentLoaded 时多半已经到了。
   if (state.lang !== PAGE_SOURCE) loadDict(state.lang).catch(function () {});
 
+  /*
+   * WebMCP：把站点的两件事作为工具暴露给浏览器里的 AI agent（https://webmachinelearning.github.io/webmcp/）。
+   * 浏览器没有这个 API 时整段不做任何事；注册失败也只是没有工具，不影响页面。
+   * 数据都来自本站已有的公开端点：/releases/api/latest（最新版本清单）与 /llms.txt（常见问题目录）。
+   */
+  (function registerAgentTools() {
+    var mc = document.modelContext || navigator.modelContext;
+    if (!mc || typeof mc.registerTool !== 'function') return;
+    var text = function (s) { return { content: [{ type: 'text', text: s }] }; };
+    var tools = [{
+      name: 'get_latest_fushi_release',
+      description: 'Get the latest stable Fushi release: version, tag, and for each platform slot ' +
+        '(android-arm64, windows, windows-portable, macos, ios, …) the download URL, file name, size and SHA-256.',
+      inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+      execute: function () {
+        return fetch('/releases/api/latest', { headers: { accept: 'application/json' } })
+          .then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.text();
+          })
+          .then(text, function (e) {
+            return text('Could not load the release manifest (' + e.message +
+              '). See https://github.com/hajisensai/Fushi/releases/latest');
+          });
+      },
+    }, {
+      name: 'search_fushi_faq',
+      description: 'Search the Fushi FAQ (installation, dictionaries, Anki, video, manga, novels, games, sync). ' +
+        'Returns matching questions with a one-line answer and the article URL; request an article URL with ' +
+        '"Accept: text/markdown" for its full text.',
+      inputSchema: {
+        type: 'object',
+        properties: { query: { type: 'string', description: 'Keywords in English, e.g. "anki connect" or "mdict"' } },
+        required: ['query'],
+        additionalProperties: false,
+      },
+      execute: function (input) {
+        var words = String((input && input.query) || '').toLowerCase().split(/\s+/).filter(Boolean);
+        return fetch('/llms.txt')
+          .then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.text();
+          })
+          .then(function (txt) {
+            var hits = txt.split('\n').filter(function (line) {
+              if (line.indexOf('- [') !== 0) return false;
+              var low = line.toLowerCase();
+              return words.every(function (w) { return low.indexOf(w) !== -1; });
+            });
+            return text(hits.length ? hits.slice(0, 12).join('\n') : 'No FAQ article matches. Full list: https://fushi.moe/llms.txt');
+          }, function (e) {
+            return text('Could not load the FAQ index (' + e.message + '). See https://fushi.moe/faq');
+          });
+      },
+    }];
+    tools.forEach(function (tool) {
+      try {
+        var p = mc.registerTool(tool);
+        if (p && typeof p.catch === 'function') p.catch(function () {});
+      } catch (e) { /* 不支持的旧实现：忽略 */ }
+    });
+  })();
+
   window.fushiI18n = {
     LANGS: LANGS,
     SOURCE: SOURCE,
