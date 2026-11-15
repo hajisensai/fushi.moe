@@ -41,6 +41,9 @@ jobs:
         with:
           name: site-dist
           path: .vitepress/dist
+          # 产物里有 .well-known/（API catalog、agent skills）；upload-artifact 默认丢掉点开头的目录，
+          # 不开的话 Cloudflare Pages 一侧会缺这些文件、与 GitHub Pages 侧不一致。
+          include-hidden-files: true
           retention-days: 7
 
       - name: Upload GitHub Pages artifact

@@ -47,6 +47,8 @@ export const BYPASS_PATTERNS = Object.freeze([
   'fushi.moe/robots.txt',
   'fushi.moe/sitemap.xml',
   'fushi.moe/llms.txt',
+  // agent 发现文件（API catalog、OpenAPI、agent skills）：纯静态，Content-Type 由 public/_headers 给。
+  'fushi.moe/.well-known/*',
   // 来路不明的空 UA 连通性探测（站点没有这两个路径，一天约 1800 次 404），
   // 交给 Pages 回 404，不再白占 Worker 调用。
   'fushi.moe/ping',

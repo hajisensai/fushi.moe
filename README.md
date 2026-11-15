@@ -67,6 +67,14 @@ config.mts 给同一篇的各语言版本互挂 hreflang。样板见 `faq/free.m
   地址从源文件推出，写完核对每条在 dist 里都有 HTML。`public/robots.txt` 的 `Sitemap:` 行指向它（Cloudflare 的托管 robots 规则会拼在前面）。
 - `tool/build_llms.mjs`：构建时写 `dist/llms.txt`（[llmstxt.org](https://llmstxt.org) 格式，给 AI 搜索 / 问答助手）——关键事实、主要页面、
   全部非草稿常见问题（英文版优先，问题 + 摘要 + 链接）；内容由 `seo.mjs` 的 `llmsTxt` 拼，写完核对每个站内链接都有 HTML。
+- AI agent 就绪（[isitagentready.com](https://isitagentready.com) 的检查项，`tool/agent-ready.test.mjs` 守着）：
+  - `tool/build_markdown.mjs`：构建时给每个 HTML 页写一份同名 `.md` 副本；边缘 Worker（`edge/src/agent.ts`）在请求带
+    `Accept: text/markdown` 时回它，并给 HTML 响应加 `Link` 发现头（llms.txt、API catalog、agent skills）。
+  - `public/.well-known/`：`api-catalog`（RFC 9727）、`openapi.json`（`/releases/api/latest`、`/api/downloads`、`/api/stars`）、
+    `agent-skills/<name>/SKILL.md`；`tool/build_agent_skills.mjs` 构建时算 digest 写 `agent-skills/index.json`。
+    Worker 的下载槽位（`edge/src/manifest.ts` 的 `SLOTS`）变了要同步改 `openapi.json` 与技能正文。
+  - `public/site.js` 末尾用 WebMCP 注册两个只读工具（最新版本清单、常见问题检索），浏览器没有该 API 时不做任何事。
+  - 没做的：OAuth / MCP server / A2A / 支付类检查项——站点没有登录、没有 MCP 服务、不卖东西，不发假的发现文件。
 - `public/_redirects`：改版前被收录过的旧地址（Hugo 的 `/posts/*`、早期的 `/features` `/guide`）301 到现行页，目标由 `seo.test.mjs` 守。
 - 结构化数据：首页每种语言烤 `WebSite` + `SoftwareApplication`（`renderHome`），常见问题文章出 `TechArticle` + `BreadcrumbList`
   （`config.mts` 的 `transformPageData`）。**只写可核实的事实**——没有真实评分就不写 `aggregateRating`，测试守着。
