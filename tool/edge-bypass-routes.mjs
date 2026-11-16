@@ -65,6 +65,8 @@ export const WORKER_ONLY_PATHS = Object.freeze([
   '/pack/manifest.json',
   '/api/stars',
   '/api/downloads',
+  '/settings.md',
+  '/settings.json',
   '/zh-cn/',
   '/download',
 ]);

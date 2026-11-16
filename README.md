@@ -67,6 +67,10 @@ config.mts 给同一篇的各语言版本互挂 hreflang。样板见 `faq/free.m
   地址从源文件推出，写完核对每条在 dist 里都有 HTML。`public/robots.txt` 的 `Sitemap:` 行指向它（Cloudflare 的托管 robots 规则会拼在前面）。
 - `tool/build_llms.mjs`：构建时写 `dist/llms.txt`（[llmstxt.org](https://llmstxt.org) 格式，给 AI 搜索 / 问答助手）——关键事实、主要页面、
   全部非草稿常见问题（英文版优先，问题 + 摘要 + 链接）；内容由 `seo.mjs` 的 `llmsTxt` 拼，写完核对每个站内链接都有 HTML。
+- App 设置项目录 `/settings.md`、`/settings.json`（给 AI 读，llms.txt 的「App reference」指向它）：内容**不在本仓**，由 Fushi 主仓 CI 在每次
+  推送 develop / main 时从 app 的设置 schema 生成到 `update-manifest` 分支（`settings-catalog-<channel>.{json,md}`），边缘 Worker
+  （`edge/src/settings-catalog.ts`）同域代理 + 10 分钟边缘缓存 + 7 天陈旧兜底。app 加减设置项后这里不用改、不用重新构建。
+  不带参数给正式版那份（还没发布过就退回调试版），`?channel=debug` 给调试版；两个路径在 `edge-bypass-routes.mjs` 的 `WORKER_ONLY_PATHS` 里。
 - AI agent 就绪（[isitagentready.com](https://isitagentready.com) 的检查项，`tool/agent-ready.test.mjs` 守着）：
   - `tool/build_markdown.mjs`：构建时给每个 HTML 页写一份同名 `.md` 副本；边缘 Worker（`edge/src/agent.ts`）在请求带
     `Accept: text/markdown` 时回它，并给 HTML 响应加 `Link` 发现头（llms.txt、API catalog、agent skills）。

@@ -8,6 +8,7 @@ import { httpsRedirect } from './https';
 import { handleStars } from './stars';
 import { handleSiteForAgents } from './agent';
 import { handlePack } from './pack';
+import { catalogFormatOf, handleSettingsCatalog } from './settings-catalog';
 import { originUrl } from './origins';
 
 // Durable Object 类必须从 Worker 入口导出，wrangler.toml 的 class_name 才找得到它。
@@ -95,6 +96,17 @@ export default {
           waitUntil,
           counter: downloadCounterFrom(env),
           githubSnapshot: githubSnapshotFrom(env),
+        });
+      }
+
+      // App 设置项目录（给 AI 读）：内容由 Fushi 主仓 CI 生成在 update-manifest 分支，这里同域代理 + 边缘缓存。
+      const catalogFormat = url.hostname === settings.canonicalHost ? catalogFormatOf(url.pathname) : null;
+      if (catalogFormat !== null) {
+        return await handleSettingsCatalog(request, catalogFormat, {
+          settings,
+          fetcher: fetch,
+          cache: caches.default,
+          waitUntil,
         });
       }
 
