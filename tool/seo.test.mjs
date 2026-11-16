@@ -165,6 +165,8 @@ test('llms.txt：关键事实、主要页面、每个 slug 一篇（英文优先
   assert.ok(txt.includes('- [只有中文](' + SITE + '/faq/z): 答'), '没有英文版的退回简体原文');
   assert.ok(!txt.includes('Draft?') && !txt.includes('乙'), '草稿与非首选语言版本不收');
   assert.ok(txt.indexOf('## FAQ: 其它') < txt.indexOf('## FAQ: About'), '分组按组内最靠前的 order 排');
+  assert.ok(txt.includes('## App reference\n\n- [Settings reference](' + SITE + '/settings.md): '), 'app 设置项目录（边缘 Worker 代理）');
+  assert.ok(txt.includes('](' + SITE + '/settings.json): '));
 });
 
 test('真实常见问题都读得出分组与 order（llms.txt 按它们分组排序）', () => {

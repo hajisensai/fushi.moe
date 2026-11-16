@@ -43,7 +43,8 @@ export function main() {
   ];
   const txt = llmsTxt({ description: en['meta.description'], pages, articles: readFaqArticles() });
   const links = [...txt.matchAll(/\]\((https:\/\/fushi\.moe\/[^)]*)\)/g)].map((m) => m[1]);
-  const missing = links.filter((u) => !/\.(xml|txt)$/.test(u) && !builtPage(u));
+  // /settings.md、/settings.json 由边缘 Worker 代理（edge/src/settings-catalog.ts），不在 dist 里。
+  const missing = links.filter((u) => !/\.(xml|txt)$/.test(u) && !/\/settings\.(md|json)$/.test(u) && !builtPage(u));
   if (missing.length) throw new Error('llms.txt links to pages that were not built:\n  ' + missing.join('\n  '));
   writeFileSync(join(DIST, 'llms.txt'), txt, 'utf8');
   console.log('llms.txt：' + links.length + ' 个链接');

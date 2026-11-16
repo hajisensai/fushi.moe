@@ -234,6 +234,9 @@ export function llmsTxt({ description, pages, articles }) {
   for (const [g, list] of groups) {
     out.push('', '## FAQ: ' + g, '', ...list.map((a) => line(a.title, SITE + faqPath(a.slug, a.lang), a.description)));
   }
+  out.push('', '## App reference', '',
+    line('Settings reference', SITE + '/settings.md', 'every setting of the app, generated from the app itself: key, name (English and Chinese), where it is in Settings, type, allowed values and default'),
+    line('Settings reference (JSON)', SITE + '/settings.json', 'the same catalog as structured data; add ?channel=debug for the pre-release build'));
   out.push('', '## Optional', '', line('GitHub repository', 'https://github.com/hajisensai/Fushi', 'source code, issues and release notes'),
     line('Sitemap', SITE + '/sitemap.xml', 'every page with its language versions'), '');
   return out.join('\n');
