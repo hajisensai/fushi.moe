@@ -68,4 +68,4 @@ Fushi 只能打开**没有 DRM** 的文件。从电子书平台买的书如果�
 - **整本书都是图片，点不了字**：这是扫描版（每页是一张图），里面没有文字。在书架长按这本书选「转换为漫画」，交给漫画 OCR 识别后就能点字，见[怎么在线看漫画并识别文字制卡？](/faq/manga-online)。
 - **字体、字号、竖排横排不满意**：都在 **阅读设置** 里，见[阅读器的排版设置](/faq/reader-typography)。
 
-Fushi 是免费开源的，Windows、macOS（Apple Silicon）、Android、iOS 都能用阅读器，Linux 可从源码构建；到[下载页](/zh-cn/download)选你的平台。
+Fushi 是免费开源的，Windows、macOS（Apple Silicon）、Android、iOS、Linux 都能用阅读器；到[下载页](/zh-cn/download)选你的平台。

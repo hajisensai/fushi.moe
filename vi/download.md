@@ -1,6 +1,6 @@
 ---
 title: "Tải Fushi"
-description: "Chọn một nền tảng rồi cài vào, phần còn lại giao cho hướng dẫn người mới trong ứng dụng. Bốn nền tảng, cùng một trải nghiệm, tất cả đều miễn phí và mã nguồn mở."
+description: "Chọn một nền tảng rồi cài vào, phần còn lại giao cho hướng dẫn người mới trong ứng dụng. Năm nền tảng, cùng một trải nghiệm, tất cả đều miễn phí và mã nguồn mở."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Tải Fushi"
   - - meta
     - property: "og:description"
-      content: "Chọn một nền tảng rồi cài vào, phần còn lại giao cho hướng dẫn người mới trong ứng dụng. Bốn nền tảng, cùng một trải nghiệm, tất cả đều miễn phí và mã nguồn mở."
+      content: "Chọn một nền tảng rồi cài vào, phần còn lại giao cho hướng dẫn người mới trong ứng dụng. Năm nền tảng, cùng một trải nghiệm, tất cả đều miễn phí và mã nguồn mở."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/vi/download"

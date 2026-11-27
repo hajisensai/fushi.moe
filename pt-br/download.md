@@ -1,6 +1,6 @@
 ---
 title: "Baixar o Fushi"
-description: "Escolha uma plataforma, instale e deixe o resto com o guia de primeiros passos do app. Quatro plataformas, uma só experiência, tudo gratuito e de código aberto."
+description: "Escolha uma plataforma, instale e deixe o resto com o guia de primeiros passos do app. Cinco plataformas, uma só experiência, tudo gratuito e de código aberto."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Baixar o Fushi"
   - - meta
     - property: "og:description"
-      content: "Escolha uma plataforma, instale e deixe o resto com o guia de primeiros passos do app. Quatro plataformas, uma só experiência, tudo gratuito e de código aberto."
+      content: "Escolha uma plataforma, instale e deixe o resto com o guia de primeiros passos do app. Cinco plataformas, uma só experiência, tudo gratuito e de código aberto."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/pt-br/download"

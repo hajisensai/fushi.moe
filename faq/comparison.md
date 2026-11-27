@@ -8,7 +8,7 @@ date: 2026-10-18
 
 用沉浸法学语言（见[什么是沉浸学习](/zh-cn/immersion)）的人，工具箱里往往已经有好几样东西：浏览器里装了 Yomitan，看 Netflix 用 Language Reactor 或 asbplayer，卡片进 Anki。Fushi 不是要你把这些全换掉，而是补上它们没覆盖到的地方。这一篇按工具逐个说清楚区别，以及怎么搭配。
 
-先说一句定位：**Fushi 是一个独立安装的应用**（Windows、macOS、Android、iOS，Linux 可自行构建，见[支持哪些平台](/faq/platforms)），不是浏览器扩展。它把本地视频播放器、EPUB 阅读器、漫画阅读器、有声书、Galgame 文本 Hook 和词典查词放在同一个程序里，查到的词一键做成 Anki 卡。它以 GPLv3 开源、完全免费（见[Fushi 是免费的吗](/faq/free)）。
+先说一句定位：**Fushi 是一个独立安装的应用**（Windows、macOS、Android、iOS、Linux，见[支持哪些平台](/faq/platforms)），不是浏览器扩展。它把本地视频播放器、EPUB 阅读器、漫画阅读器、有声书、Galgame 文本 Hook 和词典查词放在同一个程序里，查到的词一键做成 Anki 卡。它以 GPLv3 开源、完全免费（见[Fushi 是免费的吗](/faq/free)）。
 
 下面对其他工具的描述基于它们公开的资料，功能和价格会变，以各自官网为准。
 

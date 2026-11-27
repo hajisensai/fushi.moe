@@ -1,6 +1,6 @@
 ---
 title: "Fushi 다운로드"
-description: "플랫폼을 골라 설치하면 나머지는 앱 안의 초기 설정 가이드가 안내합니다. 네 가지 플랫폼, 하나의 경험, 모두 무료 오픈소스입니다."
+description: "플랫폼을 골라 설치하면 나머지는 앱 안의 초기 설정 가이드가 안내합니다. 다섯 가지 플랫폼, 하나의 경험, 모두 무료 오픈소스입니다."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Fushi 다운로드"
   - - meta
     - property: "og:description"
-      content: "플랫폼을 골라 설치하면 나머지는 앱 안의 초기 설정 가이드가 안내합니다. 네 가지 플랫폼, 하나의 경험, 모두 무료 오픈소스입니다."
+      content: "플랫폼을 골라 설치하면 나머지는 앱 안의 초기 설정 가이드가 안내합니다. 다섯 가지 플랫폼, 하나의 경험, 모두 무료 오픈소스입니다."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/ko/download"

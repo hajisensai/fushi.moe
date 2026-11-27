@@ -26,7 +26,7 @@ Galgame 的文本 Hook 只能在 Windows 上做（見[Galgame 怎麼接進 Fushi
 遊戲模組在不同平臺上是兩種形態：
 
 - **Windows**：本機遊戲庫 + 文本 Hook 工作臺；遊戲頁裡另有 **串流** 分割槽，也能當接收端去看另一臺 Windows 電腦；
-- **Android、iOS / iPadOS、macOS**（以及從原始碼構建的 Linux 版）：遊戲模組就是串流客戶端，副標題寫著「在電腦上啟動遊戲並串流到這裡」。
+- **Android、iOS / iPadOS、macOS**（以及 Linux 版）：遊戲模組就是串流客戶端，副標題寫著「在電腦上啟動遊戲並串流到這裡」。
 
 所以主機永遠是 Windows 電腦；接收端用手機、平板、Mac 都行。iOS 版在 App Store 合規上少了幾樣線上功能（見[iOS 版少了哪些功能？](/faq/ios-limits.zh-HK)），但遊戲串流客戶端是保留的。
 

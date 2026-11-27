@@ -136,6 +136,17 @@ describe('parseChannel / slots', () => {
     expect(resolveSlot(arm, 'macos')?.name).toBe('fushi-2.10.0-debug.1-macos-arm64.zip');
   });
 
+  it('Linux 槽位认 release-desktop.yml 出的 -linux-x86_64.flatpak，不把同批的 .tar.gz 当安装包', () => {
+    const asset = (name: string) => ({ name, browser_download_url: 'https://example.invalid/' + name, size: 1 });
+    const m = manifestFromPublished({
+      tag: 'fushi-debug-rolling',
+      assets: [asset('fushi-3.4.0-debug.32846-linux-x64.tar.gz'), asset('fushi-3.4.0-debug.32846-linux-x86_64.flatpak')],
+    })!;
+    expect(resolveSlot(m, 'linux')?.name).toBe('fushi-3.4.0-debug.32846-linux-x86_64.flatpak');
+    const none = manifestFromPublished({ tag: 'v3.3.0', assets: [asset('fushi-3.3.0-windows-setup.exe')] })!;
+    expect(resolveSlot(none, 'linux')).toBeNull();
+  });
+
   it('静态清单里 channel 写 formal 也归到 stable', () => {
     expect(manifestFromPublished(JSON.parse(STABLE))!.channel).toBe('stable');
   });

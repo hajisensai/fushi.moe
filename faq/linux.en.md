@@ -1,6 +1,6 @@
 ---
 title: "Does Fushi run on Linux? Is there a Linux package?"
-description: "The Linux desktop app has no prebuilt packages — it can only be built from source — and its reader and lookup popup WebView depend on WPE WebKit, though the app still starts without it. To run Fushi on a Linux server or NAS, use the headless fushi_server, which does ship official Linux packages, and connect to it from your phone to watch anime, read and look words up."
+description: "Yes: the Linux desktop app ships as an official Flatpak (x86_64) with WPE WebKit, mpv and the other dependencies inside, updates from within the app, and is on the download page; you can also build it from source. To run Fushi on a Linux server or NAS, use the headless fushi_server, which also ships official Linux packages."
 category: "Setup"
 order: 41.5
 date: 2026-10-18
@@ -9,20 +9,24 @@ lang: en
 
 There are two answers, depending on what you mean:
 
-- **The Linux desktop app**: it works, but **only as a source build** — Fushi's CI doesn't build a Linux app and there's no Linux installer. The [download page](/download) says "There is no prebuilt Linux package yet; please build from source". The code itself is cross-platform, and everything needed to build it is documented in the repository, so if you're willing to compile it yourself, it runs.
+- **The Linux desktop app**: there is an official package — a **Flatpak (x86_64)**, on the Linux row of the [download page](/download). Formal releases include it from 3.4.0, and every debug build ships one. You can still build it from source yourself if you prefer (see below).
 - **Linux servers / NAS**: there is an official package. The headless server **fushi_server** ships a Linux x64 build that you install on a home server, NAS or VPS as the media library host for Fushi on your phones and computers; see [What is the Fushi server (fushi_server)?](/faq/server.en)
 
-## What does "build from source only" mean?
+## How do I install the Flatpak?
 
-The Linux desktop code lives in the main repository, moves with the main line and can be built at any time, but:
+1. You need Flatpak on the system (most distributions ship it or install it with one command; Steam Deck desktop mode has it built in).
+2. Get `fushi-<version>-linux-x86_64.flatpak` from the download page and run `flatpak install --user fushi-<version>-linux-x86_64.flatpak`. The GNOME runtime it needs is pulled from Flathub automatically.
+3. Or skip the file and install straight from Fushi's Flatpak repository: `flatpak install --user https://hajisensai.github.io/Fushi/app.fushi.reader.flatpakref` (debug builds: `app.fushi.reader.debug.flatpakref`).
 
-- the release pipeline produces no Linux packages, so you compile every version from source yourself;
-- Fushi can check for new versions on Linux but can't install them (there's no Linux package to install anyway); updating means pulling the new code and rebuilding;
-- releases are not tested on the Linux desktop one by one; if something only breaks on Linux, feedback and fixes are welcome.
+Then open Fushi from your application menu. Updates: the in-app "Check for updates" pulls the new version through the Flatpak portal and restarts, or just run `flatpak update`. The update channel follows the branch you installed (`stable` for formal releases, `debug` for debug builds); to switch channels, install the other branch.
 
-Feature-wise it's essentially the same as the Windows / macOS desktop apps: EPUB light novels, manga, local anime, lookup and mining (with Anki desktop + AnkiConnect), Mihon extensions, interconnect and cloud backup are all there. **Galgame text / voice capture is Windows-only**; on Linux the "Games" page is a streaming client that can launch games on a paired Windows PC and stream them over.
+The Flatpak already carries **WPE WebKit** (the WebView behind the reader, lookup popup and novel sources) and **mpv** (video playback), so you don't install those distribution packages yourself.
 
-## What do the reader and lookup popup depend on? (WPE WebKit)
+Feature-wise it's essentially the same as the Windows / macOS desktop apps: EPUB light novels, manga, local anime, lookup and mining (with Anki desktop + AnkiConnect), Mihon extensions, interconnect and cloud backup are all there. **Galgame text / voice capture is Windows-only**; on Linux the "Games" page is a streaming client that can launch games on a paired Windows PC and stream them over. Releases are not tested on every Linux distribution one by one; if something only breaks on Linux, feedback and fixes are welcome.
+
+## Building from source: what do the reader and lookup popup depend on? (WPE WebKit)
+
+The next few sections only apply to a build **you compile from source**; the Flatpak already bundles these dependencies.
 
 Fushi's EPUB reader, lookup popup, LNReader novel sources and similar screens run inside a WebView. On Linux that WebView is **WPE WebKit**, and it's an **optional** runtime dependency:
 
@@ -32,9 +36,9 @@ Fushi's EPUB reader, lookup popup, LNReader novel sources and similar screens ru
 
 The same goes for building: the WebView implementation library is only built when the build machine has the WPE development packages; without them you still get a build that starts, just without a WebView.
 
-## Other runtime dependencies
+## Other runtime dependencies (source builds)
 
-The machine running Fushi needs these distribution packages:
+The machine running a build you compiled needs these distribution packages:
 
 - **GTK 3**, **libmpv2** (video playback), **libkeybinder-3.0** (global shortcuts);
 - **ffmpeg / ffprobe** on PATH (the Linux build doesn't bundle the slimmed-down ffmpeg; it uses the system one);
@@ -47,7 +51,7 @@ The built-in BitTorrent engine library is bundled only if present: if your build
 
 The full steps are in the [Building section of the GitHub repository](https://github.com/hajisensai/Fushi#building); Linux specifics (dependency list, packaging notes, how to verify in Docker) are in the repository's `docs/agent/build.md`, section "Linux 桌面（源码构建）" (Linux desktop, build from source). Roughly:
 
-1. Install **Flutter 3.47.6** (the repository is locked to this version; 3.44 and earlier can't build it).
+1. Install **Flutter 3.50.0** (the repository is locked to this version; 3.44 and earlier can't build it).
 2. Install the build dependencies. On Debian trixie, for example: `clang cmake ninja-build make pkg-config g++` (g++ 14 or newer), `libgtk-3-dev liblzma-dev libmpv-dev libsecret-1-dev libkeybinder-3.0-dev`; for the WebView, add `libwpewebkit-2.0-dev libwpebackend-fdo-1.0-dev libwpe-1.0-dev libepoxy-dev libwayland-dev`.
 3. Run `bash tool/bootstrap.sh` in the repository root (fetches dependencies and applies patches in one go), then in `fushi/` run `flutter build linux --release`.
 4. The result is in `build/linux/x64/release/bundle/`. Copy the whole bundle directory to run it, not just the executable.

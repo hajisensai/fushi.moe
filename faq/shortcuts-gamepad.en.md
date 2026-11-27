@@ -118,7 +118,7 @@ With focus navigation off, ↑ / ↓ still scroll the page and PageUp / PageDown
 - **Windows**: controllers are read through the system's GameInput component. If Keyboard shortcuts says "GameInput component not detected — gamepad support is unavailable", install Windows Gaming Services.
 - **macOS / iOS**: uses the system controller framework; pair over Bluetooth and it works.
 - **Android**: the system hands controller buttons to the app as key events; connect a Bluetooth or USB controller and it works.
-- **Linux** (built from source): read from the system's input devices.
+- **Linux**: read from the system's input devices.
 
 On phones and tablets the home-screen keyboard shortcuts are off by default (only gamepad bindings remain), but keyboard bindings in the reader, manga and video pages and for "Back / exit one level" stay active — attach a Bluetooth keyboard to turn pages and control playback.
 

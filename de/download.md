@@ -1,6 +1,6 @@
 ---
 title: "Fushi herunterladen"
-description: "Wähle eine Plattform, installiere die App und überlass den Rest dem Einrichtungsassistenten. Vier Plattformen, ein Erlebnis – alles kostenlos und Open Source."
+description: "Wähle eine Plattform, installiere die App und überlass den Rest dem Einrichtungsassistenten. Fünf Plattformen, ein Erlebnis – alles kostenlos und Open Source."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Fushi herunterladen"
   - - meta
     - property: "og:description"
-      content: "Wähle eine Plattform, installiere die App und überlass den Rest dem Einrichtungsassistenten. Vier Plattformen, ein Erlebnis – alles kostenlos und Open Source."
+      content: "Wähle eine Plattform, installiere die App und überlass den Rest dem Einrichtungsassistenten. Fünf Plattformen, ein Erlebnis – alles kostenlos und Open Source."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/de/download"

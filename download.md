@@ -1,6 +1,6 @@
 ---
 title: "Download Fushi"
-description: "Pick a platform, install it, and let the in-app onboarding handle the rest. Four platforms, one experience, all free and open source."
+description: "Pick a platform, install it, and let the in-app onboarding handle the rest. Five platforms, one experience, all free and open source."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Download Fushi"
   - - meta
     - property: "og:description"
-      content: "Pick a platform, install it, and let the in-app onboarding handle the rest. Four platforms, one experience, all free and open source."
+      content: "Pick a platform, install it, and let the in-app onboarding handle the rest. Five platforms, one experience, all free and open source."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/download"

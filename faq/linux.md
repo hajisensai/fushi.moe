@@ -1,6 +1,6 @@
 ---
 title: "Linux 能用 Fushi 吗？有没有 Linux 安装包？"
-description: "Linux 桌面版暂无预编译安装包，只能从源码构建；阅读器、查词弹窗等 WebView 依赖 WPE WebKit，缺了也能启动。想在 Linux 服务器 / NAS 上跑 Fushi，用官方提供 Linux 包的无头服务端 fushi_server，手机看番学日语、读书查词时连它即可。"
+description: "有：Linux 桌面版提供官方 Flatpak 包（x86_64），WPE WebKit、mpv 等依赖都在包里，装好后可在应用内更新，在下载页就能拿到；也可以自己从源码构建。想在 Linux 服务器 / NAS 上跑 Fushi，用官方提供 Linux 包的无头服务端 fushi_server。"
 category: "安装与配置"
 order: 41.5
 date: 2026-10-18
@@ -8,20 +8,24 @@ date: 2026-10-18
 
 分两种情况回答：
 
-- **Linux 桌面 app**：能用，但**只能从源码构建**——官方 CI 不构建 Linux App，也没有 Linux 安装包，[下载页](/zh-cn/download)上写的是「Linux 暂无预编译包，请从源码构建」。代码本身是跨平台的，构建所需的全部前提都写在仓库里，愿意自己编译就能跑起来。
+- **Linux 桌面 app**：有官方安装包——**Flatpak（x86_64）**，在[下载页](/zh-cn/download)的 Linux 一行下载。正式版从 3.4.0 起提供，调试版每次构建都出。愿意的话也可以自己从源码构建（见下文）。
 - **Linux 服务器 / NAS**：有官方包。无头服务端 **fushi_server** 提供 Linux x64 版，装在家用服务器、NAS 或 VPS 上，给手机和电脑上的 Fushi 当媒体库主机，见[Fushi 服务端（fushi_server）是什么？](/faq/server)。
 
-## 「只能从源码构建」意味着什么？
+## 怎么安装 Flatpak 版？
 
-Linux 桌面版的代码就在主仓库里，随主线一起更新、随时可以编译，但：
+1. 系统里要有 Flatpak（多数发行版自带或一条命令装上；Steam Deck 桌面模式自带）。
+2. 从下载页拿到 `fushi-<版本>-linux-x86_64.flatpak`，执行 `flatpak install --user fushi-<版本>-linux-x86_64.flatpak`。它依赖的 GNOME 运行时会从 Flathub 自动拉取。
+3. 或者不下载文件，直接从 Fushi 的 Flatpak 仓库装：`flatpak install --user https://hajisensai.github.io/Fushi/app.fushi.reader.flatpakref`（调试版用 `app.fushi.reader.debug.flatpakref`）。
 
-- 发布流程不出 Linux 包，每个版本你都要自己从源码编；
-- Fushi 能在 Linux 上检查新版本，但不能自动安装（也没有 Linux 安装包可装），更新就是拉新代码重新编译；
-- 官方发布前不会在 Linux 桌面上逐版测试，只在 Linux 上出现的问题欢迎反馈或提交修复。
+装好后在应用菜单里打开 Fushi。更新：应用内「检查更新」会经 Flatpak 门户拉新版本并重启，也可以直接 `flatpak update`。更新通道跟着你装的分支走（正式版 `stable` / 调试版 `debug`），要换通道就重装另一个分支。
 
-功能上和 Windows / macOS 桌面版基本一致：读 EPUB 轻小说、看漫画、看本地番剧、查词制卡（连 Anki 桌面版 + AnkiConnect）、Mihon 扩展、互联、云备份都在。**Galgame 文本 / 语音捕获只在 Windows**，Linux 上的「游戏」页是串流接收端，可以从已配对的 Windows 电脑启动游戏并串流过来。
+Flatpak 包里已经带了 **WPE WebKit**（阅读器、查词弹窗、小说源用的 WebView）和 **mpv**（视频播放），不需要另装这些发行版包。
 
-## 阅读器和查词弹窗依赖什么？（WPE WebKit）
+功能上和 Windows / macOS 桌面版基本一致：读 EPUB 轻小说、看漫画、看本地番剧、查词制卡（连 Anki 桌面版 + AnkiConnect）、Mihon 扩展、互联、云备份都在。**Galgame 文本 / 语音捕获只在 Windows**，Linux 上的「游戏」页是串流接收端，可以从已配对的 Windows 电脑启动游戏并串流过来。Linux 版官方发布前不会在每个发行版上逐版测试，只在 Linux 上出现的问题欢迎反馈或提交修复。
+
+## 自己从源码构建：阅读器和查词弹窗依赖什么？（WPE WebKit）
+
+以下几节只针对**自己从源码构建**的版本；用 Flatpak 包的话这些依赖都已随包。
 
 Fushi 的 EPUB 阅读器、查词弹窗、LNReader 小说源这些界面跑在 WebView 里。在 Linux 上，WebView 用的是 **WPE WebKit**，而且是**可选**的运行时依赖：
 
@@ -31,9 +35,9 @@ Fushi 的 EPUB 阅读器、查词弹窗、LNReader 小说源这些界面跑在 W
 
 构建时也一样：只有构建机装了 WPE 开发包，才会编出 WebView 的实现库；没装也能编出一个能启动、但没有 WebView 的版本。
 
-## 其他运行时依赖
+## 其他运行时依赖（源码构建）
 
-装 Fushi 的机器需要这些发行版包：
+运行自己编的版本的机器需要这些发行版包：
 
 - **GTK 3**、**libmpv2**（视频播放）、**libkeybinder-3.0**（全局快捷键）；
 - **ffmpeg / ffprobe** 在 PATH 里（Linux 版不随包带精简 ffmpeg，用系统的）；
@@ -46,7 +50,7 @@ Fushi 的 EPUB 阅读器、查词弹窗、LNReader 小说源这些界面跑在 W
 
 完整步骤在 [GitHub 仓库的 Building 一节](https://github.com/hajisensai/Fushi#building)，Linux 的细节（依赖清单、打包注意事项、在 Docker 里验证的方法）在仓库的 `docs/agent/build.md`「Linux 桌面（源码构建）」。大致是：
 
-1. 装 **Flutter 3.47.6**（仓库锁定这个版本，3.44 及更早版本编不过）。
+1. 装 **Flutter 3.50.0**（仓库锁定这个版本，3.44 及更早版本编不过）。
 2. 装构建依赖。以 Debian trixie 为例：`clang cmake ninja-build make pkg-config g++`（g++ 需要 14 以上）、`libgtk-3-dev liblzma-dev libmpv-dev libsecret-1-dev libkeybinder-3.0-dev`；要 WebView 再加 `libwpewebkit-2.0-dev libwpebackend-fdo-1.0-dev libwpe-1.0-dev libepoxy-dev libwayland-dev`。
 3. 在仓库根目录跑 `bash tool/bootstrap.sh`（一次完成依赖获取和补丁），再进 `fushi/` 执行 `flutter build linux --release`。
 4. 产物在 `build/linux/x64/release/bundle/`，整个 bundle 目录一起拷走运行，不要只拷可执行文件。

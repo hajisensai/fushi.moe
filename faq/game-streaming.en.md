@@ -26,7 +26,7 @@ What's streamed is **that one game window**, not the whole desktop: the stream c
 The Games module comes in two forms depending on the platform:
 
 - **Windows**: the local game library plus the text-hook workspace; the game page also has a **Stream** section, so a Windows PC can act as a receiver for another Windows PC;
-- **Android, iOS / iPadOS, macOS** (and a Linux build compiled from source): the Games module is the streaming client, subtitled "Launch games on your PC and stream them here".
+- **Android, iOS / iPadOS, macOS** (and the Linux build): the Games module is the streaming client, subtitled "Launch games on your PC and stream them here".
 
 So the host is always a Windows PC, while the receiver can be a phone, a tablet or a Mac. The iOS build lacks a few online features for App Store compliance (see [What's missing from the iOS version?](/faq/ios-limits.en)), but the game streaming client is kept.
 
