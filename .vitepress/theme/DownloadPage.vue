@@ -302,7 +302,6 @@ function githubUrlFor(slot) {
   return pickFor(slot)?.info.githubUrl || ''
 }
 
-/** 调试版缺包、退回正式版时，在下载链接下注明给的是哪一版。 */
 /**
  * 清单已经拿到、这个通道（连同调试版退回的正式版）里却没有该平台的包：不给一个落到 Releases 页的「下载」，
  * 直接说没有（比如 Linux Flatpak 在正式版发布前只出在调试版）。清单没拿到时仍走静态表的 Releases 兜底。
@@ -312,6 +311,7 @@ function slotMissing(slot) {
   return release.value !== null && !pickFor(slot)
 }
 
+/** 调试版缺包、退回正式版时，在下载链接下注明给的是哪一版。 */
 function fallbackVersionFor(slot) {
   const picked = pickFor(slot)
   return picked && picked.fallback ? (picked.rel.version || picked.rel.tag) : ''

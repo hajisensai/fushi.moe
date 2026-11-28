@@ -8,7 +8,7 @@ date: 2026-10-18
 
 分两种情况回答：
 
-- **Linux 桌面 app**：有官方安装包——**Flatpak（x86_64）**，在[下载页](/zh-cn/download)的 Linux 一行下载。正式版从 3.4.0 起提供，调试版每次构建都出。愿意的话也可以自己从源码构建（见下文）。
+- **Linux 桌面 app**：有官方安装包——**Flatpak（x86_64）**，在[下载页](/zh-cn/download)的 Linux 一行下载。正式版从 3.4.1 起提供，调试版每次构建都出。愿意的话也可以自己从源码构建（见下文）。
 - **Linux 服务器 / NAS**：有官方包。无头服务端 **fushi_server** 提供 Linux x64 版，装在家用服务器、NAS 或 VPS 上，给手机和电脑上的 Fushi 当媒体库主机，见[Fushi 服务端（fushi_server）是什么？](/faq/server)。
 
 ## 怎么安装 Flatpak 版？

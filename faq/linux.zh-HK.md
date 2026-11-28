@@ -9,7 +9,7 @@ lang: zh-HK
 
 分兩種情況回答：
 
-- **Linux 桌面 app**：有官方安裝包——**Flatpak（x86_64）**，在[下載頁](/zh-hk/download)的 Linux 一行下載。正式版從 3.4.0 起提供，除錯版每次構建都出。願意的話也可以自己從原始碼構建（見下文）。
+- **Linux 桌面 app**：有官方安裝包——**Flatpak（x86_64）**，在[下載頁](/zh-hk/download)的 Linux 一行下載。正式版從 3.4.1 起提供，除錯版每次構建都出。願意的話也可以自己從原始碼構建（見下文）。
 - **Linux 伺服器 / NAS**：有官方包。無頭服務端 **fushi_server** 提供 Linux x64 版，裝在家用伺服器、NAS 或 VPS 上，給手機和電腦上的 Fushi 當媒體庫主機，見[Fushi 服務端（fushi_server）是什麼？](/faq/server.zh-HK)。
 
 ## 怎麼安裝 Flatpak 版？

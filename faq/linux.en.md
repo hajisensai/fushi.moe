@@ -9,7 +9,7 @@ lang: en
 
 There are two answers, depending on what you mean:
 
-- **The Linux desktop app**: there is an official package — a **Flatpak (x86_64)**, on the Linux row of the [download page](/download). Formal releases include it from 3.4.0, and every debug build ships one. You can still build it from source yourself if you prefer (see below).
+- **The Linux desktop app**: there is an official package — a **Flatpak (x86_64)**, on the Linux row of the [download page](/download). Formal releases include it from 3.4.1, and every debug build ships one. You can still build it from source yourself if you prefer (see below).
 - **Linux servers / NAS**: there is an official package. The headless server **fushi_server** ships a Linux x64 build that you install on a home server, NAS or VPS as the media library host for Fushi on your phones and computers; see [What is the Fushi server (fushi_server)?](/faq/server.en)
 
 ## How do I install the Flatpak?
