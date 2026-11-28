@@ -50,6 +50,7 @@ const FAKE_RELEASE = {
     windows: { url: '/releases/latest/windows', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-windows-setup.exe', name: 'fushi-9.9.9-windows-setup.exe', size: 246415360 },
     'windows-portable': { url: '/releases/latest/windows-portable', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-windows-x64.zip', name: 'fushi-9.9.9-windows-x64.zip', size: 402653184 },
     macos: { url: '/releases/latest/macos', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-macos.zip', name: 'fushi-9.9.9-macos.zip', size: 298844160 },
+    linux: { url: '/releases/latest/linux', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-linux-x86_64.flatpak', name: 'fushi-9.9.9-linux-x86_64.flatpak', size: 314572800 },
     ios: { url: '/releases/latest/ios', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.9/fushi-9.9.9-ios.ipa', name: 'fushi-9.9.9-ios.ipa', size: 66060288 },
   },
 };
@@ -76,6 +77,7 @@ const FAKE_DEBUG_RELEASE = {
     windows: { url: '/releases/debug/windows', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-windows-setup.exe', name: 'fushi-9.9.10-debug.123-windows-setup.exe', size: 0 },
     'windows-portable': { url: '/releases/debug/windows-portable', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-windows-x64.zip', name: 'fushi-9.9.10-debug.123-windows-x64.zip', size: 0 },
     macos: { url: '/releases/debug/macos', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-macos.zip', name: 'fushi-9.9.10-debug.123-macos.zip', size: 0 },
+    linux: { url: '/releases/debug/linux', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-linux-x86_64.flatpak', name: 'fushi-9.9.10-debug.123-linux-x86_64.flatpak', size: 0 },
     ios: { url: '/releases/debug/ios', githubUrl: 'https://github.com/hajisensai/Fushi/releases/download/v9.9.10-debug.123%2Babc1234/fushi-9.9.10-debug.123-ios.ipa', name: 'fushi-9.9.10-debug.123-ios.ipa', size: 0 },
   },
 };
@@ -339,6 +341,7 @@ async function main() {
   check('A 显示了版本号', (a.status ?? '').includes('v9.9.9'), a.status);
   check('A 状态行显示累计下载数（/api/downloads 的 total，按语言千分位）', /^123[,.\u00a0\u202f ]?456$/.test(a.downloads ?? ''), a.downloads);
   check('A iOS 行主按钮是 TestFlight 公开邀请（新标签页打开），ipa 只作次要直链', !!a.iosPrimary && a.iosPrimary.testflight && /^https:\/\/testflight\.apple\.com\/join\/\w+$/.test(a.iosPrimary.href) && a.iosPrimary.target === '_blank', JSON.stringify(a.iosPrimary));
+  check('A 有 Linux 行，直链是 Flatpak 包', a.rows.some((r) => r.startsWith('Linux')) && a.directLinks.some((h) => h.endsWith('-linux-x86_64.flatpak')), JSON.stringify(a.rows));
   check('A 每行都有 GitHub 直链（给 IDM / aria2 自己多线程）', a.directLinks.length === a.rows.length && a.directLinks.every((h) => /github\.com\/hajisensai\/Fushi\/releases\/download\//.test(h)), JSON.stringify(a.directLinks));
 
   check('A 推荐包有网页端下载按钮', (a.pack.btn ?? '').length > 0, a.pack.btn);

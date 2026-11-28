@@ -69,4 +69,4 @@ Cards use the built-in Lapis template by default. For which words are worth mini
 - **The whole book is images and nothing is tappable**: it's a scanned book (each page is a picture) with no text inside. Long-press the book in Books and choose "Convert to manga"; once manga OCR has recognised it, the text becomes tappable — see [How do I read manga online and OCR the text for mining?](/faq/manga-online.en).
 - **Unhappy with the font, size, or vertical / horizontal layout**: it's all in **Reader settings** — see [Reader typography settings](/faq/reader-typography.en).
 
-Fushi is free and open source; the reader works on Windows, macOS (Apple Silicon), Android and iOS, and Linux can be built from source. Pick your platform on the [download page](/download).
+Fushi is free and open source; the reader works on Windows, macOS (Apple Silicon), Android, iOS and Linux. Pick your platform on the [download page](/download).

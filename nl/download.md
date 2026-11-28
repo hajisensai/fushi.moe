@@ -1,6 +1,6 @@
 ---
 title: "Fushi downloaden"
-description: "Kies een platform, installeer, en laat de introductie in de app de rest doen. Vier platforms, één ervaring, allemaal gratis en open source."
+description: "Kies een platform, installeer, en laat de introductie in de app de rest doen. Vijf platforms, één ervaring, allemaal gratis en open source."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Fushi downloaden"
   - - meta
     - property: "og:description"
-      content: "Kies een platform, installeer, en laat de introductie in de app de rest doen. Vier platforms, één ervaring, allemaal gratis en open source."
+      content: "Kies een platform, installeer, en laat de introductie in de app de rest doen. Vijf platforms, één ervaring, allemaal gratis en open source."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/nl/download"

@@ -12,7 +12,7 @@ Want to practise reading with Japanese web novels without copying web pages by h
 ## First, check your platform
 
 - **Windows, macOS, Android**: available.
-- **Linux** (built from source): available; plugins run on the system's WPE WebKit. If that component is missing, the novel source page tells you what's missing and what to install.
+- **Linux**: available; plugins run on WPE WebKit (bundled in the Flatpak; a build you compile from source uses the system's WPE, and if that component is missing the novel source page tells you what's missing and what to install).
 - **iOS**: **not available**. Under App Store review rules the iOS version ships with no online sources at all (no manga, video or novel sources); the bookshelf, reading local books, lookups and mining are unaffected. To read web novels on iOS, download them as EPUB on a computer and import them, or read them from the computer through [Fushi interconnect](/faq/interconnect.en).
 
 ## Step 1: add a plugin repository (Fushi doesn't include any)

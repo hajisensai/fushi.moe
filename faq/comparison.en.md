@@ -9,7 +9,7 @@ lang: en
 
 If you learn a language through immersion (see [What is immersion learning?](/immersion)), your toolbox probably already holds a few things: Yomitan in the browser, Language Reactor or asbplayer for Netflix, and Anki for your cards. Fushi isn't asking you to replace all of them; it fills in what they don't cover. This page goes through each tool, what the difference is, and how to combine them.
 
-First, what Fushi is: **a standalone app you install** (Windows, macOS, Android, iOS; Linux can be built yourself — see [Which platforms are supported?](/faq/platforms.en)), not a browser extension. It puts a local video player, an EPUB reader, a manga reader, audiobooks, a galgame text hook and dictionary lookup in one program, and turns a looked-up word into an Anki card with one tap. It is open source under GPLv3 and completely free (see [Is Fushi free?](/faq/free.en)).
+First, what Fushi is: **a standalone app you install** (Windows, macOS, Android, iOS and Linux — see [Which platforms are supported?](/faq/platforms.en)), not a browser extension. It puts a local video player, an EPUB reader, a manga reader, audiobooks, a galgame text hook and dictionary lookup in one program, and turns a looked-up word into an Anki card with one tap. It is open source under GPLv3 and completely free (see [Is Fushi free?](/faq/free.en)).
 
 What follows about the other tools is based on their public materials. Features and prices change, so check each tool's own site.
 

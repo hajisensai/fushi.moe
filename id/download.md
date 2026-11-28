@@ -1,6 +1,6 @@
 ---
 title: "Unduh Fushi"
-description: "Pilih satu platform, pasang, sisanya serahkan pada panduan pemula di dalam aplikasi. Empat platform, satu pengalaman yang sama, semuanya gratis dan open source."
+description: "Pilih satu platform, pasang, sisanya serahkan pada panduan pemula di dalam aplikasi. Lima platform, satu pengalaman yang sama, semuanya gratis dan open source."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Unduh Fushi"
   - - meta
     - property: "og:description"
-      content: "Pilih satu platform, pasang, sisanya serahkan pada panduan pemula di dalam aplikasi. Empat platform, satu pengalaman yang sama, semuanya gratis dan open source."
+      content: "Pilih satu platform, pasang, sisanya serahkan pada panduan pemula di dalam aplikasi. Lima platform, satu pengalaman yang sama, semuanya gratis dan open source."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/id/download"

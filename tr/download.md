@@ -1,6 +1,6 @@
 ---
 title: "Fushi'yi indir"
-description: "Bir platform seçip kurun, gerisini uygulama içi başlangıç rehberine bırakın. Dört platform, tek deneyim, tamamı ücretsiz ve açık kaynak."
+description: "Bir platform seçip kurun, gerisini uygulama içi başlangıç rehberine bırakın. Beş platform, tek deneyim, tamamı ücretsiz ve açık kaynak."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Fushi'yi indir"
   - - meta
     - property: "og:description"
-      content: "Bir platform seçip kurun, gerisini uygulama içi başlangıç rehberine bırakın. Dört platform, tek deneyim, tamamı ücretsiz ve açık kaynak."
+      content: "Bir platform seçip kurun, gerisini uygulama içi başlangıç rehberine bırakın. Beş platform, tek deneyim, tamamı ücretsiz ve açık kaynak."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/tr/download"

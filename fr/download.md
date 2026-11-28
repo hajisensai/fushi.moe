@@ -1,6 +1,6 @@
 ---
 title: "Télécharger Fushi"
-description: "Choisissez une plateforme, installez, et laissez l'assistant de démarrage intégré s'occuper du reste. Quatre plateformes, une seule expérience, le tout libre et open source."
+description: "Choisissez une plateforme, installez, et laissez l'assistant de démarrage intégré s'occuper du reste. Cinq plateformes, une seule expérience, le tout libre et open source."
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "Télécharger Fushi"
   - - meta
     - property: "og:description"
-      content: "Choisissez une plateforme, installez, et laissez l'assistant de démarrage intégré s'occuper du reste. Quatre plateformes, une seule expérience, le tout libre et open source."
+      content: "Choisissez une plateforme, installez, et laissez l'assistant de démarrage intégré s'occuper du reste. Cinq plateformes, une seule expérience, le tout libre et open source."
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/fr/download"

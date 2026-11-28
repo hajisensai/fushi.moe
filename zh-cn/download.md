@@ -1,6 +1,6 @@
 ---
 title: "下载 Fushi"
-description: "选一个平台装上，剩下的交给应用内的新手引导。四个平台同一套体验，全部免费开源。"
+description: "选一个平台装上，剩下的交给应用内的新手引导。五个平台同一套体验，全部免费开源。"
 head:
   - - meta
     - name: "fushi-title"
@@ -22,7 +22,7 @@ head:
       content: "下载 Fushi"
   - - meta
     - property: "og:description"
-      content: "选一个平台装上，剩下的交给应用内的新手引导。四个平台同一套体验，全部免费开源。"
+      content: "选一个平台装上，剩下的交给应用内的新手引导。五个平台同一套体验，全部免费开源。"
   - - meta
     - property: "og:url"
       content: "https://fushi.moe/zh-cn/download"

@@ -49,7 +49,7 @@
 | naghim/Awesome-Japanese-Study-Materials | https://github.com/naghim/Awesome-Japanese-Study-Materials | awesome 列表 | 45 star，2026-09-30 有合并，Apps 分区可放。没有 CONTRIBUTING | 低 | 待提交 |
 | F-Droid | https://f-droid.org/docs/Inclusion_Policy/ | Android 商店 | 必须完全从源码构建，禁止 Google Play Services / Firebase 等专有库，或者要提供一个不含它们的 flavor。**Fushi 目前不满足** | 低（现状不可行） | 不提交 |
 | IzzyOnDroid | https://izzyondroid.org/docs/general/AppInclusionPolicy/ | Android 仓库 | 每个 app 大约 30 MB 的空间上限（单个 APK 也是这个上限）。不能有专有组件（只容忍核心功能必需的），不能有追踪器。**Fushi 单个 ABI 的 APK 有 164–180 MB，不满足** | 低（现状不可行） | 不提交 |
-| Flathub | https://flathub.org/ | Linux 商店 | 仅面向 Linux。Fushi 的 Linux App 是社区维护平台，CI 不构建 Linux App，官方宣传平台里也没有 Linux | 不适用 | 不提交 |
+| Flathub | https://flathub.org/ | Linux 商店 | 仅面向 Linux。CI 已出 Linux Flatpak（自建仓库 hajisensai.github.io/Fushi，下载页有 Linux 行）；上 Flathub 要另走其审核与构建规范，尚未决定 | 待定 | 暂不提交 |
 | djt.js.org | https://djt.js.org/ | 沉浸资源站 | 当前返回 JS.ORG 占位页（标题 "302 djt - JS.ORG"），没有收录入口。对应的 djtguide/djtguide.github.io 最近一次提交是 2024-11，没有 PR 历史 | 不适用 | 不提交 |
 
 已排除的停更列表：nakopylov/awesome-immersion（最后推送 2023-12）、EngJpDiscordExchange/Awesome-Japanese（最后推送 2024-04，最近一次合并 2022）、HUYDGD/awesome-japanese（2023-04 起停更）、nachologic/awesome-language-learning（最后推送 2024-06）。这些仓库发 PR 大概率没人看。
@@ -222,9 +222,9 @@ A large real-world Flutter app (GPLv3) shipping on four platforms: video subtitl
 - https://github.com/ImranR98/apps.obtainium.imranr.dev （最近一次合并在 2026-10-10）。APP_CRITERIA 要求：只收官方来源；GitHub 仓库至少 35 star（Fushi 有 419）；项目至少 4 个月（Fushi 创建于 2026-04-14）；12 个月内有更新。**都满足**。
 - 做法：开 app request issue，附上 GitHub Releases 链接；或者直接 PR 一份配置（只收正式版，不勾 "Include prereleases"，arm64-v8a APK 优先）。仓库还提供 "Get it on Obtainium" 徽章（BADGING.md），可以放到 fushi.moe 的下载页。
 
-### 3.6 Flathub（不适用）
+### 3.6 Flathub（待定）
 
-- Flathub 只面向 Linux。Fushi 对外宣传的平台是 Windows / macOS（Apple Silicon）/ Android / iOS，Linux App 是社区维护平台，CI 也不构建它。只有在官方决定支持 Linux 并且有稳定构建之后才值得考虑。
+- Flathub 只面向 Linux。Fushi 的 CI 现在会构建 Linux Flatpak（x86_64），发布到自建 Flatpak 仓库（hajisensai.github.io/Fushi）并挂在下载页；要不要再上 Flathub（需按 Flathub 的规范从源码构建、过审核）尚未决定。
 
 ---
 

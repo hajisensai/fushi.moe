@@ -40,8 +40,8 @@ const props = defineProps({
 const { t } = useSiteI18n({ lang: props.lang, dict: props.dict })
 const ZH = {
   "dl.title": "下载 Fushi",
-  "dl.lead": "选一个平台装上，剩下的交给应用内的新手引导。四个平台同一套体验，全部免费开源。",
-  "dl.linux": "Linux 暂无预编译包，请<a href=\"https://github.com/hajisensai/Fushi#building\">从源码构建</a>。",
+  "dl.lead": "选一个平台装上，剩下的交给应用内的新手引导。五个平台同一套体验，全部免费开源。",
+  "dl.linux": "Linux 版是 Flatpak 包：下载后运行 <code>flatpak install --user fushi-….flatpak</code> 安装（GNOME 运行时会从 Flathub 自动拉取），之后可在应用内更新。也可以直接从 Fushi 的 Flatpak 仓库安装：<code>flatpak install --user https://hajisensai.github.io/Fushi/app.fushi.reader.flatpakref</code>。想自己编译见<a href=\"https://github.com/hajisensai/Fushi#building\">从源码构建</a>。",
   "dl.history": "历史版本见<a href=\"https://github.com/hajisensai/Fushi/releases\">全部 Releases</a>。",
   "dl.after_eyebrow": "装好之后",
   "dl.guide_title": "跟着新手引导走就行",
@@ -103,6 +103,7 @@ const PLATFORMS = [
   { slot: 'android-universal', nameZh: 'Android (arm64)',   noteKey: 'dl.p_android_universal', noteZh: '仅 arm64，绝大多数手机，需 Android 7.0+', channels: ['debug'] },
   { slot: 'windows',           nameZh: 'Windows',           noteKey: 'dl.p_windows',           noteZh: '含 Galgame 语音挖掘、桌面划词',        channels: ['stable', 'debug'] },
   { slot: 'macos',             nameZh: 'macOS',             noteKey: 'dl.p_macos',             noteZh: '仅支持 Apple Silicon（M 系列芯片）',  channels: ['stable', 'debug'] },
+  { slot: 'linux',             nameZh: 'Linux (x86_64)',    noteKey: 'dl.p_linux',             noteZh: 'Flatpak 包（x86_64），阅读器 WebKit 与播放器已随包', channels: ['stable', 'debug'] },
   { slot: 'ios',               nameZh: 'iOS',               noteKey: 'dl.p_ios',               noteZh: '通过 TestFlight 安装',                 channels: ['stable', 'debug'], testflight: true },
 ]
 
@@ -117,6 +118,8 @@ const SLOT_PATTERNS = {
   // 正式版历来叫 -macos.zip；调试版从 2.10 起改出 Apple Silicon 专用的 -macos-arm64.zip。
   macos:               /^fushi-.*-macos(?:-arm64)?\.zip$/,
   ios:                 /^fushi-.*-ios\.ipa$/,
+  // Linux 只出 Flatpak（主仓 release-desktop.yml 的 linux job；清单里只登记 .flatpak，.tar.gz 不进清单）。
+  linux:               /^fushi-.*-linux-x86_64\.flatpak$/,
 }
 
 const MIRRORS = [
@@ -297,6 +300,15 @@ function downloadNameFor(slot) {
 /** GitHub 原始直链：给 IDM / aria2 这类自带多线程的下载器。 */
 function githubUrlFor(slot) {
   return pickFor(slot)?.info.githubUrl || ''
+}
+
+/**
+ * 清单已经拿到、这个通道（连同调试版退回的正式版）里却没有该平台的包：不给一个落到 Releases 页的「下载」，
+ * 直接说没有（比如 Linux Flatpak 在正式版发布前只出在调试版）。清单没拿到时仍走静态表的 Releases 兜底。
+ * @returns {boolean}
+ */
+function slotMissing(slot) {
+  return release.value !== null && !pickFor(slot)
 }
 
 /** 调试版缺包、退回正式版时，在下载链接下注明给的是哪一版。 */
@@ -679,6 +691,7 @@ onMounted(async () => {
       <td>
         <template v-if="!jobs[p.slot]">
           <a v-if="p.testflight && IOS_TESTFLIGHT_URL" class="dl-testflight" :href="IOS_TESTFLIGHT_URL" rel="noopener" target="_blank">{{ t('dl.testflight', '加入 TestFlight') }}</a>
+          <span v-else-if="slotMissing(p.slot)" class="dl-fallback-note">{{ t('dl.slot_missing', '这个通道暂时还没有该平台的包') }}</span>
           <a v-else :href="hrefFor(p.slot)" :download="downloadNameFor(p.slot)" rel="noopener" @click="onDownloadClick($event, p.slot)">
             {{ t('dl.download', '下载') }}<span v-if="sizeFor(p.slot)"> · {{ sizeFor(p.slot) }}</span>
           </a>
@@ -739,7 +752,7 @@ onMounted(async () => {
 <p>浏览器禁用了 JavaScript，下面是直接的 GitHub 下载入口 / JavaScript is disabled; direct GitHub links:</p>
 <ul>
 <li><a href="https://github.com/hajisensai/Fushi/releases/latest">最新 Release / Latest release</a></li>
-<li>Android → <code>arm64</code> <code>.apk</code>；Windows → <code>.exe</code>；macOS → <code>.zip</code>；iOS → <code>.ipa</code></li>
+<li>Android → <code>arm64</code> <code>.apk</code>；Windows → <code>.exe</code>；macOS → <code>.zip</code>；Linux → <code>.flatpak</code>；iOS → <code>.ipa</code></li>
 </ul>
 </noscript>
 
